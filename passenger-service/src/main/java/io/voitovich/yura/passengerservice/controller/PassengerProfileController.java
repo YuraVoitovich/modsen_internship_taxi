@@ -1,0 +1,47 @@
+package io.voitovich.yura.passengerservice.controller;
+
+
+import io.voitovich.yura.passengerservice.controller.utils.UUIDUtils;
+import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
+import io.voitovich.yura.passengerservice.entity.PassengerProfile;
+import io.voitovich.yura.passengerservice.service.PassengerProfileService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import static io.voitovich.yura.passengerservice.controller.utils.UUIDUtils.getUUIDFromString;
+
+@RestController
+public class PassengerProfileController {
+    private final PassengerProfileService profileService;
+
+    public PassengerProfileController(PassengerProfileService profileService) {
+        this.profileService = profileService;
+    }
+
+    @GetMapping("passenger/profile/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity<PassengerProfileDto> getProfileById(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok(profileService
+                .getProfileById(getUUIDFromString(id)));
+    }
+
+    @PostMapping("passenger/profile")
+    @ResponseStatus(HttpStatus.OK)
+    void updateProfile(@RequestBody PassengerProfileDto passengerProfileDto) {
+        profileService.updateProfile(passengerProfileDto);
+    }
+
+    @PutMapping("passenger/profile")
+    @ResponseStatus(HttpStatus.CREATED)
+    void saveProfile(@RequestBody PassengerProfileDto passengerProfileDto) {
+        profileService.saveProfile(passengerProfileDto);
+    }
+
+    @DeleteMapping("passenger/profile/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    void deleteProfile(@PathVariable(name = "id") String id) {
+        profileService.deleteProfile(getUUIDFromString(id));
+    }
+}
