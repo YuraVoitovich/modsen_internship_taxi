@@ -5,6 +5,7 @@ import io.voitovich.yura.passengerservice.controller.utils.UUIDUtils;
 import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +31,13 @@ public class PassengerProfileController {
 
     @PostMapping("profile")
     @ResponseStatus(HttpStatus.OK)
-    void updateProfile(@RequestBody PassengerProfileDto passengerProfileDto) {
+    void updateProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
         profileService.updateProfile(passengerProfileDto);
     }
 
     @PutMapping("profile")
     @ResponseStatus(HttpStatus.CREATED)
-    void saveProfile(@RequestBody PassengerProfileDto passengerProfileDto) {
+    void saveProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
         profileService.saveProfile(passengerProfileDto);
     }
 
