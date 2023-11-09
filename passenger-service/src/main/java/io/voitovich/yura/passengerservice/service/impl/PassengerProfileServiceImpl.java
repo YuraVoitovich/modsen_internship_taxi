@@ -1,7 +1,6 @@
 package io.voitovich.yura.passengerservice.service.impl;
 
 import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
-import io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
 import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;

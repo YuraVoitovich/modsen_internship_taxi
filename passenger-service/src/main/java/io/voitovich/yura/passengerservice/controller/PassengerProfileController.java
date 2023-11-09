@@ -1,12 +1,9 @@
 package io.voitovich.yura.passengerservice.controller;
 
 
-import io.voitovich.yura.passengerservice.controller.utils.UUIDUtils;
 import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
-import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
