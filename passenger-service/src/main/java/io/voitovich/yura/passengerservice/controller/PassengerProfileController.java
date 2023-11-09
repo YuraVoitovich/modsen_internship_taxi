@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import static io.voitovich.yura.passengerservice.controller.utils.UUIDUtils.getUUIDFromString;
 
 @RestController
+@RequestMapping("api/passenger")
 public class PassengerProfileController {
     private final PassengerProfileService profileService;
 
@@ -20,26 +21,26 @@ public class PassengerProfileController {
         this.profileService = profileService;
     }
 
-    @GetMapping("passenger/profile/{id}")
+    @GetMapping("profile/{id}")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<PassengerProfileDto> getProfileById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok(profileService
                 .getProfileById(getUUIDFromString(id)));
     }
 
-    @PostMapping("passenger/profile")
+    @PostMapping("profile")
     @ResponseStatus(HttpStatus.OK)
     void updateProfile(@RequestBody PassengerProfileDto passengerProfileDto) {
         profileService.updateProfile(passengerProfileDto);
     }
 
-    @PutMapping("passenger/profile")
+    @PutMapping("profile")
     @ResponseStatus(HttpStatus.CREATED)
     void saveProfile(@RequestBody PassengerProfileDto passengerProfileDto) {
         profileService.saveProfile(passengerProfileDto);
     }
 
-    @DeleteMapping("passenger/profile/{id}")
+    @DeleteMapping("profile/{id}")
     @ResponseStatus(HttpStatus.OK)
     void deleteProfile(@PathVariable(name = "id") String id) {
         profileService.deleteProfile(getUUIDFromString(id));
