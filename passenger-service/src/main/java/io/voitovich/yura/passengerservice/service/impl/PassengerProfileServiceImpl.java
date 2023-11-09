@@ -4,6 +4,7 @@ import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
 import io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
+import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +38,20 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     @Override
     public void updateProfile(PassengerProfileDto profileDto) {
         log.info("Updating passenger profile: {}", profileDto);
+        if (repository.existsByPhoneNumber(profileDto.getPhoneNumber())) {
+            throw new NotUniquePhoneException(String
+                    .format("Passenger profile with phone number: {%s} already exists", profileDto.getPhoneNumber()));
+        }
         repository.save(PassengerProfileMapper.INSTANCE.toEntity(profileDto));
     }
 
     @Override
     public void saveProfile(PassengerProfileDto profileDto) {
         log.info("Save passenger profile: {}", profileDto);
+        if (repository.existsByPhoneNumber(profileDto.getPhoneNumber())) {
+            throw new NotUniquePhoneException(String
+                    .format("Passenger profile with phone number: {%s} already exists", profileDto.getPhoneNumber()));
+        }
         repository.save(PassengerProfileMapper.INSTANCE.toEntity(profileDto));
     }
 

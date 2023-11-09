@@ -22,7 +22,7 @@ public class PassengerProfile {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "phone_number", length = 13, nullable = false)
+    @Column(name = "phone_number", length = 13, nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(name = "name")

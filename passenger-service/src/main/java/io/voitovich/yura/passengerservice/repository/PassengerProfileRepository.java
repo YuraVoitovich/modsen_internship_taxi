@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface PassengerProfileRepository extends JpaRepository<PassengerProfile, UUID> {
     Optional<PassengerProfile> getPassengerProfileById(UUID uuid);
 
+    boolean existsByPhoneNumber(String phoneNumber);
 
 }
