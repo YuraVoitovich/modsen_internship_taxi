@@ -23,6 +23,7 @@ public class PassengerProfileDto {
     private UUID id;
 
     @NotBlank(message = "Phone is mandatory")
+    @Pattern(regexp = "^\\+375((17|29|33|44))[0-9]{7}$")
     private String phoneNumber;
 
     @NotBlank(message = "Name is mandatory")
