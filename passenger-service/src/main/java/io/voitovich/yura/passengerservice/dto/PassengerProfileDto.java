@@ -16,16 +16,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PassengerProfileDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "phone_number", length = 13, nullable = false)
     private String phoneNumber;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "surname")
     private String surname;
 }
