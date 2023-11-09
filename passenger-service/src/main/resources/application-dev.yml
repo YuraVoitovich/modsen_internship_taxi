@@ -6,8 +6,8 @@ spring:
     driverClassName: org.h2.Driver
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create
   h2:
     console:
       enabled: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml

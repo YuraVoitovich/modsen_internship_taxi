@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+        <changeSet id="2023-11-09--01-create-profile-table" author="Yura Voitovich">
+            <sqlFile path="sql-files/create-profile-table.sql" relativeToChangelogFile="true"/>
+        </changeSet>
+
+        <changeSet id="2023-11-09--02-create-rating-table" author="Yura Voitovich">
+            <sqlFile path="sql-files/create-rating-table.sql" relativeToChangelogFile="true"/>
+        </changeSet>
+
+        <changeSet id="2023-11-09--03-add-constraint-into-rating-table" author="Yura Voitovich">
+            <sqlFile path="sql-files/add-constraint-into-rating-table.sql" relativeToChangelogFile="true"/>
+        </changeSet>
+
+
+</databaseChangeLog>
