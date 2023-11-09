@@ -37,8 +37,8 @@ public class PassengerProfileController {
 
     @PutMapping("profile")
     @ResponseStatus(HttpStatus.CREATED)
-    void saveProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
-        profileService.saveProfile(passengerProfileDto);
+    ResponseEntity<PassengerProfileDto> saveProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
+        return ResponseEntity.ok(profileService.saveProfile(passengerProfileDto));
     }
 
     @DeleteMapping("profile/{id}")

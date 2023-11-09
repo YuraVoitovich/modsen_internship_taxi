@@ -8,11 +8,12 @@ import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import static io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper.INSTANCE;
 
 @Service
 @Slf4j
@@ -28,7 +29,7 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     @Override
     public PassengerProfileDto getProfileById(UUID uuid) {
         log.info("Getting passenger profile by id: {}", uuid);
-        return PassengerProfileMapper.INSTANCE
+        return INSTANCE
                 .toDto(repository
                         .getPassengerProfileById(uuid)
                         .orElseThrow(() -> new NoSuchRecordException(String
@@ -42,17 +43,18 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
             throw new NotUniquePhoneException(String
                     .format("Passenger profile with phone number: {%s} already exists", profileDto.getPhoneNumber()));
         }
-        repository.save(PassengerProfileMapper.INSTANCE.toEntity(profileDto));
+        repository.save(INSTANCE.toEntity(profileDto));
     }
 
     @Override
-    public void saveProfile(PassengerProfileDto profileDto) {
+    public PassengerProfileDto saveProfile(PassengerProfileDto profileDto) {
         log.info("Save passenger profile: {}", profileDto);
         if (repository.existsByPhoneNumber(profileDto.getPhoneNumber())) {
             throw new NotUniquePhoneException(String
                     .format("Passenger profile with phone number: {%s} already exists", profileDto.getPhoneNumber()));
         }
-        repository.save(PassengerProfileMapper.INSTANCE.toEntity(profileDto));
+        return INSTANCE.toDto(repository
+                .save(INSTANCE.toEntity(profileDto)));
     }
 
     @Override
