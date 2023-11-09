@@ -2,6 +2,7 @@ package io.voitovich.yura.passengerservice.service.impl;
 
 import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
 import io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper;
+import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,6 +49,12 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     @Override
     public void deleteProfile(UUID uuid) {
         log.info("Deleting passenger profile by id: {}", uuid);
-        repository.deleteById(uuid);
+        Optional<PassengerProfile> profile = repository.getPassengerProfileById(uuid);
+        if (profile.isPresent()) {
+            repository.deleteById(uuid);
+        } else {
+            throw new NoSuchRecordException(String.format("Passenger profile with id: {%s} not found", uuid));
+        }
+
     }
 }
