@@ -39,7 +39,7 @@ public class PassengerProfileController {
     }
 
     @DeleteMapping("profile/{id}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteProfile(@PathVariable(name = "id") String id) {
         profileService.deleteProfile(getUUIDFromString(id));
     }

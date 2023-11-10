@@ -1,4 +1,4 @@
-package io.voitovich.yura.passengerservice.exceptionhandler;
+package io.voitovich.yura.passengerservice.exceptionhandler.model;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
