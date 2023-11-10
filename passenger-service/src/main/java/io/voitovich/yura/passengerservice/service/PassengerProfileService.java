@@ -8,7 +8,7 @@ public interface PassengerProfileService {
 
     PassengerProfileDto getProfileById(UUID uuid);
 
-    void updateProfile(PassengerProfileDto profileDto);
+    PassengerProfileDto updateProfile(PassengerProfileDto profileDto);
 
     PassengerProfileDto saveProfile(PassengerProfileDto profileDto);
 

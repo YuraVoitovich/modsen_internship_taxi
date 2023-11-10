@@ -28,8 +28,8 @@ public class PassengerProfileController {
 
     @PostMapping("profile")
     @ResponseStatus(HttpStatus.OK)
-    void updateProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
-        profileService.updateProfile(passengerProfileDto);
+    ResponseEntity<PassengerProfileDto> updateProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
+        return ResponseEntity.ok(profileService.updateProfile(passengerProfileDto));
     }
 
     @PutMapping("profile")

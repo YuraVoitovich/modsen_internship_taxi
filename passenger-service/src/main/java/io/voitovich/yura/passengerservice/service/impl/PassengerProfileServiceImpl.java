@@ -36,13 +36,14 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     }
 
     @Override
-    public void updateProfile(PassengerProfileDto profileDto) {
+    public PassengerProfileDto updateProfile(PassengerProfileDto profileDto) {
         log.info("Updating passenger profile: {}", profileDto);
         if (repository.existsByPhoneNumber(profileDto.getPhoneNumber())) {
             throw new NotUniquePhoneException(String
                     .format("Passenger profile with phone number: {%s} already exists", profileDto.getPhoneNumber()));
         }
-        repository.save(INSTANCE.toEntity(profileDto));
+        return INSTANCE.toDto(repository.save(INSTANCE.toEntity(profileDto)));
+
     }
 
     @Override
