@@ -1,15 +1,15 @@
 package io.voitovich.yura.driverservice.service;
 
-import io.voitovich.yura.driverservice.dto.DriverProfileDto;
-import io.voitovich.yura.driverservice.dto.DriverProfilePageRequest;
-import io.voitovich.yura.driverservice.dto.DriverProfilePageResponse;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
+import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 
 import java.util.UUID;
 
 public interface DriverProfileService {
-    DriverProfileDto getProfileById(UUID uuid);
-    DriverProfileDto saveProfile(DriverProfileDto profileDto);
-    DriverProfileDto updateProfile(DriverProfileDto profileDto);
+    DriverProfileRequest getProfileById(UUID uuid);
+    DriverProfileRequest saveProfile(DriverProfileRequest profileDto);
+    DriverProfileRequest updateProfile(DriverProfileRequest profileDto);
     DriverProfilePageResponse getProfilePage(DriverProfilePageRequest pageRequest);
     void deleteProfileById(UUID uuid);
 }

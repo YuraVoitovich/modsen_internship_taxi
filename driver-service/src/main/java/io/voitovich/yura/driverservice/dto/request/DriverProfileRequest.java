@@ -1,4 +1,4 @@
-package io.voitovich.yura.driverservice.dto;
+package io.voitovich.yura.driverservice.dto.request;
 
 import io.voitovich.yura.driverservice.validation.annotations.SortExclude;
 import jakarta.validation.constraints.Min;
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 
 @Builder
-public record DriverProfileDto(
+public record DriverProfileRequest(
         UUID id,
 
         @SortExclude

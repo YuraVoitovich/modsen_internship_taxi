@@ -1,9 +1,9 @@
 package io.voitovich.yura.driverservice.controller;
 
 import io.voitovich.yura.driverservice.controller.utils.UUIDUtils;
-import io.voitovich.yura.driverservice.dto.DriverProfileDto;
-import io.voitovich.yura.driverservice.dto.DriverProfilePageRequest;
-import io.voitovich.yura.driverservice.dto.DriverProfilePageResponse;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
+import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.service.DriverProfileService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class DriverProfileController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("profile/{id}")
-    private DriverProfileDto getProfileById(@PathVariable(name = "id") String id) {
+    private DriverProfileRequest getProfileById(@PathVariable(name = "id") String id) {
         return profileService.getProfileById(UUIDUtils.getUUIDFromString(id));
     }
 
@@ -32,13 +32,13 @@ public class DriverProfileController {
     }
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("profile")
-    private DriverProfileDto updateProfile(@Valid @RequestBody DriverProfileDto profileDto) {
+    private DriverProfileRequest updateProfile(@Valid @RequestBody DriverProfileRequest profileDto) {
         return profileService.updateProfile(profileDto);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("profile")
-    private DriverProfileDto saveProfile(@Valid  @RequestBody DriverProfileDto profileDto) {
+    private DriverProfileRequest saveProfile(@Valid  @RequestBody DriverProfileRequest profileDto) {
         return profileService.saveProfile(profileDto);
     }
 

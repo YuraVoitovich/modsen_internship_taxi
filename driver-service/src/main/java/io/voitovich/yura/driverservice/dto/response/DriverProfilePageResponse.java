@@ -1,6 +1,7 @@
-package io.voitovich.yura.driverservice.dto;
+package io.voitovich.yura.driverservice.dto.response;
 
 
+import io.voitovich.yura.driverservice.dto.request.DriverProfileRequest;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
 import lombok.NonNull;
@@ -10,7 +11,7 @@ import java.util.List;
 @Builder
 public record DriverProfilePageResponse(
         @NonNull
-        List<DriverProfileDto> profiles,
+        List<DriverProfileRequest> profiles,
         @Min(1)
         int pageNumber,
         @Min(0)

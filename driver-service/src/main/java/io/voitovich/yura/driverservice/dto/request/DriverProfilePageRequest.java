@@ -1,4 +1,4 @@
-package io.voitovich.yura.driverservice.dto;
+package io.voitovich.yura.driverservice.dto.request;
 
 
 import io.voitovich.yura.driverservice.validation.annotations.OrderBy;
@@ -9,7 +9,7 @@ public record DriverProfilePageRequest(
         int pageNumber,
         @Min(1)
         int pageSize,
-        @OrderBy(DriverProfileDto.class)
+        @OrderBy(DriverProfileRequest.class)
         String orderBy
 ) {
 }
