@@ -20,8 +20,8 @@ public class Rating {
     @Column(name="rate_value")
     private int rateValue;
 
-    @Column(name="driver_id")
-    private UUID driverId;
+    @Column(name="passenger_id")
+    private UUID passengerId;
 
     @ManyToOne
     @JoinColumn(name = "driver_profile_id", nullable = false)
