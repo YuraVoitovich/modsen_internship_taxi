@@ -2,6 +2,8 @@ package io.voitovich.yura.driverservice.controller;
 
 import io.voitovich.yura.driverservice.controller.utils.UUIDUtils;
 import io.voitovich.yura.driverservice.dto.DriverProfileDto;
+import io.voitovich.yura.driverservice.dto.DriverProfilePageRequest;
+import io.voitovich.yura.driverservice.dto.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.service.DriverProfileService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,11 @@ public class DriverProfileController {
         return profileService.getProfileById(UUIDUtils.getUUIDFromString(id));
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("profile")
+    private DriverProfilePageResponse getProfilePage(@Valid @RequestBody DriverProfilePageRequest request) {
+        return profileService.getProfilePage(request);
+    }
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("profile")
     private DriverProfileDto updateProfile(@Valid @RequestBody DriverProfileDto profileDto) {
