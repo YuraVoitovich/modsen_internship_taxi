@@ -4,6 +4,7 @@ package io.voitovich.yura.driverservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +27,9 @@ public class DriverProfile {
 
     @Column(name = "surname", nullable = false)
     private String surname;
+
+    @Column(name = "rating", nullable = false)
+    private BigDecimal rating;
 
     @Column(name = "experience")
     private int experience;
