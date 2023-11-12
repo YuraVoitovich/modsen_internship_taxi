@@ -53,11 +53,11 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.CONFLICT.value())
+                .status(HttpStatus.CONFLICT)
                 .message(exception.getMessage())
                 .build();
-        return new ResponseEntity<>(info, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(info, HttpStatus.CONFLICT);
     }
 
     @Override
