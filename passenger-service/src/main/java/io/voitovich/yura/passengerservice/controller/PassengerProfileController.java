@@ -24,27 +24,26 @@ public class PassengerProfileController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    private ResponseEntity<PassengerProfilePageResponse> getProfilePage(@Valid @RequestBody PassengerProfilePageRequest request) {
-        return ResponseEntity.ok(profileService.getProfilePage(request));
+    PassengerProfilePageResponse getProfilePage(@Valid @RequestBody PassengerProfilePageRequest request) {
+        return profileService.getProfilePage(request);
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PassengerProfileResponse> getProfileById(@PathVariable(name = "id") String id) {
-        return ResponseEntity.ok(profileService
-                .getProfileById(getUUIDFromString(id)));
+    PassengerProfileResponse getProfileById(@PathVariable(name = "id") String id) {
+        return profileService.getProfileById(getUUIDFromString(id));
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PassengerProfileResponse> updateProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
-        return ResponseEntity.ok(profileService.updateProfile(passengerProfileRequest));
+    PassengerProfileResponse updateProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
+        return profileService.updateProfile(passengerProfileRequest);
     }
 
     @PutMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    ResponseEntity<PassengerProfileResponse> saveProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
-        return ResponseEntity.ok(profileService.saveProfile(passengerProfileRequest));
+    PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
+        return profileService.saveProfile(passengerProfileRequest);
     }
 
     @DeleteMapping()
