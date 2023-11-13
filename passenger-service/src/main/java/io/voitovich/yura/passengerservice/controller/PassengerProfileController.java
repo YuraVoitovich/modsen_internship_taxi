@@ -137,7 +137,7 @@ public class PassengerProfileController {
                                     schema = @Schema(implementation = ExceptionInfo.class))
                     })
     })
-    @DeleteMapping()
+    @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteProfile(@PathVariable(name = "id") String id) {
         profileService.deleteProfile(getUUIDFromString(id));
