@@ -14,6 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class DriverProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,6 +35,7 @@ public class DriverProfile {
     @Column(name = "experience")
     private int experience;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "driverProfile")
     private List<Rating> ratings;
 

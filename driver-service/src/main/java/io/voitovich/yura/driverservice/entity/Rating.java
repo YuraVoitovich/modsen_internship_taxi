@@ -12,6 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -23,6 +24,7 @@ public class Rating {
     @Column(name="passenger_id")
     private UUID passengerId;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "driver_profile_id", nullable = false)
     private DriverProfile driverProfile;
