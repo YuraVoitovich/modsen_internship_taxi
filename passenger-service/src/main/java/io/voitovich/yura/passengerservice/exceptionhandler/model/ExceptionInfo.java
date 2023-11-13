@@ -2,7 +2,6 @@ package io.voitovich.yura.passengerservice.exceptionhandler.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 

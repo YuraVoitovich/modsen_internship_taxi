@@ -17,7 +17,6 @@ import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static io.voitovich.yura.passengerservice.controller.utils.UUIDUtils.getUUIDFromString;
