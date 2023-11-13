@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import static io.voitovich.yura.passengerservice.controller.utils.UUIDUtils.getUUIDFromString;
 
 @RestController
-@RequestMapping("api/passenger")
+@RequestMapping("api/passenger/profile")
 public class PassengerProfileController {
     private final PassengerProfileService profileService;
 
@@ -20,26 +20,26 @@ public class PassengerProfileController {
         this.profileService = profileService;
     }
 
-    @GetMapping("profile/{id}")
+    @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<PassengerProfileResponse> getProfileById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok(profileService
                 .getProfileById(getUUIDFromString(id)));
     }
 
-    @PostMapping("profile")
+    @PostMapping()
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<PassengerProfileResponse> updateProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
         return ResponseEntity.ok(profileService.updateProfile(passengerProfileRequest));
     }
 
-    @PutMapping("profile")
+    @PutMapping()
     @ResponseStatus(HttpStatus.CREATED)
     ResponseEntity<PassengerProfileResponse> saveProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
         return ResponseEntity.ok(profileService.saveProfile(passengerProfileRequest));
     }
 
-    @DeleteMapping("profile/{id}")
+    @DeleteMapping()
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteProfile(@PathVariable(name = "id") String id) {
         profileService.deleteProfile(getUUIDFromString(id));
