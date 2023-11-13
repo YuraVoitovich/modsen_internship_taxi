@@ -1,6 +1,8 @@
 package io.voitovich.yura.passengerservice.service.impl;
 
+import io.voitovich.yura.passengerservice.dto.request.PassengerProfilePageRequest;
 import io.voitovich.yura.passengerservice.dto.request.PassengerProfileRequest;
+import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
@@ -8,6 +10,9 @@ import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -63,6 +68,21 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
         profile.setRating(START_RATING);
         profile = repository.save(profile);
         return INSTANCE.toProfileResponse(profile);
+    }
+
+    @Override
+    public PassengerProfilePageResponse getProfilePage(PassengerProfilePageRequest pageRequest) {
+        Page<PassengerProfile> page = repository.findAll(PageRequest
+                .of(pageRequest.pageNumber() - 1,
+                        pageRequest.pageSize(),
+                        Sort.by(pageRequest.orderBy())));
+        return PassengerProfilePageResponse
+                .builder()
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .pageNumber(pageRequest.pageNumber())
+                .profiles(page.getContent().stream().map(INSTANCE::toProfileResponse).toList())
+                .build();
     }
 
     @Override
