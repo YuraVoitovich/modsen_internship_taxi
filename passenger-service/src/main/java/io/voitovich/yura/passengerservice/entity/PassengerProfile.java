@@ -3,6 +3,7 @@ package io.voitovich.yura.passengerservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,10 @@ public class PassengerProfile {
 
     @Column(name = "surname")
     private String surname;
+
+    @Column(name = "rating")
+    private BigDecimal rating;
+
 
     @ToString.Exclude
     @OneToMany(mappedBy = "passengerProfile")
