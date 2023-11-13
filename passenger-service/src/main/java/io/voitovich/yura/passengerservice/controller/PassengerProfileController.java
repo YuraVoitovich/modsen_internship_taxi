@@ -15,6 +15,7 @@ import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,9 @@ import static io.voitovich.yura.passengerservice.controller.utils.UUIDUtils.getU
 @RestController
 @Tag(name = "Passenger profile controller", description = "Passenger profile API")
 @RequestMapping("api/passenger/profile")
+@RequiredArgsConstructor
 public class PassengerProfileController {
     private final PassengerProfileService profileService;
-
-    public PassengerProfileController(PassengerProfileService profileService) {
-        this.profileService = profileService;
-    }
 
     @Operation(description = "Get passenger profile page")
     @ApiResponses(value = {
