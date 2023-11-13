@@ -30,7 +30,7 @@ public class PassengerProfile {
     @Column(name = "surname", nullable = false)
     private String surname;
 
-    @Column(name = "rating", nullable = false)
+    @Column(name = "rating")
     private BigDecimal rating;
 
 
