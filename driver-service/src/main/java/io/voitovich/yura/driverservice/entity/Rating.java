@@ -11,7 +11,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
 @ToString
 public class Rating {
     @Id
@@ -24,7 +23,6 @@ public class Rating {
     @Column(name="passenger_id")
     private UUID passengerId;
 
-    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "driver_profile_id", nullable = false)
     private DriverProfile driverProfile;
