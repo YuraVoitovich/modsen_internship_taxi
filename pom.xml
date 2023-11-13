@@ -17,5 +17,6 @@
 
     <modules>
         <module>passenger-service</module>
+        <module>driver-service</module>
     </modules>
 </project>
