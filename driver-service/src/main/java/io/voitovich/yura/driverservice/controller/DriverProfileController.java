@@ -20,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/driver/profile")
 @Tag(name = "Driver profile controller", description = "Driver profile API")
@@ -51,8 +49,8 @@ public class DriverProfileController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("{id}")
     private DriverProfileResponse getProfileById(@Parameter(name = "id", description = "Driver profile UUID")
-                                                     @PathVariable(name = "id") UUID id) {
-        return profileService.getProfileById(UUIDUtils.getUUIDFromString(id.toString()));
+                                                     @PathVariable(name = "id") String id) {
+        return profileService.getProfileById(UUIDUtils.getUUIDFromString(id));
     }
 
     @ResponseStatus(HttpStatus.OK)
