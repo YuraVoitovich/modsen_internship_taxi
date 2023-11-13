@@ -7,17 +7,10 @@ import org.springframework.http.HttpStatus;
 
 
 @Builder
-public class ExceptionInfo {
-
-    private final int code;
+public record ExceptionInfo (
+    int code,
     @NonNull
-    private final String message;
+    String message,
     @NonNull
-    private final HttpStatus status;
-
-    public ExceptionInfo(String message, HttpStatus status) {
-        this.message = message;
-        this.status = status;
-        this.code = status.value();
-    }
-}
+    HttpStatus status
+) {}
