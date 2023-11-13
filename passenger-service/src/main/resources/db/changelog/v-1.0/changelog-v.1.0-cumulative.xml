@@ -13,5 +13,6 @@
 
         <include file="changesets/2023-11-09--03-add-constraint-into-rating-table.xml" relativeToChangelogFile="true"/>
 
+        <include file="changesets/2023-11-13-04-add-rating-column-to-passenger-profile-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
