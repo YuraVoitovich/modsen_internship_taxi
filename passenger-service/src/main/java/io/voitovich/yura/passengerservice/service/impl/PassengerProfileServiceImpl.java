@@ -38,9 +38,9 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     @Override
     public PassengerProfileRequest updateProfile(PassengerProfileRequest profileDto) {
         log.info("Updating passenger profile: {}", profileDto);
-        if (repository.existsByPhoneNumber(profileDto.getPhoneNumber())) {
+        if (repository.existsByPhoneNumber(profileDto.phoneNumber())) {
             throw new NotUniquePhoneException(String
-                    .format("Passenger profile with phone number: {%s} already exists", profileDto.getPhoneNumber()));
+                    .format("Passenger profile with phone number: {%s} already exists", profileDto.phoneNumber()));
         }
         return INSTANCE.toDto(repository.save(INSTANCE.toEntity(profileDto)));
 
@@ -49,9 +49,9 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     @Override
     public PassengerProfileRequest saveProfile(PassengerProfileRequest profileDto) {
         log.info("Save passenger profile: {}", profileDto);
-        if (repository.existsByPhoneNumber(profileDto.getPhoneNumber())) {
+        if (repository.existsByPhoneNumber(profileDto.phoneNumber())) {
             throw new NotUniquePhoneException(String
-                    .format("Passenger profile with phone number: {%s} already exists", profileDto.getPhoneNumber()));
+                    .format("Passenger profile with phone number: {%s} already exists", profileDto.phoneNumber()));
         }
         return INSTANCE.toDto(repository
                 .save(INSTANCE.toEntity(profileDto)));
