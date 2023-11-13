@@ -18,10 +18,10 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name="rate_value")
+    @Column(name="rate_value", nullable = false)
     private int rateValue;
 
-    @Column(name="driver_id")
+    @Column(name="driver_id", nullable = false)
     private UUID driverId;
 
     @ToString.Exclude

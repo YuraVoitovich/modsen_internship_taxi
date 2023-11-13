@@ -24,13 +24,13 @@ public class PassengerProfile {
     @Column(name = "phone_number", length = 13, nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "surname")
+    @Column(name = "surname", nullable = false)
     private String surname;
 
-    @Column(name = "rating")
+    @Column(name = "rating", nullable = false)
     private BigDecimal rating;
 
 
