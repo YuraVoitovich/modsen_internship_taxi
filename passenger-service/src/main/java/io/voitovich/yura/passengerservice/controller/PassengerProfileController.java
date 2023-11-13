@@ -1,7 +1,8 @@
 package io.voitovich.yura.passengerservice.controller;
 
 
-import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
+import io.voitovich.yura.passengerservice.dto.request.PassengerProfileRequest;
+import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,21 +22,21 @@ public class PassengerProfileController {
 
     @GetMapping("profile/{id}")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PassengerProfileDto> getProfileById(@PathVariable(name = "id") String id) {
+    ResponseEntity<PassengerProfileResponse> getProfileById(@PathVariable(name = "id") String id) {
         return ResponseEntity.ok(profileService
                 .getProfileById(getUUIDFromString(id)));
     }
 
     @PostMapping("profile")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PassengerProfileDto> updateProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
-        return ResponseEntity.ok(profileService.updateProfile(passengerProfileDto));
+    ResponseEntity<PassengerProfileResponse> updateProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
+        return ResponseEntity.ok(profileService.updateProfile(passengerProfileRequest));
     }
 
     @PutMapping("profile")
     @ResponseStatus(HttpStatus.CREATED)
-    ResponseEntity<PassengerProfileDto> saveProfile(@Valid @RequestBody PassengerProfileDto passengerProfileDto) {
-        return ResponseEntity.ok(profileService.saveProfile(passengerProfileDto));
+    ResponseEntity<PassengerProfileResponse> saveProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
+        return ResponseEntity.ok(profileService.saveProfile(passengerProfileRequest));
     }
 
     @DeleteMapping("profile/{id}")
