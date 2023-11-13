@@ -1,17 +1,15 @@
 package io.voitovich.yura.passengerservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@ToString
 @Entity
 @Table(name = "rating")
 public class Rating {
@@ -26,6 +24,7 @@ public class Rating {
     @Column(name="driver_id")
     private UUID driverId;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "passenger_profile_id", nullable = false)
     private PassengerProfile passengerProfile;

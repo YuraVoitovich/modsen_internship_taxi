@@ -1,19 +1,17 @@
 package io.voitovich.yura.passengerservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
 
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "passenger_profile")
 public class PassengerProfile {
@@ -31,6 +29,7 @@ public class PassengerProfile {
     @Column(name = "surname")
     private String surname;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "passengerProfile")
     private List<Rating> ratings;
 
