@@ -26,6 +26,7 @@ import static io.voitovich.yura.driverservice.dto.mapper.DriverProfileMapper.INS
 public class DriverProfileServiceImpl implements DriverProfileService {
 
     private final DriverProfileRepository repository;
+    private final BigDecimal START_RATING = BigDecimal.valueOf(5);
 
     public DriverProfileServiceImpl(DriverProfileRepository repository) {
         this.repository = repository;
@@ -49,7 +50,7 @@ public class DriverProfileServiceImpl implements DriverProfileService {
                     .format("Driver profile with phone number: {%s} already exists", profileDto.phoneNumber()));
         }
         DriverProfile profile = INSTANCE.toProfileEntity(profileDto);
-        profile.setRating(BigDecimal.valueOf(5));
+        profile.setRating(START_RATING);
         return INSTANCE.toProfileResponse(repository.save(profile));
     }
 
@@ -60,7 +61,9 @@ public class DriverProfileServiceImpl implements DriverProfileService {
             throw new NotUniquePhoneException(String
                     .format("Driver profile with phone number: {%s} already exists", profileDto.phoneNumber()));
         }
-        return INSTANCE.toProfileResponse(repository.save(INSTANCE.toProfileEntity(profileDto)));
+        DriverProfile profile = INSTANCE.toProfileEntity(profileDto);
+        profile = repository.save(profile);
+        return INSTANCE.toProfileResponse(profile);
     }
 
     @Override

@@ -5,9 +5,8 @@ import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.driverservice.exception.NotValidUUIDException;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ValidationExceptionInfo;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,7 +20,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 @Slf4j
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotValidUUIDException.class)
@@ -33,7 +31,19 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
                 .status(HttpStatus.BAD_REQUEST)
                 .message(exception.getMessage())
                 .build();
-        return new ResponseEntity<>(info, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(info);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ExceptionInfo> handleConstraintViolationException(ConstraintViolationException exception) {
+        log.info(String.format("Handled exception - %s", exception), exception);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .code(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.NOT_FOUND)
+                .message(exception.getMessage())
+                .build();
+        return new ResponseEntity<>(info, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(NoSuchRecordException.class)
@@ -71,6 +81,6 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
         exception.getBindingResult().getAllErrors().forEach(error -> infoBuilder
                 .error(((FieldError) error).getField(), error.getDefaultMessage()));
         ValidationExceptionInfo info = infoBuilder.build();
-        return new ResponseEntity<>(info, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(info);
     }
 }
