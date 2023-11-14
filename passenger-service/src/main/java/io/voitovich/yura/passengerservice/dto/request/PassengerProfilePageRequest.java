@@ -10,13 +10,13 @@ import jakarta.validation.constraints.Min;
         , description = "request for obtaining passenger profiles in the form of pages")
 public record PassengerProfilePageRequest(
         @Schema(name = "page number", description = "The page number", minimum = "1")
-        @Min(1)
+        @Min(value = 1, message = "{api.error.min.pageNumber}")
         int pageNumber,
         @Schema(name = "page size", description = "The page size", minimum = "1")
-        @Min(1)
+        @Min(value = 1, message = "{api.error.min.pageSize}")
         int pageSize,
         @Schema(name = "orderBy", description = "Sort by Passenger profile response field name")
-        @OrderBy(PassengerProfileResponse.class)
+        @OrderBy(value = PassengerProfileResponse.class, message = "{api.error.orderBy}")
         String orderBy
 ) {
 }
