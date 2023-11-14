@@ -1,11 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:driver_service_db
-    username: sa
-    password: pass
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://database:5432/driver_db
+    username: postgres
+    password: postgres
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: none
   h2:
