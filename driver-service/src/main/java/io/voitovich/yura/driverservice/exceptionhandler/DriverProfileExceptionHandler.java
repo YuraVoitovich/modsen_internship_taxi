@@ -64,8 +64,10 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
                 .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST);
 
-        exception.getBindingResult().getAllErrors().forEach(error -> infoBuilder
-                .error(((FieldError) error).getField(), error.getDefaultMessage()));
+        exception.getBindingResult()
+                .getAllErrors()
+                .forEach(error -> infoBuilder
+                        .error(((FieldError) error).getField(), error.getDefaultMessage()));
         ValidationExceptionInfo info = infoBuilder.build();
         return ResponseEntity.badRequest().body(info);
     }
