@@ -37,6 +37,7 @@ services:
     networks:
       - backend
 
+
   passengerservice:
     image: passenger-service:latest
     ports:
