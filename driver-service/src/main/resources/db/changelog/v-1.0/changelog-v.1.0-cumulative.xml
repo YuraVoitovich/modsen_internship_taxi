@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+    <include file="changesets/2023-11-11--01-create-driver-table.xml" relativeToChangelogFile="true"/>
+
+    <include file="changesets/2023-11-11--02-create-rating-table.xml" relativeToChangelogFile="true"/>
+
+    <include file="changesets/2023-11-11--03-add-constraint-into-rating-table.xml" relativeToChangelogFile="true"/>
+
+    <include file="changesets/2023-11-11--04-add-rating-column-to-driver-table.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

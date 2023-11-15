@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+    <changeSet id="2023-11-11--01-create-driver-table" author="Yura Voitovich">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="driver_profile"/>
+            </not>
+        </preConditions>
+        <sqlFile path="sql-files/create-driver-table.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="sql-files/drop-driver-table.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
