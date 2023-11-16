@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2023-11-09--03-add-constraint-into-rating-table" author="Yura Voitovich">
+        <preConditions onFail="HALT">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="fk_passenger_profile"/>
+            </not>
+        </preConditions>
+        <sqlFile path="sql-files/add-constraint-into-rating-table.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="sql-files/drop-rating-table-fk.sql"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -37,6 +37,19 @@ services:
     networks:
       - backend
 
+
+  passengerservice:
+    image: passenger-service:latest
+    ports:
+      - "8081:8081"
+    environment:
+      PROFILE: "dev"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
