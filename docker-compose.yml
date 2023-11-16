@@ -36,6 +36,17 @@ services:
         condition: service_healthy
     networks:
       - backend
+  rideservice:
+    image: ride-service:latest
+    ports:
+      - "8082:8082"
+    environment:
+      PROFILE: "dev"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - backend
 
 networks:
   backend:
