@@ -1,0 +1,1 @@
+create database ride_db
