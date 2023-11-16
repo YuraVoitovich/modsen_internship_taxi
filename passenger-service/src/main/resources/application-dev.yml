@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://database:5432/passenger_db
+    url: jdbc:postgresql://localhost:5432/passenger_db
     username: postgres
     password: postgres
   jpa:
@@ -11,3 +11,8 @@ spring:
       enabled: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+
+
+message:
+  source:
+    basenames: "classpath:messages/api-error-response"
