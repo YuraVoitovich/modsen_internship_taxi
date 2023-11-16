@@ -5,9 +5,8 @@ import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.exception.NotValidUUIDException;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -22,37 +21,56 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 @Slf4j
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotValidUUIDException.class)
     @ResponseBody
     public ResponseEntity<ExceptionInfo> handleNotValidUUIDException(NotValidUUIDException exception) {
         log.info(String.format("Handled exception - %s", exception), exception);
-        ExceptionInfo info = new ExceptionInfo(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(info, HttpStatus.BAD_REQUEST);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST)
+                .message(exception.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(info);
     }
 
     @ExceptionHandler(NoSuchRecordException.class)
     public ResponseEntity<ExceptionInfo> handleNoSuchRecordException(NoSuchRecordException exception) {
         log.info(String.format("Handled exception - %s", exception), exception);
-        ExceptionInfo info = new ExceptionInfo(exception.getMessage(), HttpStatus.NOT_FOUND);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .code(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.NOT_FOUND)
+                .message(exception.getMessage())
+                .build();
         return new ResponseEntity<>(info, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(NotUniquePhoneException.class)
     public ResponseEntity<ExceptionInfo> handleNotUniquePhoneException(NotUniquePhoneException exception) {
         log.info(String.format("Handled exception - %s", exception), exception);
-        ExceptionInfo info = new ExceptionInfo(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(info, HttpStatus.BAD_REQUEST);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST)
+                .message(exception.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(info);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException exception, @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         log.info(String.format("Handled exception - %s", exception), exception);
-        ValidationExceptionInfo info = new ValidationExceptionInfo(HttpStatus.BAD_REQUEST);
-        exception.getBindingResult().getAllErrors().forEach(error -> info
-                .addError(((FieldError) error).getField(), error.getDefaultMessage()));
-        return new ResponseEntity<>(info, HttpStatus.BAD_REQUEST);
+        var infoBuilder = ValidationExceptionInfo
+                .builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST);
+
+        exception.getBindingResult().getAllErrors().forEach(error -> infoBuilder
+                .error(((FieldError) error).getField(), error.getDefaultMessage()));
+        ValidationExceptionInfo info = infoBuilder.build();
+        return ResponseEntity.badRequest().body(info);
     }
 }

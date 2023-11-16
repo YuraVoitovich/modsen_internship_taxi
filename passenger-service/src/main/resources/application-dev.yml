@@ -1,13 +1,18 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:mydb
-    username: sa
-    password: password
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/passenger_db
+    username: postgres
+    password: postgres
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: validate
   h2:
     console:
       enabled: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+
+
+message:
+  source:
+    basenames: "classpath:messages/api-error-response"

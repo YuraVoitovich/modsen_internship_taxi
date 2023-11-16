@@ -1,25 +1,24 @@
 package io.voitovich.yura.passengerservice.exceptionhandler.model;
 
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Singular;
 import org.springframework.http.HttpStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 
-@Getter
-public class ValidationExceptionInfo {
-    private final int code;
-    private final HttpStatus status;
-    private final Map<String, String> errors =  new HashMap<>();
+@Builder
+@Schema(name = "ValidationExceptionInfo", description = "represents all validation exceptions")
+public record ValidationExceptionInfo (
 
-    public ValidationExceptionInfo(HttpStatus status) {
-        this.code = status.value();
-        this.status = status;
-    }
+    @Schema(name = "code", description = "error status code", example = "400")
+    int code,
+    @Schema(name = "status", description = "error status", example = "BAD_REQUEST")
+    @NonNull
+    HttpStatus status,
+    @Schema(name = "errors", description = "validation errors", example = "name: name is mandatory")
+    @Singular
+    Map<String, String> errors
+){}
 
-    public void addError(String fieldName, String errorMessage) {
-        errors.put(fieldName, errorMessage);
-    }
-
-
-}

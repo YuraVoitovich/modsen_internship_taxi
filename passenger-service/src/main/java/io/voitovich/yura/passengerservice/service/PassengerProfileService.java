@@ -1,16 +1,21 @@
 package io.voitovich.yura.passengerservice.service;
 
-import io.voitovich.yura.passengerservice.dto.PassengerProfileDto;
+import io.voitovich.yura.passengerservice.dto.request.PassengerProfilePageRequest;
+import io.voitovich.yura.passengerservice.dto.request.PassengerProfileRequest;
+import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
+import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 
 import java.util.UUID;
 
 public interface PassengerProfileService {
 
-    PassengerProfileDto getProfileById(UUID uuid);
+    PassengerProfileResponse getProfileById(UUID uuid);
 
-    PassengerProfileDto updateProfile(PassengerProfileDto profileDto);
+    PassengerProfileResponse updateProfile(PassengerProfileRequest profileDto);
 
-    PassengerProfileDto saveProfile(PassengerProfileDto profileDto);
+    PassengerProfileResponse saveProfile(PassengerProfileRequest profileDto);
+
+    PassengerProfilePageResponse getProfilePage(PassengerProfilePageRequest pageRequest);
 
     void deleteProfile(UUID uuid);
 }
