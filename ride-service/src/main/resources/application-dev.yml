@@ -1,9 +1,8 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password: 1
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://database:5432/ride_db
+    username: postgres
+    password: postgres
   jpa:
     hibernate:
       ddl-auto: none
