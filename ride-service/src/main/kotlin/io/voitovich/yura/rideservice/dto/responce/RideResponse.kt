@@ -8,9 +8,9 @@ import java.util.UUID
 data class RideResponse(
     var id: UUID,
     val passengerProfileId: UUID,
-    var driverProfileId: UUID,
-    var startDate: LocalDateTime,
-    var endDate: LocalDateTime,
-    var driverRating: BigDecimal,
-    var passengerRating: BigDecimal,
+    var driverProfileId: UUID?,
+    var startDate: LocalDateTime?,
+    var endDate: LocalDateTime?,
+    var driverRating: BigDecimal?,
+    var passengerRating: BigDecimal?,
 ) {}
