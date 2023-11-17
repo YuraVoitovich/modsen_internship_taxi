@@ -1,5 +1,6 @@
 package io.voitovich.yura.rideservice.dto.responce
 
+import io.voitovich.yura.rideservice.entity.RideStatus
 import jakarta.persistence.Column
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -13,4 +14,9 @@ data class RideResponse(
     var endDate: LocalDateTime?,
     var driverRating: BigDecimal?,
     var passengerRating: BigDecimal?,
+    var startGeo: ResponsePoint?,
+    var endGeo: ResponsePoint?,
+    var passengerPosition: ResponsePoint?,
+    var driverPosition: ResponsePoint?,
+    var status: RideStatus?
 ) {}
