@@ -16,4 +16,7 @@ interface RideService {
     fun acceptRide(acceptRideRequest: AcceptRideRequest)
 
     fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
+
+    fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
+
 }
