@@ -1,12 +1,7 @@
 package io.voitovich.yura.rideservice.controller
 
-import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
-import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
-import io.voitovich.yura.rideservice.dto.request.RidePageRequest
-import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
-import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
-import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
-import io.voitovich.yura.rideservice.dto.responce.RideResponse
+import io.voitovich.yura.rideservice.dto.request.*
+import io.voitovich.yura.rideservice.dto.responce.*
 import io.voitovich.yura.rideservice.service.RideService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -42,11 +37,28 @@ class RideController(val service: RideService) {
         return service.createRide(request);
     }
 
-    @GetMapping("/driver/rides")
+    @GetMapping("/driver/ride")
     @ResponseStatus(HttpStatus.OK)
     fun getAvailableRides(@Valid @RequestBody getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse {
         return service.getAvailableRides(getAvailableRidesRequest)
     }
 
+    @PostMapping("driver/ride")
+    @ResponseStatus(HttpStatus.OK)
+    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest) {
+        service.acceptRide(acceptRideRequest)
+    }
+
+    @PostMapping("driver/position")
+    @ResponseStatus(HttpStatus.OK)
+    fun updateDriverPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest) : UpdatePositionResponse {
+        return service.updateDriverPosition(updatePositionRequest)
+    }
+
+    @PostMapping("passenger/position")
+    @ResponseStatus(HttpStatus.OK)
+    fun updatePassengerPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest) : UpdatePositionResponse {
+        return service.updatePassengerPosition(updatePositionRequest)
+    }
 
 }
