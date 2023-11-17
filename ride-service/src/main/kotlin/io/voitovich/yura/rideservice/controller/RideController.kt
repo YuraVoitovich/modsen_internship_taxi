@@ -42,11 +42,11 @@ class RideController(val service: RideService) {
         return service.createRide(request);
     }
 
-    @GetMapping("/create")
+    @GetMapping("/driver/rides")
     @ResponseStatus(HttpStatus.OK)
     fun getAvailableRides(@Valid @RequestBody getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse {
-
-        val temp = service.getAvailableRides(getAvailableRidesRequest)
-        return temp
+        return service.getAvailableRides(getAvailableRidesRequest)
     }
+
+
 }
