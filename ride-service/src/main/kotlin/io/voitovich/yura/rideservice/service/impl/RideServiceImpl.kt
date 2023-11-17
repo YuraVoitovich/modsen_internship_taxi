@@ -3,6 +3,7 @@ package io.voitovich.yura.rideservice.service.impl
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.*
+import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
@@ -72,13 +73,23 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         }
     }
 
-    override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        val rideOptional = repository.findById(updatePositionRequest.ride_id)
-        val ride = rideOptional.orElseThrow { NoSuchRecordException(String
-            .format("Ride with id: {%s} was not found", updatePositionRequest.ride_id))
+    private fun getIfRidePresent(id: UUID) : Ride {
+        val rideOptional = repository.findById(id)
+        return rideOptional.orElseThrow { NoSuchRecordException(String
+            .format("Ride with id: {%s} was not found", id))
         }
+    }
+    override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
+        val ride = getIfRidePresent(updatePositionRequest.id);
         ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
         return UpdatePositionResponse(mapper.fromPointToResponsePoint(ride.passengerPosition))
+    }
+
+    override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
+        val ride = getIfRidePresent(updatePositionRequest.id);
+        ride.passengerPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
+        repository.save(ride)
+        return UpdatePositionResponse(mapper.fromPointToResponsePoint(ride.driverPosition))
     }
 }
