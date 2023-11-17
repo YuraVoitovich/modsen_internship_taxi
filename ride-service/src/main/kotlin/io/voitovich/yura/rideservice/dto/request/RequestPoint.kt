@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotEmpty
 import java.math.BigDecimal
 
 data class RequestPoint(
-    @NotEmpty
+    @field:NotEmpty
     val latitude: BigDecimal,
-    @NotEmpty
+    @field:NotEmpty
     val longitude: BigDecimal,
 )
