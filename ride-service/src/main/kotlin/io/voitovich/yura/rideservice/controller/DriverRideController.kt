@@ -4,6 +4,7 @@ import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
 import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
 import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
+import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.service.RideService
 import jakarta.validation.Valid
@@ -20,13 +21,13 @@ class DriverRideController(val service: RideService) {
         return service.getAvailableRides(getAvailableRidesRequest)
     }
 
-    @PostMapping()
+    @PostMapping("accept")
     @ResponseStatus(HttpStatus.OK)
-    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest) {
-        service.acceptRide(acceptRideRequest)
+    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest) : RideResponse {
+        return service.acceptRide(acceptRideRequest)
     }
 
-    @PostMapping("accept")
+    @PostMapping()
     @ResponseStatus(HttpStatus.OK)
     fun updateDriverPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest) : UpdatePositionResponse {
         return service.updateDriverPosition(updatePositionRequest)

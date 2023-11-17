@@ -27,7 +27,7 @@ class PassengerRideController(val service: RideService) {
 
     @DeleteMapping()
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun declineRide(@Valid @RequestBody cancelRequest: CancelRequest) {
+    fun cancelRide(@Valid @RequestBody cancelRequest: CancelRequest) {
         service.cancelRide(cancelRequest)
     }
 
