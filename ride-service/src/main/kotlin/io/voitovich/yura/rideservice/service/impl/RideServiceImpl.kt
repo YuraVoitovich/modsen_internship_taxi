@@ -1,22 +1,17 @@
 package io.voitovich.yura.rideservice.service.impl
 
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
-import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
-import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
-import io.voitovich.yura.rideservice.dto.request.RidePageRequest
-import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
-import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
-import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
-import io.voitovich.yura.rideservice.dto.responce.RideResponse
-import io.voitovich.yura.rideservice.entity.Ride
+import io.voitovich.yura.rideservice.dto.request.*
+import io.voitovich.yura.rideservice.dto.responce.*
+import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
+import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
-import kotlin.streams.toList
 
 @Service
 class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideService {
@@ -32,7 +27,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
     override fun deleteRideById(id: UUID) {
         val ride = repository.findById(id);
         if (ride.isEmpty) {
-            throw NoSuchRecordException(String.format("", id))
+            throw NoSuchRecordException(String.format("Ride with id: {%s} was not found", id))
         }
         repository.deleteById(id)
     }
@@ -61,5 +56,29 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
             1000000)
         return GetAvailableRidesResponse(rides.map { t -> mapper.toAvailableRideResponse(t) }.toList())
+    }
+
+    override fun acceptRide(acceptRideRequest: AcceptRideRequest) {
+        val rideOptional = repository.findById(acceptRideRequest.rideId)
+        val ride = rideOptional.orElseThrow { NoSuchRecordException(String
+            .format("Ride with id: {%s} was not found", acceptRideRequest.rideId))}
+        if (ride.status == RideStatus.REQUESTED) {
+            ride.status = RideStatus.ACCEPTED
+            ride.driverProfileId = acceptRideRequest.driverId
+            repository.save(ride)
+        } else {
+            throw RideAlreadyAccepted(String
+                .format("Ride with id: {id} is already accepted", acceptRideRequest.rideId))
+        }
+    }
+
+    override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
+        val rideOptional = repository.findById(updatePositionRequest.ride_id)
+        val ride = rideOptional.orElseThrow { NoSuchRecordException(String
+            .format("Ride with id: {%s} was not found", updatePositionRequest.ride_id))
+        }
+        ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
+        repository.save(ride)
+        return UpdatePositionResponse(mapper.fromPointToResponsePoint(ride.passengerPosition))
     }
 }
