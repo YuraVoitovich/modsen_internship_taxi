@@ -11,10 +11,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/passenger")
+@RequestMapping("/api/ride/passenger")
 class PassengerRideController(val service: RideService) {
     @PutMapping()
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     fun createRide(@Valid @RequestBody request: CreateRideRequest): CreateRideResponse {
         return service.createRide(request);
     }
