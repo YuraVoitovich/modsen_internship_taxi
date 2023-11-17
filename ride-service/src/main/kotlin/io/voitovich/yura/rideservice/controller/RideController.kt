@@ -30,40 +30,8 @@ class RideController(val service: RideService) {
         return service.getRideById(id)
     }
 
-    @PutMapping("/create")
-    @ResponseStatus(HttpStatus.OK)
-    fun createRide(@Valid @RequestBody request: CreateRideRequest): CreateRideResponse {
-        return service.createRide(request);
-    }
 
-    @GetMapping("/driver/ride")
-    @ResponseStatus(HttpStatus.OK)
-    fun getAvailableRides(@Valid @RequestBody getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse {
-        return service.getAvailableRides(getAvailableRidesRequest)
-    }
 
-    @PostMapping("driver/ride")
-    @ResponseStatus(HttpStatus.OK)
-    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest) {
-        service.acceptRide(acceptRideRequest)
-    }
 
-    @PostMapping("driver/position")
-    @ResponseStatus(HttpStatus.OK)
-    fun updateDriverPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest) : UpdatePositionResponse {
-        return service.updateDriverPosition(updatePositionRequest)
-    }
-
-    @PostMapping("passenger/position")
-    @ResponseStatus(HttpStatus.OK)
-    fun updatePassengerPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest) : UpdatePositionResponse {
-        return service.updatePassengerPosition(updatePositionRequest)
-    }
-
-    @DeleteMapping("passenger/ride")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun declineRide(@Valid @RequestBody cancelRequest: CancelRequest) {
-        service.cancelRide(cancelRequest)
-    }
 
 }
