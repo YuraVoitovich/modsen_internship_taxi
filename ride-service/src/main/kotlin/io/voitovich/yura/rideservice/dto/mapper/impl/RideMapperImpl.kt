@@ -1,5 +1,6 @@
-package io.voitovich.yura.rideservice.dto.mapper
+package io.voitovich.yura.rideservice.dto.mapper.impl
 
+import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
 import io.voitovich.yura.rideservice.dto.request.RequestPoint
 import io.voitovich.yura.rideservice.dto.responce.AvailableRideResponse
