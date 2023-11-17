@@ -2,8 +2,10 @@ package io.voitovich.yura.rideservice.service.impl
 
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
+import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
 import io.voitovich.yura.rideservice.dto.request.RidePageRequest
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
+import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.entity.Ride
@@ -14,14 +16,10 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.streams.toList
 
 @Service
 class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideService {
-
-
-
-
-
     override fun getRideById(id: UUID): RideResponse {
         val ride = repository.findById(id)
 
@@ -56,5 +54,12 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         val ride = mapper.fromCreateRequestToEntity(request)
         val savedRide = repository.save(ride)
         return CreateRideResponse(request.passengerId, savedRide.id!!)
+    }
+
+    override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
+        val rides = repository.getDriverAvailableRides(mapper
+            .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
+            1000000)
+        return GetAvailableRidesResponse(rides.map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
 }
