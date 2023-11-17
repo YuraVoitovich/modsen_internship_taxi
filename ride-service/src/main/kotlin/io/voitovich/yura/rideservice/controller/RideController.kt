@@ -1,8 +1,10 @@
 package io.voitovich.yura.rideservice.controller
 
 import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
+import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
 import io.voitovich.yura.rideservice.dto.request.RidePageRequest
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
+import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.service.RideService
@@ -38,5 +40,13 @@ class RideController(val service: RideService) {
     @ResponseStatus(HttpStatus.OK)
     fun createRide(@Valid @RequestBody request: CreateRideRequest): CreateRideResponse {
         return service.createRide(request);
+    }
+
+    @GetMapping("/create")
+    @ResponseStatus(HttpStatus.OK)
+    fun getAvailableRides(@Valid @RequestBody getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse {
+
+        val temp = service.getAvailableRides(getAvailableRidesRequest)
+        return temp
     }
 }

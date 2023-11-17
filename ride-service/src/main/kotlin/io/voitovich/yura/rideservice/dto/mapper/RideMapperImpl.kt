@@ -1,15 +1,19 @@
 package io.voitovich.yura.rideservice.dto.mapper
 
 import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
+import io.voitovich.yura.rideservice.dto.request.RequestPoint
+import io.voitovich.yura.rideservice.dto.responce.AvailableRideResponse
+import io.voitovich.yura.rideservice.dto.responce.ResponsePoint
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.entity.Ride
+import io.voitovich.yura.rideservice.model.RideProjection
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geom.impl.CoordinateArraySequence
 import org.springframework.stereotype.Component
-import java.util.UUID
+import java.math.BigDecimal
 
 @Component
 class RideMapperImpl : RideMapper {
@@ -25,12 +29,9 @@ class RideMapperImpl : RideMapper {
     }
 
     override fun fromCreateRequestToEntity(createRideRequest: CreateRideRequest): Ride {
-        var startCoords = arrayOf(Coordinate(createRideRequest.startGeo.latitude.toDouble(),
-            createRideRequest.startGeo.longitude.toDouble()));
-        var startSequence = CoordinateArraySequence(startCoords);
-        var endCoords = arrayOf(Coordinate(createRideRequest.endGeo.latitude.toDouble(),
-            createRideRequest.endGeo.longitude.toDouble()));
-        var endSequence = CoordinateArraySequence(endCoords);
+        val startPoint = fromRequestPointToPoint(createRideRequest.startGeo)
+        val endPoint = fromRequestPointToPoint(createRideRequest.endGeo)
+
         return Ride(
             null,
             createRideRequest.passengerId,
@@ -39,9 +40,25 @@ class RideMapperImpl : RideMapper {
             null,
             null,
             null,
-            Point(startSequence, geometryFactory),
-            Point(endSequence, geometryFactory),
+            startPoint,
+            endPoint,
         )
+    }
+
+    override fun fromRequestPointToPoint(requestPoint: RequestPoint): Point {
+        val coords = arrayOf(Coordinate(requestPoint.latitude.toDouble(),
+            requestPoint.longitude.toDouble()))
+        val sequence = CoordinateArraySequence(coords)
+        return Point(sequence, geometryFactory)
+    }
+
+    override fun toAvailableRideResponse(model: RideProjection): AvailableRideResponse {
+        return AvailableRideResponse(model.getId(), model.getPassengerProfileId(),
+            ResponsePoint(model.getStartGeo().position.getCoordinate(0),
+                model.getStartGeo().position.getCoordinate(1)),
+            ResponsePoint(model.getEndGeo().position.getCoordinate(0),
+                model.getEndGeo().position.getCoordinate(1)),
+            BigDecimal( model.getDistance()))
     }
 
     companion object {
