@@ -1,6 +1,8 @@
 package io.voitovich.yura.rideservice.controller
 
+import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
 import io.voitovich.yura.rideservice.dto.request.RidePageRequest
+import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.service.RideService
@@ -30,5 +32,11 @@ class RideController(val service: RideService) {
     @ResponseStatus(HttpStatus.OK)
     fun getRideById(@PathVariable id: UUID): RideResponse {
         return service.getRideById(id)
+    }
+
+    @PutMapping("/create")
+    @ResponseStatus(HttpStatus.OK)
+    fun createRide(@Valid @RequestBody request: CreateRideRequest): CreateRideResponse {
+        return service.createRide(request);
     }
 }

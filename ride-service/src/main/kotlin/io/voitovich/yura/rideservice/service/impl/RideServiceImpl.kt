@@ -1,9 +1,12 @@
 package io.voitovich.yura.rideservice.service.impl
 
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
+import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
 import io.voitovich.yura.rideservice.dto.request.RidePageRequest
+import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
+import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideService
@@ -14,6 +17,7 @@ import java.util.*
 
 @Service
 class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideService {
+
 
 
 
@@ -46,5 +50,11 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
             pageRideRequest.pageNumber,
             page.totalElements,
             page.totalPages)
+    }
+
+    override fun createRide(request: CreateRideRequest): CreateRideResponse {
+        val ride = mapper.fromCreateRequestToEntity(request)
+        val savedRide = repository.save(ride)
+        return CreateRideResponse(request.passengerId, savedRide.id!!)
     }
 }
