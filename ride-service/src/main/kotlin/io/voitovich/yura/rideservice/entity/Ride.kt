@@ -36,7 +36,43 @@ data class Ride(
 ) {
     companion object
     {
-        private const val SRID = 4326;
+        private const val SRID = 4326
+        fun builder(
+            passengerProfileId: UUID,
+            startPoint: Point,
+            endPoint: Point
+        ) = RideBuilder(passengerProfileId, startPoint, endPoint)
+    }
 
+    class RideBuilder(
+        private val passengerProfileId: UUID,
+        private val startPoint: Point,
+        private val endPoint: Point
+    ) {
+        private var id: UUID? = null
+        private var driverProfileId: UUID? = null
+        private var startDate: LocalDateTime? = null
+        private var endDate: LocalDateTime? = null
+        private var driverRating: BigDecimal? = null
+        private var passengerRating: BigDecimal? = null
+
+        fun id(id: UUID?) = apply { this.id = id }
+        fun driverProfileId(driverProfileId: UUID?) = apply { this.driverProfileId = driverProfileId }
+        fun startDate(startDate: LocalDateTime?) = apply { this.startDate = startDate }
+        fun endDate(endDate: LocalDateTime?) = apply { this.endDate = endDate }
+        fun driverRating(driverRating: BigDecimal?) = apply { this.driverRating = driverRating }
+        fun passengerRating(passengerRating: BigDecimal?) = apply { this.passengerRating = passengerRating }
+
+        fun build() = Ride(
+            id = id,
+            passengerProfileId = passengerProfileId,
+            driverProfileId = driverProfileId,
+            startDate = startDate,
+            endDate = endDate,
+            driverRating = driverRating,
+            passengerRating = passengerRating,
+            startPoint = startPoint,
+            endPoint = endPoint
+        )
     }
 }
