@@ -1,6 +1,7 @@
 package io.voitovich.yura.rideservice.exceptionhandler
 
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
+import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
 import mu.KotlinLogging
@@ -26,14 +27,27 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(NoSuchRecordException::class)
     fun handleNoSuchRecordException(exception: NoSuchRecordException): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
-        val info  =
-            exception.message?.let {
-                ExceptionInfo(HttpStatus.NOT_FOUND.value(),HttpStatus.NOT_FOUND, it
-                )
-            }
+        val info = ExceptionInfo(
+            HttpStatus.NOT_FOUND.value(),
+            HttpStatus.NOT_FOUND,
+            exception.message!!)
         return ResponseEntity(
             info,
             HttpStatus.NOT_FOUND
+        )
+    }
+
+    @ExceptionHandler(RideAlreadyPresented::class)
+    fun handleRideAlreadyPresentedException(exception: RideAlreadyPresented): ResponseEntity<ExceptionInfo> {
+        log.info(String.format("Handled exception - %s", exception), exception)
+        val info = ExceptionInfo(
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT,
+            exception.message!!)
+
+        return ResponseEntity(
+            info,
+            HttpStatus.CONFLICT
         )
     }
 

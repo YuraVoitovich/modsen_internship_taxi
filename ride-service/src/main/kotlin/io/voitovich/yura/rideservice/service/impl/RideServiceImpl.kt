@@ -63,18 +63,19 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
         val rides = repository.getDriverAvailableRides(mapper
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
-            1000000)
+            getAvailableRidesRequest.radius ?: 500)
         return GetAvailableRidesResponse(rides.map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
 
-    override fun acceptRide(acceptRideRequest: AcceptRideRequest) {
+    override fun acceptRide(acceptRideRequest: AcceptRideRequest) : RideResponse {
         val rideOptional = repository.findById(acceptRideRequest.rideId)
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
             .format("Ride with id: {%s} was not found", acceptRideRequest.rideId))}
         if (ride.status == RideStatus.REQUESTED) {
             ride.status = RideStatus.ACCEPTED
             ride.driverProfileId = acceptRideRequest.driverId
-            repository.save(ride)
+            ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
+            return mapper.toRideResponse(repository.save(ride))
         } else {
             throw RideAlreadyAccepted(String
                 .format("Ride with id: {id} is already accepted", acceptRideRequest.rideId))
@@ -88,21 +89,21 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         }
     }
     override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        val ride = getIfRidePresent(updatePositionRequest.id);
+        val ride = getIfRidePresent(updatePositionRequest.rideId);
         ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
         return UpdatePositionResponse(
-            updatePositionRequest.ride_id,
+            updatePositionRequest.rideId,
             mapper.fromPointToResponsePoint(ride.passengerPosition),
             ride.status!!)
     }
 
     override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        val ride = getIfRidePresent(updatePositionRequest.id);
+        val ride = getIfRidePresent(updatePositionRequest.rideId);
         ride.passengerPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
         return UpdatePositionResponse(
-            updatePositionRequest.ride_id,
+            updatePositionRequest.rideId,
             mapper.fromPointToResponsePoint(ride.driverPosition),
             ride.status!!)
     }
@@ -111,7 +112,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         val ride = getIfRidePresent(cancelRequest.rideId)
         if (ride.status != RideStatus.REQUESTED) {
             throw RideAlreadyCanceled(String
-                .format("Ride with id: {} already canceled", cancelRequest.rideId))
+                .format("Ride with id: {} can't be canceled", cancelRequest.rideId))
         }
         ride.status = RideStatus.CANCELED
         repository.save(ride)

@@ -13,7 +13,7 @@ interface RideService {
 
     fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse
 
-    fun acceptRide(acceptRideRequest: AcceptRideRequest)
+    fun acceptRide(acceptRideRequest: AcceptRideRequest): RideResponse
 
     fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
 

@@ -27,7 +27,12 @@ class RideMapperImpl : RideMapper {
             ride.startDate,
             ride.endDate,
             ride.driverRating,
-            ride.passengerRating)
+            ride.passengerRating,
+            fromPointToResponsePoint(ride.startPoint),
+            fromPointToResponsePoint(ride.endPoint),
+            fromPointToResponsePoint(ride.passengerPosition),
+            fromPointToResponsePoint(ride.driverPosition),
+            ride.status)
     }
 
     override fun fromCreateRequestToEntity(createRideRequest: CreateRideRequest): Ride {
