@@ -7,6 +7,7 @@ import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
+import io.voitovich.yura.rideservice.exception.RideAlreadyCanceled
 import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideService
@@ -104,5 +105,15 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
             updatePositionRequest.ride_id,
             mapper.fromPointToResponsePoint(ride.driverPosition),
             ride.status!!)
+    }
+
+    override fun cancelRide(cancelRequest: CancelRequest) {
+        val ride = getIfRidePresent(cancelRequest.rideId)
+        if (ride.status != RideStatus.REQUESTED) {
+            throw RideAlreadyCanceled(String
+                .format("Ride with id: {} already canceled", cancelRequest.rideId))
+        }
+        ride.status = RideStatus.CANCELED
+        repository.save(ride)
     }
 }
