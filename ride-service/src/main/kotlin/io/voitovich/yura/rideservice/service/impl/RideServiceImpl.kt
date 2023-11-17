@@ -83,13 +83,19 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         val ride = getIfRidePresent(updatePositionRequest.id);
         ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
-        return UpdatePositionResponse(mapper.fromPointToResponsePoint(ride.passengerPosition))
+        return UpdatePositionResponse(
+            updatePositionRequest.ride_id,
+            mapper.fromPointToResponsePoint(ride.passengerPosition),
+            ride.status!!)
     }
 
     override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
         val ride = getIfRidePresent(updatePositionRequest.id);
         ride.passengerPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
-        return UpdatePositionResponse(mapper.fromPointToResponsePoint(ride.driverPosition))
+        return UpdatePositionResponse(
+            updatePositionRequest.ride_id,
+            mapper.fromPointToResponsePoint(ride.driverPosition),
+            ride.status!!)
     }
 }
