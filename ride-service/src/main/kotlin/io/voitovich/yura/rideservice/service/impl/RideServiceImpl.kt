@@ -7,6 +7,7 @@ import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
+import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideService
 import org.springframework.data.domain.PageRequest
@@ -47,7 +48,13 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
     }
 
     override fun createRide(request: CreateRideRequest): CreateRideResponse {
+        if (repository.existsRideByPassengerProfileIdAndStatus(request.passengerId, RideStatus.REQUESTED)) {
+            throw RideAlreadyPresented(String
+                .format("Ride with requested status is already present for passenger with id: {}",
+                    request.passengerId))
+        }
         val ride = mapper.fromCreateRequestToEntity(request)
+
         val savedRide = repository.save(ride)
         return CreateRideResponse(request.passengerId, savedRide.id!!)
     }
