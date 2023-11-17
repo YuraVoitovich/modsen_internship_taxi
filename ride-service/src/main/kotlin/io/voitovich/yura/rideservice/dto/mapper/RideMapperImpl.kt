@@ -31,18 +31,7 @@ class RideMapperImpl : RideMapper {
     override fun fromCreateRequestToEntity(createRideRequest: CreateRideRequest): Ride {
         val startPoint = fromRequestPointToPoint(createRideRequest.startGeo)
         val endPoint = fromRequestPointToPoint(createRideRequest.endGeo)
-
-        return Ride(
-            null,
-            createRideRequest.passengerId,
-            null,
-            null,
-            null,
-            null,
-            null,
-            startPoint,
-            endPoint,
-        )
+        return Ride.builder(createRideRequest.passengerId, startPoint, endPoint).build();
     }
 
     override fun fromRequestPointToPoint(requestPoint: RequestPoint): Point {
