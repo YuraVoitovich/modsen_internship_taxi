@@ -5,7 +5,6 @@ import io.voitovich.yura.rideservice.dto.responce.*
 import io.voitovich.yura.rideservice.service.RideService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -59,6 +58,12 @@ class RideController(val service: RideService) {
     @ResponseStatus(HttpStatus.OK)
     fun updatePassengerPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest) : UpdatePositionResponse {
         return service.updatePassengerPosition(updatePositionRequest)
+    }
+
+    @DeleteMapping("passenger/ride")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun declineRide(@Valid @RequestBody cancelRequest: CancelRequest) {
+        service.cancelRide(cancelRequest)
     }
 
 }

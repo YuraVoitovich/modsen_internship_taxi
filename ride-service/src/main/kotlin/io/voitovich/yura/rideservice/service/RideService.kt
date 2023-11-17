@@ -19,4 +19,5 @@ interface RideService {
 
     fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
 
+    fun cancelRide(cancelRequest: CancelRequest)
 }
