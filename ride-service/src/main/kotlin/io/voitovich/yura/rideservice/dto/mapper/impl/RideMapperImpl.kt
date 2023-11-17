@@ -7,6 +7,7 @@ import io.voitovich.yura.rideservice.dto.responce.AvailableRideResponse
 import io.voitovich.yura.rideservice.dto.responce.ResponsePoint
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.entity.Ride
+import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.model.RideProjection
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
@@ -32,7 +33,10 @@ class RideMapperImpl : RideMapper {
     override fun fromCreateRequestToEntity(createRideRequest: CreateRideRequest): Ride {
         val startPoint = fromRequestPointToPoint(createRideRequest.startGeo)
         val endPoint = fromRequestPointToPoint(createRideRequest.endGeo)
-        return Ride.builder(createRideRequest.passengerId, startPoint, endPoint).build();
+        return Ride
+            .builder(createRideRequest.passengerId, startPoint, endPoint)
+            .status(RideStatus.REQUESTED)
+            .build();
     }
 
     override fun fromRequestPointToPoint(requestPoint: RequestPoint): Point {
@@ -49,6 +53,14 @@ class RideMapperImpl : RideMapper {
             ResponsePoint(model.getEndGeo().position.getCoordinate(0),
                 model.getEndGeo().position.getCoordinate(1)),
             BigDecimal( model.getDistance()))
+    }
+
+    override fun fromPointToResponsePoint(point: Point?): ResponsePoint {
+        return if (point == null) {
+            ResponsePoint(0.0, 0.0);
+        } else {
+            ResponsePoint(point.x, point.y)
+        }
     }
 
     companion object {
