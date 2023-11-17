@@ -1,10 +1,6 @@
 package io.voitovich.yura.rideservice.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
+import jakarta.persistence.*
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
@@ -19,6 +15,9 @@ data class Ride(
     var id: UUID?,
     @Column(name = "passenger_profile_id")
     var passengerProfileId: UUID,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    var status: RideStatus?,
     @Column(name = "driver_profile_id")
     var driverProfileId: UUID?,
     @Column(name = "start_date")
@@ -33,6 +32,11 @@ data class Ride(
     var startPoint: Point,
     @Column(name = "end_geo", columnDefinition = "geometry(Point, $SRID", nullable = false)
     var endPoint: Point,
+    @Column(name = "passengerPosition", columnDefinition = "geometry(Point, ${SRID}")
+    var passengerPosition: Point?,
+    @Column(name = "driverPosition", columnDefinition = "geometry(Point, ${SRID}")
+    var driverPosition: Point?
+
 ) {
     companion object
     {
@@ -55,6 +59,9 @@ data class Ride(
         private var endDate: LocalDateTime? = null
         private var driverRating: BigDecimal? = null
         private var passengerRating: BigDecimal? = null
+        private var status: RideStatus? = null
+        private var passengerPosition: Point? = null
+        private var driverPosition: Point? = null
 
         fun id(id: UUID?) = apply { this.id = id }
         fun driverProfileId(driverProfileId: UUID?) = apply { this.driverProfileId = driverProfileId }
@@ -63,6 +70,9 @@ data class Ride(
         fun driverRating(driverRating: BigDecimal?) = apply { this.driverRating = driverRating }
         fun passengerRating(passengerRating: BigDecimal?) = apply { this.passengerRating = passengerRating }
 
+        fun passengerPosition(passengerPosition: Point?) = apply { this.passengerPosition = passengerPosition }
+        fun driverPosition(driverPosition: Point?) = apply { this.driverPosition = driverPosition }
+        fun status(status: RideStatus?) = apply { this.status = status }
         fun build() = Ride(
             id = id,
             passengerProfileId = passengerProfileId,
@@ -72,7 +82,10 @@ data class Ride(
             driverRating = driverRating,
             passengerRating = passengerRating,
             startPoint = startPoint,
-            endPoint = endPoint
+            endPoint = endPoint,
+            status = status,
+            passengerPosition = passengerPosition,
+            driverPosition = driverPosition
         )
     }
 }
