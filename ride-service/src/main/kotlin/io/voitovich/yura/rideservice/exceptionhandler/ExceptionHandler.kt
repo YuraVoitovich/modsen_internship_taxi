@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import java.util.function.Consumer
-import java.util.logging.Logger
 
 
 @ControllerAdvice
@@ -46,11 +44,11 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
         request: WebRequest
     ): ResponseEntity<Any> {
         log.info(String.format("Handled exception - %s", exception), exception)
-        val errs : Map<String, String> = buildMap {  }
+        val errs = mutableMapOf<String, String?>();
         exception.bindingResult
             .allErrors
             .map { error: ObjectError ->
-                errs.plus(Pair((error as FieldError).field, error.defaultMessage))
+                errs[(error as FieldError).field] = error.defaultMessage
             }
 
         val info =

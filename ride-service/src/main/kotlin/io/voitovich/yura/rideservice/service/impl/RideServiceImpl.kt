@@ -25,7 +25,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
 
         return mapper.toRideResponse(ride
             .orElseThrow { NoSuchRecordException(String
-            .format("Driver profile with id: {%s} not found", id))}
+            .format("Ride with id: {%s} was not found", id))}
         )
     }
 

@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotEmpty
 import java.util.UUID
 
 data class GetAvailableRidesRequest(
-    @NotEmpty
+    @field:NotEmpty
     val id: UUID,
-    @NotEmpty
+    @field:NotEmpty
     val currentLocation: RequestPoint
 )
