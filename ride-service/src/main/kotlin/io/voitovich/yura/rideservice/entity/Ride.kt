@@ -32,9 +32,9 @@ data class Ride(
     var startPoint: Point,
     @Column(name = "end_geo", columnDefinition = "geometry(Point, $SRID", nullable = false)
     var endPoint: Point,
-    @Column(name = "passengerPosition", columnDefinition = "geometry(Point, ${SRID}")
+    @Column(name = "passenger_position", columnDefinition = "geometry(Point, ${SRID}")
     var passengerPosition: Point?,
-    @Column(name = "driverPosition", columnDefinition = "geometry(Point, ${SRID}")
+    @Column(name = "driver_position", columnDefinition = "geometry(Point, ${SRID}")
     var driverPosition: Point?
 
 ) {

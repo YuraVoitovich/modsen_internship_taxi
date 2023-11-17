@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/driver")
+@RequestMapping("/api/ride/driver")
 class DriverRideController(val service: RideService) {
 
     @GetMapping()
