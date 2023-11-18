@@ -1,6 +1,8 @@
 package io.voitovich.yura.rideservice.exceptionhandler
 
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
+import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
+import io.voitovich.yura.rideservice.exception.RideAlreadyCanceled
 import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
@@ -39,6 +41,34 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(RideAlreadyPresented::class)
     fun handleRideAlreadyPresentedException(exception: RideAlreadyPresented): ResponseEntity<ExceptionInfo> {
+        log.info(String.format("Handled exception - %s", exception), exception)
+        val info = ExceptionInfo(
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT,
+            exception.message!!)
+
+        return ResponseEntity(
+            info,
+            HttpStatus.CONFLICT
+        )
+    }
+
+    @ExceptionHandler(RideAlreadyAccepted::class)
+    fun handleRideAlreadyAcceptedException(exception: RideAlreadyAccepted): ResponseEntity<ExceptionInfo> {
+        log.info(String.format("Handled exception - %s", exception), exception)
+        val info = ExceptionInfo(
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT,
+            exception.message!!)
+
+        return ResponseEntity(
+            info,
+            HttpStatus.CONFLICT
+        )
+    }
+
+    @ExceptionHandler(RideAlreadyCanceled::class)
+    fun handleRideAlreadyCanceledException(exception: RideAlreadyCanceled): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
         val info = ExceptionInfo(
             HttpStatus.CONFLICT.value(),
