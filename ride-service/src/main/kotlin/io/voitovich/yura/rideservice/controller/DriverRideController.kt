@@ -14,6 +14,7 @@ import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
+import io.voitovich.yura.rideservice.service.RideDriverManagementService
 import io.voitovich.yura.rideservice.service.RideService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/ride/driver")
 @Tag(name = "Driver ride controller", description = "Driver ride management operations")
-class DriverRideController(val service: RideService) {
+class DriverRideController(val service: RideDriverManagementService) {
 
     @Operation(description = "Get a list of all created rides around the driver within a specified radius")
     @ApiResponses(

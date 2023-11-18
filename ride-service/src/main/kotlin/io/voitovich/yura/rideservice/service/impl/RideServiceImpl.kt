@@ -20,10 +20,6 @@ import java.util.*
 @Service
 class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideService {
 
-
-    @Value("\${default.search-radius}")
-    private var DEFAULT_RADIUS : Int = 300
-
     override fun getRideById(id: UUID): RideResponse {
         val ride = repository.findById(id)
 
@@ -54,74 +50,4 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
             page.totalPages)
     }
 
-    override fun createRide(request: CreateRideRequest): CreateRideResponse {
-        if (repository.existsRideByPassengerProfileIdAndStatus(request.passengerId, RideStatus.REQUESTED)) {
-            throw RideAlreadyPresented(String
-                .format("Ride with requested status is already present for passenger with id: {}",
-                    request.passengerId))
-        }
-        val ride = mapper.fromCreateRequestToEntity(request)
-
-        val savedRide = repository.save(ride)
-        return CreateRideResponse(request.passengerId, savedRide.id!!)
-    }
-
-    override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
-        val rides = repository.getDriverAvailableRides(mapper
-            .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
-            getAvailableRidesRequest.radius ?: DEFAULT_RADIUS)
-        return GetAvailableRidesResponse(rides
-            .map { t -> mapper.toAvailableRideResponse(t) }.toList())
-    }
-
-    override fun acceptRide(acceptRideRequest: AcceptRideRequest) : RideResponse {
-        val rideOptional = repository.findById(acceptRideRequest.rideId)
-        val ride = rideOptional.orElseThrow { NoSuchRecordException(String
-            .format("Ride with id: {%s} was not found", acceptRideRequest.rideId))}
-        if (ride.status == RideStatus.REQUESTED) {
-            ride.status = RideStatus.ACCEPTED
-            ride.driverProfileId = acceptRideRequest.driverId
-            ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
-            return mapper.toRideResponse(repository.save(ride))
-        } else {
-            throw RideAlreadyAccepted(String
-                .format("Ride with id: {id} is already accepted", acceptRideRequest.rideId))
-        }
-    }
-
-    private fun getIfRidePresent(id: UUID) : Ride {
-        val rideOptional = repository.findById(id)
-        return rideOptional.orElseThrow { NoSuchRecordException(String
-            .format("Ride with id: {%s} was not found", id))
-        }
-    }
-    override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        val ride = getIfRidePresent(updatePositionRequest.rideId)
-        ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
-        repository.save(ride)
-        return UpdatePositionResponse(
-            updatePositionRequest.rideId,
-            mapper.fromPointToResponsePoint(ride.passengerPosition),
-            ride.status)
-    }
-
-    override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        val ride = getIfRidePresent(updatePositionRequest.rideId)
-        ride.passengerPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
-        repository.save(ride)
-        return UpdatePositionResponse(
-            updatePositionRequest.rideId,
-            mapper.fromPointToResponsePoint(ride.driverPosition),
-            ride.status)
-    }
-
-    override fun cancelRide(cancelRequest: CancelRequest) {
-        val ride = getIfRidePresent(cancelRequest.rideId)
-        if (ride.status != RideStatus.REQUESTED) {
-            throw RideAlreadyCanceled(String
-                .format("Ride with id: {} can't be canceled", cancelRequest.rideId))
-        }
-        ride.status = RideStatus.CANCELED
-        repository.save(ride)
-    }
 }
