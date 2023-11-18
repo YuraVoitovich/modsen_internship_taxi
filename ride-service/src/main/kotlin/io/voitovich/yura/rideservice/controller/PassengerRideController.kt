@@ -13,6 +13,7 @@ import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
+import io.voitovich.yura.rideservice.service.RidePassengerManagementService
 import io.voitovich.yura.rideservice.service.RideService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/ride/passenger")
 @Tag(name = "Passenger Ride Controller", description = "Passenger ride management operations")
-class PassengerRideController(val service: RideService) {
+class PassengerRideController(val service: RidePassengerManagementService) {
 
     @Operation(description = "Create a new ride for a passenger")
     @ApiResponses(
