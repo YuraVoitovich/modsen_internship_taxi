@@ -34,7 +34,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
     }
 
     override fun deleteRideById(id: UUID) {
-        val ride = repository.findById(id);
+        val ride = repository.findById(id)
         if (ride.isEmpty) {
             throw NoSuchRecordException(String.format("Ride with id: {%s} was not found", id))
         }
@@ -96,7 +96,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         }
     }
     override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        val ride = getIfRidePresent(updatePositionRequest.rideId);
+        val ride = getIfRidePresent(updatePositionRequest.rideId)
         ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
         return UpdatePositionResponse(
@@ -106,7 +106,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
     }
 
     override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        val ride = getIfRidePresent(updatePositionRequest.rideId);
+        val ride = getIfRidePresent(updatePositionRequest.rideId)
         ride.passengerPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
         return UpdatePositionResponse(
