@@ -39,9 +39,8 @@ class RideMapperImpl : RideMapper {
         val startPoint = fromRequestPointToPoint(createRideRequest.startGeo)
         val endPoint = fromRequestPointToPoint(createRideRequest.endGeo)
         return Ride
-            .builder(createRideRequest.passengerId, startPoint, endPoint)
-            .status(RideStatus.REQUESTED)
-            .build();
+            .builder(createRideRequest.passengerId, startPoint, endPoint, RideStatus.REQUESTED)
+            .build()
     }
 
     override fun fromRequestPointToPoint(requestPoint: RequestPoint): Point {

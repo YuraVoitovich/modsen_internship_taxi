@@ -11,6 +11,7 @@ import io.voitovich.yura.rideservice.exception.RideAlreadyCanceled
 import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -18,6 +19,11 @@ import java.util.*
 
 @Service
 class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideService {
+
+
+    @Value("\${default.search-radius}")
+    private var DEFAULT_RADIUS : Int = 300
+
     override fun getRideById(id: UUID): RideResponse {
         val ride = repository.findById(id)
 
@@ -63,8 +69,9 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
         val rides = repository.getDriverAvailableRides(mapper
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
-            getAvailableRidesRequest.radius ?: 500)
-        return GetAvailableRidesResponse(rides.map { t -> mapper.toAvailableRideResponse(t) }.toList())
+            getAvailableRidesRequest.radius ?: DEFAULT_RADIUS)
+        return GetAvailableRidesResponse(rides
+            .map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
 
     override fun acceptRide(acceptRideRequest: AcceptRideRequest) : RideResponse {

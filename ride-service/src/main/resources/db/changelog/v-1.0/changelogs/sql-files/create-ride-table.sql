@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS ride (
     passenger_rating NUMERIC,
     start_geo geometry not null,
     end_geo geometry not null,
-    status varchar(20),
+    status varchar(20) not null,
     passenger_position geometry,
     driver_position geometry
 );

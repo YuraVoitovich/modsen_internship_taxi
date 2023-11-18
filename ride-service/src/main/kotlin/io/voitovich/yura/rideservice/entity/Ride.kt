@@ -17,7 +17,7 @@ data class Ride(
     var passengerProfileId: UUID,
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    var status: RideStatus?,
+    var status: RideStatus,
     @Column(name = "driver_profile_id")
     var driverProfileId: UUID?,
     @Column(name = "start_date")
@@ -44,14 +44,16 @@ data class Ride(
         fun builder(
             passengerProfileId: UUID,
             startPoint: Point,
-            endPoint: Point
-        ) = RideBuilder(passengerProfileId, startPoint, endPoint)
+            endPoint: Point,
+            status: RideStatus
+        ) = RideBuilder(passengerProfileId, startPoint, endPoint, status)
     }
 
     class RideBuilder(
         private val passengerProfileId: UUID,
         private val startPoint: Point,
-        private val endPoint: Point
+        private val endPoint: Point,
+        private val status: RideStatus,
     ) {
         private var id: UUID? = null
         private var driverProfileId: UUID? = null
@@ -59,7 +61,6 @@ data class Ride(
         private var endDate: LocalDateTime? = null
         private var driverRating: BigDecimal? = null
         private var passengerRating: BigDecimal? = null
-        private var status: RideStatus? = null
         private var passengerPosition: Point? = null
         private var driverPosition: Point? = null
 
@@ -72,7 +73,6 @@ data class Ride(
 
         fun passengerPosition(passengerPosition: Point?) = apply { this.passengerPosition = passengerPosition }
         fun driverPosition(driverPosition: Point?) = apply { this.driverPosition = driverPosition }
-        fun status(status: RideStatus?) = apply { this.status = status }
         fun build() = Ride(
             id = id,
             passengerProfileId = passengerProfileId,
