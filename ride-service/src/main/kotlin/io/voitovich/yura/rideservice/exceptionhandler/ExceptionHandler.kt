@@ -1,9 +1,6 @@
 package io.voitovich.yura.rideservice.exceptionhandler
 
-import io.voitovich.yura.rideservice.exception.NoSuchRecordException
-import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
-import io.voitovich.yura.rideservice.exception.RideAlreadyCanceled
-import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
+import io.voitovich.yura.rideservice.exception.*
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
 import mu.KotlinLogging
@@ -36,6 +33,19 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity(
             info,
             HttpStatus.NOT_FOUND
+        )
+    }
+
+    @ExceptionHandler(RideStartConfirmationException::class)
+    fun handleRideStartConfirmationException(exception: RideStartConfirmationException): ResponseEntity<ExceptionInfo> {
+        log.info(String.format("Handled exception - %s", exception), exception)
+        val info = ExceptionInfo(
+            HttpStatus.FORBIDDEN.value(),
+            HttpStatus.FORBIDDEN,
+            exception.message!!)
+        return ResponseEntity(
+            info,
+            HttpStatus.FORBIDDEN
         )
     }
 
