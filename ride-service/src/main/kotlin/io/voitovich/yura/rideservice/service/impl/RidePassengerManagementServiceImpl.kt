@@ -13,13 +13,17 @@ import io.voitovich.yura.rideservice.exception.RideAlreadyCanceled
 import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RidePassengerManagementService
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class RidePassengerManagementServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RidePassengerManagementService {
 
+    private val log = KotlinLogging.logger { }
+
     override fun createRide(request: CreateRideRequest): CreateRideResponse {
+        log.info {"Creating ride for passenger with id: ${request.passengerId}" }
         if (repository.existsRideByPassengerProfileIdAndStatus(request.passengerId, RideStatus.REQUESTED)) {
             throw RideAlreadyPresented(String
                 .format("Ride with requested status is already present for passenger with id: {}",
@@ -32,6 +36,7 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository, val map
     }
 
     override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
+        log.info {"Updating position of passenger for ride with id: ${updatePositionRequest.rideId}"}
         val ride = getIfRidePresent(updatePositionRequest.rideId)
         ride.passengerPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
@@ -42,6 +47,7 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository, val map
     }
 
     override fun cancelRide(cancelRequest: CancelRequest) {
+        log.info {"Canceling ride with id: ${cancelRequest.rideId}" }
         val ride = getIfRidePresent(cancelRequest.rideId)
         if (ride.status != RideStatus.REQUESTED) {
             throw RideAlreadyCanceled(String

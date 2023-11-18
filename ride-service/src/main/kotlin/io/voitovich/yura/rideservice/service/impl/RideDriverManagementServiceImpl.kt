@@ -14,6 +14,7 @@ import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
 import io.voitovich.yura.rideservice.exception.RideStartConfirmationException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
@@ -24,7 +25,10 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
     @Value("\${default.search-radius}")
     private var DEFAULT_RADIUS : Int = 300
 
+    private val log = KotlinLogging.logger { }
+
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
+        log.info("Getting all available rides for driver with id: ${getAvailableRidesRequest.id}")
         val rides = repository.getDriverAvailableRides(mapper
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
             getAvailableRidesRequest.radius ?: DEFAULT_RADIUS)
@@ -33,6 +37,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
     }
 
     override fun acceptRide(acceptRideRequest: AcceptRideRequest) : RideResponse {
+        log.info { "Accepting ride with id: ${acceptRideRequest.rideId}" }
         val rideOptional = repository.findById(acceptRideRequest.rideId)
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
             .format("Ride with id: {%s} was not found", acceptRideRequest.rideId))
@@ -56,6 +61,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
     }
 
     override fun confirmRideStart(rideId: UUID) {
+        log.info { "Confirming the start of the ride with id: $rideId" }
         val ride = getIfRidePresent(rideId)
         if (!repository.canStartRide(rideId)) {
             throw RideStartConfirmationException(String
@@ -66,6 +72,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
     }
 
     override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
+        log.info { "Updating the position of the driver with id: ${updatePositionRequest.id}"}
         val ride = getIfRidePresent(updatePositionRequest.rideId)
         ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
         repository.save(ride)
