@@ -65,7 +65,7 @@ class PassengerRideController(val service: RidePassengerManagementService) {
             )
         ]
     )
-    @PostMapping()
+    @PostMapping("/update-position")
     @ResponseStatus(HttpStatus.OK)
     fun updatePassengerPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
         return service.updatePassengerPosition(updatePositionRequest)
