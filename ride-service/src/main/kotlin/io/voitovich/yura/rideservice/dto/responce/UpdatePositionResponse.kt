@@ -1,7 +1,7 @@
 package io.voitovich.yura.rideservice.dto.responce
 
 import io.voitovich.yura.rideservice.entity.RideStatus
-import java.util.UUID
+import java.util.*
 
 data class UpdatePositionResponse(
     val rideId: UUID,

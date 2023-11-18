@@ -1,12 +1,10 @@
 package io.voitovich.yura.rideservice.entity
 
 import jakarta.persistence.*
-import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
-import org.locationtech.jts.geom.PrecisionModel
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 data class Ride(

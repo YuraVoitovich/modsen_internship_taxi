@@ -1,6 +1,5 @@
 package io.voitovich.yura.rideservice.dto.responce
 
-import org.geolatte.geom.Position
 import java.math.BigDecimal
 import java.util.*
 

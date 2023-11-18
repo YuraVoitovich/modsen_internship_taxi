@@ -1,10 +1,9 @@
 package io.voitovich.yura.rideservice.dto.responce
 
 import io.voitovich.yura.rideservice.entity.RideStatus
-import jakarta.persistence.Column
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 data class RideResponse(
     var id: UUID,

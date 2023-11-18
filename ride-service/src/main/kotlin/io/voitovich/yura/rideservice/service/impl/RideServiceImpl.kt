@@ -102,7 +102,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         return UpdatePositionResponse(
             updatePositionRequest.rideId,
             mapper.fromPointToResponsePoint(ride.passengerPosition),
-            ride.status!!)
+            ride.status)
     }
 
     override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
@@ -112,7 +112,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         return UpdatePositionResponse(
             updatePositionRequest.rideId,
             mapper.fromPointToResponsePoint(ride.driverPosition),
-            ride.status!!)
+            ride.status)
     }
 
     override fun cancelRide(cancelRequest: CancelRequest) {

@@ -1,12 +1,13 @@
 package io.voitovich.yura.rideservice.controller
 
-import io.voitovich.yura.rideservice.dto.request.*
-import io.voitovich.yura.rideservice.dto.responce.*
+import io.voitovich.yura.rideservice.dto.request.RidePageRequest
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
+import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.service.RideService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import java.util.UUID
+import java.util.*
 
 @RestController
 @RequestMapping("/api/ride")
