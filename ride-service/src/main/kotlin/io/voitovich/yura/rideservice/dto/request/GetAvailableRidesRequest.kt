@@ -1,8 +1,7 @@
 package io.voitovich.yura.rideservice.dto.request
 
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import java.util.UUID
+import java.util.*
 
 data class GetAvailableRidesRequest(
     @field:NotNull
