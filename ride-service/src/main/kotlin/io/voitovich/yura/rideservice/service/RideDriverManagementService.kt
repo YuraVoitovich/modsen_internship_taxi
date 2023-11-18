@@ -6,8 +6,11 @@ import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
+import java.util.UUID
 
 interface RideDriverManagementService {
+
+    fun confirmRideStart(rideId: UUID)
 
     fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
 

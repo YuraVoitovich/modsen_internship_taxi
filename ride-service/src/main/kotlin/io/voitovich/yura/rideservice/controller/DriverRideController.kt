@@ -19,6 +19,7 @@ import io.voitovich.yura.rideservice.service.RideService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/ride/driver")
@@ -101,6 +102,11 @@ class DriverRideController(val service: RideDriverManagementService) {
     )
     fun updateDriverPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
         return service.updateDriverPosition(updatePositionRequest)
+    }
+
+    @PostMapping("/confirm-start/{id}")
+    fun confirmRideStart(@PathVariable id: UUID) {
+        service.confirmRideStart(id)
     }
 
 }
