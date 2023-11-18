@@ -109,4 +109,9 @@ class DriverRideController(val service: RideDriverManagementService) {
         service.confirmRideStart(id)
     }
 
+    @PostMapping("/confirm-end/{id}")
+    fun confirmRideEnd(@PathVariable id: UUID) {
+        service.confirmRideEnd(id)
+    }
+
 }

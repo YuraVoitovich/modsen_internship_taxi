@@ -12,6 +12,8 @@ interface RideDriverManagementService {
 
     fun confirmRideStart(rideId: UUID)
 
+    fun confirmRideEnd(rideId: UUID)
+
     fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
 
     fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse

@@ -49,6 +49,19 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
         )
     }
 
+    @ExceptionHandler(RideEndConfirmationException::class)
+    fun handleRideEndConfirmationException(exception: RideEndConfirmationException): ResponseEntity<ExceptionInfo> {
+        log.info(String.format("Handled exception - %s", exception), exception)
+        val info = ExceptionInfo(
+            HttpStatus.FORBIDDEN.value(),
+            HttpStatus.FORBIDDEN,
+            exception.message!!)
+        return ResponseEntity(
+            info,
+            HttpStatus.FORBIDDEN
+        )
+    }
+
     @ExceptionHandler(RideAlreadyPresented::class)
     fun handleRideAlreadyPresentedException(exception: RideAlreadyPresented): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)

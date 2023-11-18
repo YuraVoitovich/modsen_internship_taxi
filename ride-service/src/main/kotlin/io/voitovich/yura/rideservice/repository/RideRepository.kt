@@ -23,4 +23,10 @@ interface RideRepository: JpaRepository<Ride, UUID> {
     )
     fun canStartRide(rideId: UUID) : Boolean
 
+    @Query(
+        value = "select ST_Distance(geography(driver_position), end_geo) < 30 from ride",
+        nativeQuery = true
+    )
+    fun canEndRide(rideId: UUID) : Boolean
+
 }

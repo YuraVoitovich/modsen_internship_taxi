@@ -11,6 +11,7 @@ import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
+import io.voitovich.yura.rideservice.exception.RideEndConfirmationException
 import io.voitovich.yura.rideservice.exception.RideStartConfirmationException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
@@ -68,6 +69,17 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
                 .format("Ride cannot be started as the driver is too far from the pickup location"))
         }
         ride.status = RideStatus.IN_PROGRESS
+        repository.save(ride)
+    }
+
+    override fun confirmRideEnd(rideId: UUID) {
+        log.info { "Confirming the end of the ride with id: $rideId" }
+        val ride = getIfRidePresent(rideId)
+        if (!repository.canEndRide(rideId)) {
+            throw RideEndConfirmationException(String
+                .format("Ride cannot be started as the driver is too far from the end-ride location"))
+        }
+        ride.status = RideStatus.COMPLETED
         repository.save(ride)
     }
 
