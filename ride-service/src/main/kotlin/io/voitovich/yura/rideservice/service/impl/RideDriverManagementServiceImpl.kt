@@ -11,6 +11,7 @@ import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
+import io.voitovich.yura.rideservice.exception.RideStartConfirmationException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
 import org.springframework.beans.factory.annotation.Value
@@ -53,6 +54,17 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
             .format("Ride with id: {%s} was not found", id))
         }
     }
+
+    override fun confirmRideStart(rideId: UUID) {
+        val ride = getIfRidePresent(rideId)
+        if (!repository.canStartRide(rideId)) {
+            throw RideStartConfirmationException(String
+                .format("Ride cannot be started as the driver is too far from the pickup location"))
+        }
+        ride.status = RideStatus.IN_PROGRESS
+        repository.save(ride)
+    }
+
     override fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
         val ride = getIfRidePresent(updatePositionRequest.rideId)
         ride.driverPosition = mapper.fromRequestPointToPoint(updatePositionRequest.location)
