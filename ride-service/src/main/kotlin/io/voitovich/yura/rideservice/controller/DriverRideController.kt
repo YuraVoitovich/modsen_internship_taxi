@@ -104,11 +104,47 @@ class DriverRideController(val service: RideDriverManagementService) {
         return service.updateDriverPosition(updatePositionRequest)
     }
 
+
+
+    @Operation(
+        description = "Confirm the start of a ride by the driver.",
+        responses = [
+            ApiResponse(
+                responseCode = "204",
+                description = "The ride start was successfully confirmed.",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "The specified ride was not found."
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Ride cannot be started as the driver is too far from the pickup location."
+            )
+        ]
+    )
     @PostMapping("/confirm-start/{id}")
     fun confirmRideStart(@PathVariable id: UUID) {
         service.confirmRideStart(id)
     }
 
+    @Operation(
+        description = "Confirm the end of a ride by the driver.",
+        responses = [
+            ApiResponse(
+                responseCode = "204",
+                description = "The ride end was successfully confirmed.",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "The specified ride was not found."
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Ride cannot be started as the driver is too far from the ride-end location."
+            )
+        ]
+    )
     @PostMapping("/confirm-end/{id}")
     fun confirmRideEnd(@PathVariable id: UUID) {
         service.confirmRideEnd(id)
