@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2023-11-15--01-create-ride-table" author="admin">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="ride"/>
+            </not>
+        </preConditions>
+        <sqlFile path="sql-files/create-ride-table.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="sql-files/drop-ride-table.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://database:5432/ride_db
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
+  h2:
+    console:
+      enabled: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+  jooq:
+    sql-dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+default:
+  search-radius: 500
