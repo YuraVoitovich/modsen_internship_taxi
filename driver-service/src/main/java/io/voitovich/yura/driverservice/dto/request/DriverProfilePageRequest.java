@@ -9,7 +9,7 @@ public record DriverProfilePageRequest(
         int pageNumber,
         @Min(1)
         int pageSize,
-        @OrderBy(DriverProfileRequest.class)
+        @OrderBy(DriverProfileUpdateRequest.class)
         String orderBy
 ) {
 }

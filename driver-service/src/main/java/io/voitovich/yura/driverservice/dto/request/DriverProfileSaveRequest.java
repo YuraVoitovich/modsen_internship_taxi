@@ -4,15 +4,10 @@ import io.voitovich.yura.driverservice.validation.annotations.SortExclude;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Builder;
 
 import java.util.UUID;
 
-
-@Builder
-public record DriverProfileRequest(
-        UUID id,
-
+public record DriverProfileSaveRequest(
         @SortExclude
         @Pattern(regexp = "^\\+375(17|29|33|44)[0-9]{7}$")
         String phoneNumber,
@@ -25,4 +20,5 @@ public record DriverProfileRequest(
 
         @Min(0)
         int experience
-) { }
+) {
+}
