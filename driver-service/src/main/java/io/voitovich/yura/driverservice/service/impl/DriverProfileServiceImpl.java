@@ -2,6 +2,7 @@ package io.voitovich.yura.driverservice.service.impl;
 
 import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.entity.DriverProfile;
@@ -43,13 +44,13 @@ public class DriverProfileServiceImpl implements DriverProfileService {
     }
 
     @Override
-    public DriverProfileResponse saveProfile(DriverProfileRequest profileDto) {
-        log.info("Saving driver profile: {}", profileDto);
-        if (repository.existsDriverProfileByPhoneNumber(profileDto.phoneNumber())) {
+    public DriverProfileResponse saveProfile(DriverProfileSaveRequest request) {
+        log.info("Saving driver profile: {}", request);
+        if (repository.existsDriverProfileByPhoneNumber(request.phoneNumber())) {
             throw new NotUniquePhoneException(String
-                    .format("Driver profile with phone number: {%s} already exists", profileDto.phoneNumber()));
+                    .format("Driver profile with phone number: {%s} already exists", request.phoneNumber()));
         }
-        DriverProfile profile = INSTANCE.toProfileEntity(profileDto);
+        DriverProfile profile = INSTANCE.toProfileFromSaveRequest(request);
         profile.setRating(START_RATING);
         return INSTANCE.toProfileResponse(repository.save(profile));
     }
