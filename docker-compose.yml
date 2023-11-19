@@ -1,7 +1,7 @@
 version: '1.0'
 services:
   database:
-    image: postgres:latest
+    image: postgis/postgis:latest
     ports:
       - "5432:5432"
     environment:
