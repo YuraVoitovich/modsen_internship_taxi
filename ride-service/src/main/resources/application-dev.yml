@@ -12,3 +12,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
+  jooq:
+    sql-dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+default:
+  search-radius: 500
