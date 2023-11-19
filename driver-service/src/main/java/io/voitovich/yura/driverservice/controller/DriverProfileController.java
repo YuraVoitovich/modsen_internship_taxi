@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.voitovich.yura.driverservice.controller.utils.UUIDUtils;
 import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
-import io.voitovich.yura.driverservice.dto.request.DriverProfileRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
@@ -90,7 +90,7 @@ public class DriverProfileController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping()
-    private DriverProfileResponse updateProfile(@Valid @RequestBody DriverProfileRequest profileDto) {
+    private DriverProfileResponse updateProfile(@Valid @RequestBody DriverProfileUpdateRequest profileDto) {
         return profileService.updateProfile(profileDto);
     }
 

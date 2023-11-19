@@ -10,7 +10,8 @@ import java.util.UUID;
 
 
 @Builder
-public record DriverProfileRequest(
+public record DriverProfileUpdateRequest(
+        @NotBlank
         UUID id,
 
         @SortExclude
