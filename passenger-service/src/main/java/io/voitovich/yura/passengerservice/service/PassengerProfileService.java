@@ -1,7 +1,8 @@
 package io.voitovich.yura.passengerservice.service;
 
 import io.voitovich.yura.passengerservice.dto.request.PassengerProfilePageRequest;
-import io.voitovich.yura.passengerservice.dto.request.PassengerProfileRequest;
+import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequest;
+import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 
@@ -11,9 +12,9 @@ public interface PassengerProfileService {
 
     PassengerProfileResponse getProfileById(UUID uuid);
 
-    PassengerProfileResponse updateProfile(PassengerProfileRequest profileDto);
+    PassengerProfileResponse updateProfile(PassengerProfileUpdateRequest profileDto);
 
-    PassengerProfileResponse saveProfile(PassengerProfileRequest profileDto);
+    PassengerProfileResponse saveProfile(PassengerSaveProfileRequest profileDto);
 
     PassengerProfilePageResponse getProfilePage(PassengerProfilePageRequest pageRequest);
 
