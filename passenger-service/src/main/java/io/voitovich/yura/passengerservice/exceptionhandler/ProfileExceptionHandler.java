@@ -53,11 +53,11 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.CONFLICT.value())
+                .status(HttpStatus.CONFLICT)
                 .message(exception.getMessage())
                 .build();
-        return ResponseEntity.badRequest().body(info);
+        return new ResponseEntity<>(info, HttpStatus.CONFLICT);
     }
 
     @Override
