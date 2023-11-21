@@ -12,6 +12,8 @@ import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
+import io.voitovich.yura.rideservice.event.KafkaProducerService
+import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
@@ -23,7 +25,7 @@ import java.util.*
 @RestController
 @RequestMapping("/api/ride/driver")
 @Tag(name = "Driver ride controller", description = "Driver ride management operations")
-class DriverRideController(val service: RideDriverManagementService) {
+class DriverRideController(val service: RideDriverManagementService, val kafkaProducerService: KafkaProducerService) {
 
     @Operation(description = "Get a list of all created rides around the driver within a specified radius")
     @ApiResponses(
@@ -147,6 +149,11 @@ class DriverRideController(val service: RideDriverManagementService) {
     @PostMapping("/confirm-end/{id}")
     fun confirmRideEnd(@PathVariable id: UUID) {
         service.confirmRideEnd(id)
+    }
+
+    @PostMapping("/rate")
+    fun ratePassenger(@Valid @RequestBody model: SendRatingModel) {
+        kafkaProducerService.sendRating(model)
     }
 
 }

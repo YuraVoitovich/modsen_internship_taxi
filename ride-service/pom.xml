@@ -31,6 +31,10 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>io.github.microutils</groupId>
 			<artifactId>kotlin-logging-jvm</artifactId>
 			<version>${kotlin.loggin.version}</version>
