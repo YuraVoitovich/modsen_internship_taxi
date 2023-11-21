@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus
 
 @Schema(name = "ValidationExceptionInfo", description = "Represents information about validation exceptions.")
 data class ValidationExceptionInfo(
-    @Schema(name = "code", description = "Error status code", example = "400")
-    val code: Int,
 
     @Schema(name = "status", description = "Error status", example = "BAD_REQUEST")
     val status: HttpStatus,

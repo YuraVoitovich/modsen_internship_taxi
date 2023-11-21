@@ -11,9 +11,6 @@ import java.util.Map;
 @Builder
 @Schema(name = "ValidationExceptionInfo", description = "represents all validation exceptions")
 public record ValidationExceptionInfo (
-
-    @Schema(name = "code", description = "error status code", example = "400")
-    int code,
     @Schema(name = "status", description = "error status", example = "BAD_REQUEST")
     @NonNull
     HttpStatus status,
