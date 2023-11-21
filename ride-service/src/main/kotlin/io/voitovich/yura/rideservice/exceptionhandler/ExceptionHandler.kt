@@ -25,7 +25,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(NoSuchRecordException::class)
     fun handleNoSuchRecordException(exception: NoSuchRecordException): ResponseEntity<ExceptionInfo> {
-        log.info(String.format("Handled exception - %s", exception), exception)
+        log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
             HttpStatus.NOT_FOUND,
             exception.message!!)
@@ -34,7 +34,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(RideStartConfirmationException::class)
     fun handleRideStartConfirmationException(exception: RideStartConfirmationException): ResponseEntity<ExceptionInfo> {
-        log.info(String.format("Handled exception - %s", exception), exception)
+        log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
             HttpStatus.FORBIDDEN,
             exception.message!!)
@@ -43,7 +43,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(RideEndConfirmationException::class)
     fun handleRideEndConfirmationException(exception: RideEndConfirmationException): ResponseEntity<ExceptionInfo> {
-        log.info(String.format("Handled exception - %s", exception), exception)
+        log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
             HttpStatus.FORBIDDEN,
             exception.message!!)
@@ -52,7 +52,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(RideAlreadyPresented::class)
     fun handleRideAlreadyPresentedException(exception: RideAlreadyPresented): ResponseEntity<ExceptionInfo> {
-        log.info(String.format("Handled exception - %s", exception), exception)
+        log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
             HttpStatus.CONFLICT,
             exception.message!!)
@@ -62,7 +62,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(RideAlreadyAccepted::class)
     fun handleRideAlreadyAcceptedException(exception: RideAlreadyAccepted): ResponseEntity<ExceptionInfo> {
-        log.info(String.format("Handled exception - %s", exception), exception)
+        log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
             HttpStatus.CONFLICT,
             exception.message!!)
@@ -72,7 +72,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(RideAlreadyCanceled::class)
     fun handleRideAlreadyCanceledException(exception: RideAlreadyCanceled): ResponseEntity<ExceptionInfo> {
-        log.info(String.format("Handled exception - %s", exception), exception)
+        log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
             HttpStatus.CONFLICT,
             exception.message!!)
@@ -86,7 +86,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
         status: HttpStatusCode,
         request: WebRequest
     ): ResponseEntity<Any> {
-        log.info(String.format("Handled exception - %s", exception), exception)
+        log.info {"Handled exception - $exception"}
         val errs = mutableMapOf<String, String?>();
         exception.bindingResult
             .allErrors
