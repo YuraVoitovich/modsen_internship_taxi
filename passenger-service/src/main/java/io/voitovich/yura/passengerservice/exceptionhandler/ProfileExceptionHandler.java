@@ -45,7 +45,7 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .message(exception.getMessage())
                 .build();
-        return new ResponseEntity<>(info, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(info);
     }
 
     @ExceptionHandler(NotUniquePhoneException.class)
@@ -57,7 +57,7 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .message(exception.getMessage())
                 .build();
-        return new ResponseEntity<>(info, HttpStatus.CONFLICT);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(info);
     }
 
     @Override
