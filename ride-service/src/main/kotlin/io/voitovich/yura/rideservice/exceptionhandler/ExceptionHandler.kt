@@ -27,7 +27,6 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleNoSuchRecordException(exception: NoSuchRecordException): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
         val info = ExceptionInfo(
-            HttpStatus.NOT_FOUND.value(),
             HttpStatus.NOT_FOUND,
             exception.message!!)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(info)
@@ -37,7 +36,6 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleRideStartConfirmationException(exception: RideStartConfirmationException): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
         val info = ExceptionInfo(
-            HttpStatus.FORBIDDEN.value(),
             HttpStatus.FORBIDDEN,
             exception.message!!)
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
@@ -47,7 +45,6 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleRideEndConfirmationException(exception: RideEndConfirmationException): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
         val info = ExceptionInfo(
-            HttpStatus.FORBIDDEN.value(),
             HttpStatus.FORBIDDEN,
             exception.message!!)
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
@@ -57,7 +54,6 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleRideAlreadyPresentedException(exception: RideAlreadyPresented): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
         val info = ExceptionInfo(
-            HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT,
             exception.message!!)
 
@@ -68,7 +64,6 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleRideAlreadyAcceptedException(exception: RideAlreadyAccepted): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
         val info = ExceptionInfo(
-            HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT,
             exception.message!!)
 
@@ -79,7 +74,6 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleRideAlreadyCanceledException(exception: RideAlreadyCanceled): ResponseEntity<ExceptionInfo> {
         log.info(String.format("Handled exception - %s", exception), exception)
         val info = ExceptionInfo(
-            HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT,
             exception.message!!)
 
@@ -102,7 +96,6 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
 
         val info =
            ValidationExceptionInfo(
-               HttpStatus.BAD_REQUEST.value(),
                HttpStatus.BAD_REQUEST,
                errs,
            )

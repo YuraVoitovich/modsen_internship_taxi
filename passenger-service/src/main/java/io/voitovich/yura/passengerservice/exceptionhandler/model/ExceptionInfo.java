@@ -9,10 +9,6 @@ import org.springframework.http.HttpStatus;
 @Builder
 @Schema(description = "Exception info")
 public record ExceptionInfo (
-
-    @Schema(name = "code", description = "error status code", example = "400")
-    int code,
-
     @Schema(name = "message", description = "error message", example = "Not found")
     @NonNull
     String message,

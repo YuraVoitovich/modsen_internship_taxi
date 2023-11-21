@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 
 @Builder
 public record ExceptionInfo (
-    int code,
     @NonNull
     HttpStatus status,
     @NonNull
