@@ -1,8 +1,8 @@
 package io.voitovich.yura.driverservice.service;
 
 import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
-import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 
