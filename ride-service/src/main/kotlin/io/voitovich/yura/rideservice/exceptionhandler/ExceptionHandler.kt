@@ -30,10 +30,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
             HttpStatus.NOT_FOUND.value(),
             HttpStatus.NOT_FOUND,
             exception.message!!)
-        return ResponseEntity(
-            info,
-            HttpStatus.NOT_FOUND
-        )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(info)
     }
 
     @ExceptionHandler(RideStartConfirmationException::class)
@@ -43,10 +40,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
             HttpStatus.FORBIDDEN.value(),
             HttpStatus.FORBIDDEN,
             exception.message!!)
-        return ResponseEntity(
-            info,
-            HttpStatus.FORBIDDEN
-        )
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
     }
 
     @ExceptionHandler(RideEndConfirmationException::class)
@@ -56,10 +50,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
             HttpStatus.FORBIDDEN.value(),
             HttpStatus.FORBIDDEN,
             exception.message!!)
-        return ResponseEntity(
-            info,
-            HttpStatus.FORBIDDEN
-        )
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
     }
 
     @ExceptionHandler(RideAlreadyPresented::class)
@@ -70,10 +61,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
             HttpStatus.CONFLICT,
             exception.message!!)
 
-        return ResponseEntity(
-            info,
-            HttpStatus.CONFLICT
-        )
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(info)
     }
 
     @ExceptionHandler(RideAlreadyAccepted::class)
@@ -84,10 +72,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
             HttpStatus.CONFLICT,
             exception.message!!)
 
-        return ResponseEntity(
-            info,
-            HttpStatus.CONFLICT
-        )
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(info)
     }
 
     @ExceptionHandler(RideAlreadyCanceled::class)
@@ -98,10 +83,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
             HttpStatus.CONFLICT,
             exception.message!!)
 
-        return ResponseEntity(
-            info,
-            HttpStatus.CONFLICT
-        )
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(info)
     }
 
     override fun handleMethodArgumentNotValid(
