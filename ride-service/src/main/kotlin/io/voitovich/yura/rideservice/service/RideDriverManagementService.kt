@@ -6,7 +6,7 @@ import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
-import java.util.UUID
+import java.util.*
 
 interface RideDriverManagementService {
 

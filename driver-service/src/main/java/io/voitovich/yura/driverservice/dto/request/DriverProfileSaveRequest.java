@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-import java.util.UUID;
-
 public record DriverProfileSaveRequest(
         @SortExclude
         @Pattern(regexp = "^\\+375(17|29|33|44)[0-9]{7}$")

@@ -1,7 +1,6 @@
 package io.voitovich.yura.driverservice.dto.response;
 
 
-import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
 import lombok.NonNull;

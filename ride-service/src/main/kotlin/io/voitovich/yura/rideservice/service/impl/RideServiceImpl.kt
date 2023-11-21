@@ -1,18 +1,13 @@
 package io.voitovich.yura.rideservice.service.impl
 
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
-import io.voitovich.yura.rideservice.dto.request.*
-import io.voitovich.yura.rideservice.dto.responce.*
-import io.voitovich.yura.rideservice.entity.Ride
-import io.voitovich.yura.rideservice.entity.RideStatus
+import io.voitovich.yura.rideservice.dto.request.RidePageRequest
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
+import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
-import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
-import io.voitovich.yura.rideservice.exception.RideAlreadyCanceled
-import io.voitovich.yura.rideservice.exception.RideAlreadyPresented
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideService
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service

@@ -1,8 +1,8 @@
 package io.voitovich.yura.driverservice.service.impl;
 
 import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
-import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.entity.DriverProfile;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 import static io.voitovich.yura.driverservice.dto.mapper.DriverProfileMapper.INSTANCE;
@@ -57,10 +56,7 @@ public class DriverProfileServiceImpl implements DriverProfileService {
         log.info("Updating driver profile: {}", request);
         DriverProfile profile = getIfPresent(request.id());
         if (!profile.getPhoneNumber().equals(request.phoneNumber())) {
-            if (repository.existsDriverProfileByPhoneNumber(request.phoneNumber())) {
-                throw new NotUniquePhoneException(String
-                        .format("Driver profile with phone number: {%s} already exists", request.phoneNumber()));
-            }
+            checkPhoneNumberUnique(request.phoneNumber());
         }
         INSTANCE.updateProfileEntity(request, profile);
         profile = repository.save(profile);
@@ -93,5 +89,12 @@ public class DriverProfileServiceImpl implements DriverProfileService {
         return repository.getDriverProfilesById(uuid)
                 .orElseThrow(() -> new NoSuchRecordException(
                         String.format("Driver profile with id: {%s} not found", uuid)));
+    }
+
+    private void checkPhoneNumberUnique(String phoneNumber) {
+        if (repository.existsDriverProfileByPhoneNumber(phoneNumber)) {
+            throw new NotUniquePhoneException(String
+                    .format("Driver profile with phone number: {%s} already exists", phoneNumber));
+        }
     }
 }
