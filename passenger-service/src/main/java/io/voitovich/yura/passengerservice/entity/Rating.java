@@ -13,6 +13,7 @@ import java.util.UUID;
 @ToString
 @Entity
 @Table(name = "rating")
+@Builder
 public class Rating {
 
     @Id
