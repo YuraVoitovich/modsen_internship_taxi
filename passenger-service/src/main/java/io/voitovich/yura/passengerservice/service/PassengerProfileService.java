@@ -5,6 +5,8 @@ import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequ
 import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
+import io.voitovich.yura.passengerservice.entity.PassengerProfile;
+import io.voitovich.yura.passengerservice.model.RecalculateRatingModel;
 
 import java.util.UUID;
 
@@ -19,4 +21,8 @@ public interface PassengerProfileService {
     PassengerProfilePageResponse getProfilePage(PassengerProfilePageRequest pageRequest);
 
     void deleteProfile(UUID uuid);
+
+    PassengerProfile getIfPresent(UUID id);
+
+    PassengerProfile getPassengerProfileAndRecalculateRating(RecalculateRatingModel model);
 }

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
 import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
+import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
@@ -152,8 +153,9 @@ class DriverRideController(val service: RideDriverManagementService, val kafkaPr
     }
 
     @PostMapping("/rate")
-    fun ratePassenger(@Valid @RequestBody model: SendRatingModel) {
-        kafkaProducerService.sendRating(model)
+    @ResponseStatus(HttpStatus.OK)
+    fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
+        kafkaProducerService.ratePassenger(request)
     }
 
 }

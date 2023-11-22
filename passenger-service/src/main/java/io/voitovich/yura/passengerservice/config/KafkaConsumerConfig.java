@@ -1,6 +1,6 @@
 package io.voitovich.yura.passengerservice.config;
 
-import io.voitovich.yura.passengerservice.event.model.RecieveRatingModel;
+import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, RecieveRatingModel> consumerFactory(KafkaProperties kafkaProperties) {
+    public ConsumerFactory<String, ReceiveRatingModel> consumerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
@@ -29,7 +29,7 @@ public class KafkaConsumerConfig {
 
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, RecieveRatingModel.class);
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, ReceiveRatingModel.class);
 
         return new DefaultKafkaConsumerFactory<>(props);
 
@@ -37,9 +37,9 @@ public class KafkaConsumerConfig {
 
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, RecieveRatingModel> kafkaListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, ReceiveRatingModel> kafkaListenerContainerFactory(
             KafkaProperties kafkaProperties) {
-        ConcurrentKafkaListenerContainerFactory<String, RecieveRatingModel> factory =
+        ConcurrentKafkaListenerContainerFactory<String, ReceiveRatingModel> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory(kafkaProperties));
         return factory;
