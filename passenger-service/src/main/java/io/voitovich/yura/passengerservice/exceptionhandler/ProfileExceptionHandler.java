@@ -29,7 +29,6 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST)
                 .message(exception.getMessage())
                 .build();
@@ -41,11 +40,10 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.NOT_FOUND.value())
                 .status(HttpStatus.NOT_FOUND)
                 .message(exception.getMessage())
                 .build();
-        return new ResponseEntity<>(info, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(info);
     }
 
     @ExceptionHandler(NotUniquePhoneException.class)
@@ -53,11 +51,10 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.CONFLICT)
                 .message(exception.getMessage())
                 .build();
-        return ResponseEntity.badRequest().body(info);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(info);
     }
 
     @Override
@@ -65,7 +62,6 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(String.format("Handled exception - %s", exception), exception);
         var infoBuilder = ValidationExceptionInfo
                 .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST);
 
         exception.getBindingResult().getAllErrors().forEach(error -> infoBuilder

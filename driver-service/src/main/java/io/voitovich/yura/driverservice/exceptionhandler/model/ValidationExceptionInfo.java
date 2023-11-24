@@ -9,7 +9,6 @@ import java.util.Map;
 
 @Builder
 public record ValidationExceptionInfo (
-    int code,
     @NonNull
     HttpStatus status,
     @Singular

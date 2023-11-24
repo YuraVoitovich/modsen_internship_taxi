@@ -1,7 +1,8 @@
 package io.voitovich.yura.driverservice.service.impl;
 
 import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
-import io.voitovich.yura.driverservice.dto.request.DriverProfileRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.entity.DriverProfile;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 import static io.voitovich.yura.driverservice.dto.mapper.DriverProfileMapper.INSTANCE;
@@ -36,32 +36,29 @@ public class DriverProfileServiceImpl implements DriverProfileService {
     public DriverProfileResponse getProfileById(UUID uuid) {
         log.info("Getting driver profile by id: {}", uuid);
         return INSTANCE
-                .toProfileResponse(repository
-                        .getDriverProfilesById(uuid)
-                        .orElseThrow(() -> new NoSuchRecordException(String
-                                .format("Driver profile with id: {%s} not found", uuid))));
+                .toProfileResponse(getIfPresent(uuid));
     }
 
     @Override
-    public DriverProfileResponse saveProfile(DriverProfileRequest profileDto) {
-        log.info("Saving driver profile: {}", profileDto);
-        if (repository.existsDriverProfileByPhoneNumber(profileDto.phoneNumber())) {
+    public DriverProfileResponse saveProfile(DriverProfileSaveRequest request) {
+        log.info("Saving driver profile: {}", request);
+        if (repository.existsDriverProfileByPhoneNumber(request.phoneNumber())) {
             throw new NotUniquePhoneException(String
-                    .format("Driver profile with phone number: {%s} already exists", profileDto.phoneNumber()));
+                    .format("Driver profile with phone number: {%s} already exists", request.phoneNumber()));
         }
-        DriverProfile profile = INSTANCE.toProfileEntity(profileDto);
+        DriverProfile profile = INSTANCE.toProfileFromSaveRequest(request);
         profile.setRating(START_RATING);
         return INSTANCE.toProfileResponse(repository.save(profile));
     }
 
     @Override
-    public DriverProfileResponse updateProfile(DriverProfileRequest profileDto) {
-        log.info("Updating driver profile: {}", profileDto);
-        if (repository.existsDriverProfileByPhoneNumber(profileDto.phoneNumber())) {
-            throw new NotUniquePhoneException(String
-                    .format("Driver profile with phone number: {%s} already exists", profileDto.phoneNumber()));
+    public DriverProfileResponse updateProfile(DriverProfileUpdateRequest request) {
+        log.info("Updating driver profile: {}", request);
+        DriverProfile profile = getIfPresent(request.id());
+        if (!profile.getPhoneNumber().equals(request.phoneNumber())) {
+            checkPhoneNumberUnique(request.phoneNumber());
         }
-        DriverProfile profile = INSTANCE.toProfileEntity(profileDto);
+        INSTANCE.updateProfileEntity(request, profile);
         profile = repository.save(profile);
         return INSTANCE.toProfileResponse(profile);
     }
@@ -77,18 +74,27 @@ public class DriverProfileServiceImpl implements DriverProfileService {
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .pageNumber(pageRequest.pageNumber())
-                .profiles(page.getContent().stream().map(INSTANCE::toProfileRequest).toList())
+                .profiles(page.getContent().stream().map(INSTANCE::toProfileResponse).toList())
                 .build();
     }
 
     @Override
     public void deleteProfileById(UUID uuid) {
         log.info("Deleting driver profile by id: {}", uuid);
-        Optional<DriverProfile> profile = repository.getDriverProfilesById(uuid);
-        if (profile.isPresent()) {
-            repository.deleteById(uuid);
-        } else {
-            throw new NoSuchRecordException(String.format("Driver profile with id: {%s} not found", uuid));
+        DriverProfile profile = getIfPresent(uuid);
+        repository.deleteById(uuid);
+    }
+
+    private DriverProfile getIfPresent(UUID uuid) {
+        return repository.getDriverProfilesById(uuid)
+                .orElseThrow(() -> new NoSuchRecordException(
+                        String.format("Driver profile with id: {%s} not found", uuid)));
+    }
+
+    private void checkPhoneNumberUnique(String phoneNumber) {
+        if (repository.existsDriverProfileByPhoneNumber(phoneNumber)) {
+            throw new NotUniquePhoneException(String
+                    .format("Driver profile with phone number: {%s} already exists", phoneNumber));
         }
     }
 }

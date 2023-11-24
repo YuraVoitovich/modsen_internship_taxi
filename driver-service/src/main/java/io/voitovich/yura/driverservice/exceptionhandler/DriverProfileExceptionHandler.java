@@ -26,7 +26,6 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST)
                 .message(exception.getMessage())
                 .build();
@@ -37,11 +36,10 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.NOT_FOUND.value())
                 .status(HttpStatus.NOT_FOUND)
                 .message(exception.getMessage())
                 .build();
-        return new ResponseEntity<>(info, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(info);
     }
 
     @ExceptionHandler(NotUniquePhoneException.class)
@@ -49,11 +47,10 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .code(HttpStatus.CONFLICT.value())
                 .status(HttpStatus.CONFLICT)
                 .message(exception.getMessage())
                 .build();
-        return new ResponseEntity<>(info, HttpStatus.CONFLICT);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(info);
     }
 
     @Override
@@ -61,7 +58,6 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
         log.info(String.format("Handled exception - %s", exception), exception);
         var infoBuilder = ValidationExceptionInfo
                 .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST);
 
         exception.getBindingResult()

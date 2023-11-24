@@ -9,7 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.voitovich.yura.driverservice.controller.utils.UUIDUtils;
 import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
-import io.voitovich.yura.driverservice.dto.request.DriverProfileRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
+import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ExceptionInfo;
@@ -89,7 +90,7 @@ public class DriverProfileController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping()
-    private DriverProfileResponse updateProfile(@Valid @RequestBody DriverProfileRequest profileDto) {
+    private DriverProfileResponse updateProfile(@Valid @RequestBody DriverProfileUpdateRequest profileDto) {
         return profileService.updateProfile(profileDto);
     }
 
@@ -106,17 +107,12 @@ public class DriverProfileController {
                     content = {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ExceptionInfo.class))
-                    }),
-            @ApiResponse(responseCode = "400", description = "Invalid id format",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
                     })
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping()
-    private DriverProfileResponse saveProfile(@Valid  @RequestBody DriverProfileRequest profileDto) {
-        return profileService.saveProfile(profileDto);
+    private DriverProfileResponse saveProfile(@Valid  @RequestBody DriverProfileSaveRequest request) {
+        return profileService.saveProfile(request);
     }
 
     @Operation(description = "Delete driver profile by id")

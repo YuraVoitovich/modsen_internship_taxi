@@ -8,7 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.voitovich.yura.passengerservice.dto.request.PassengerProfilePageRequest;
-import io.voitovich.yura.passengerservice.dto.request.PassengerProfileRequest;
+import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequest;
+import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
@@ -89,8 +90,8 @@ public class PassengerProfileController {
     })
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
-    PassengerProfileResponse updateProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
-        return profileService.updateProfile(passengerProfileRequest);
+    PassengerProfileResponse updateProfile(@Valid @RequestBody PassengerProfileUpdateRequest request) {
+        return profileService.updateProfile(request);
     }
 
 
@@ -115,8 +116,8 @@ public class PassengerProfileController {
     })
     @PutMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerProfileRequest passengerProfileRequest) {
-        return profileService.saveProfile(passengerProfileRequest);
+    PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerSaveProfileRequest passengerSaveProfileRequest) {
+        return profileService.saveProfile(passengerSaveProfileRequest);
     }
 
 
