@@ -1,4 +1,4 @@
-package io.voitovich.yura.rideservice.event
+package io.voitovich.yura.rideservice.event.service
 
 import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 
