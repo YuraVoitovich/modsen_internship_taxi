@@ -21,18 +21,31 @@ import org.springframework.messaging.MessageChannel
 class KafkaProducerConfig {
 
     private var replicasAssignments : Short = 1
-    private var topicName: String = "rate_passenger_topic"
+    private var ratePassengerTopicName: String = "rate_passenger_topic"
+    private var rateDriverTopicName: String = "rate_driver_topic"
     private var numPartitions: Int = 1
-    private var channelName = "sendToKafkaChannel"
+    private var ratePassengerChannelName = "ratePassengerChannel"
+    private var rateDriverChannelName = "rateDriverChannel"
 
     @Bean
-    fun sendToKafkaFlow(properties: KafkaProperties): IntegrationFlow {
+    fun ratePassengerFlow(properties: KafkaProperties): IntegrationFlow {
         return IntegrationFlow {
             f: IntegrationFlowDefinition<*> ->
-            f.channel(channelName)
+            f.channel(ratePassengerChannelName)
                 .handle(Kafka.outboundChannelAdapter(kafkaTemplate(properties))
                     .messageKey<Any?> { m -> m.headers[IntegrationMessageHeaderAccessor.SEQUENCE_NUMBER] }
-                    .topic(topicName))
+                    .topic(ratePassengerTopicName))
+        }
+    }
+
+    @Bean
+    fun rateDriverFlow(properties: KafkaProperties): IntegrationFlow {
+        return IntegrationFlow {
+                f: IntegrationFlowDefinition<*> ->
+            f.channel(rateDriverChannelName)
+                .handle(Kafka.outboundChannelAdapter(kafkaTemplate(properties))
+                    .messageKey<Any?> { m -> m.headers[IntegrationMessageHeaderAccessor.SEQUENCE_NUMBER] }
+                    .topic(rateDriverTopicName))
         }
     }
     @Bean
@@ -54,7 +67,12 @@ class KafkaProducerConfig {
     }
 
     @Bean
-    fun topic(): NewTopic{
-        return NewTopic(topicName, numPartitions,replicasAssignments)
+    fun ratePassengerTopic(): NewTopic{
+        return NewTopic(ratePassengerTopicName, numPartitions,replicasAssignments)
+    }
+
+    @Bean
+    fun rateDriverTopic(): NewTopic{
+        return NewTopic(rateDriverTopicName, numPartitions,replicasAssignments)
     }
 }

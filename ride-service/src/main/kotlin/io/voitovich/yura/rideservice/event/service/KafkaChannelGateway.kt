@@ -5,9 +5,13 @@ import org.springframework.integration.annotation.Gateway
 import org.springframework.integration.annotation.MessagingGateway
 
 
-@MessagingGateway(defaultRequestChannel = "sendToKafkaChannel")
+@MessagingGateway(defaultRequestChannel = "ratePassengerChannel")
 interface KafkaChannelGateway : SendRatingHandler {
 
-    @Gateway(requestChannel = "sendToKafkaChannel")
-    override fun handleSendRatingRequest(sendRatingModel: SendRatingModel);
+    @Gateway(requestChannel = "ratePassengerChannel")
+    override fun handleRatePassengerRequest(sendRatingModel: SendRatingModel)
+
+
+    @Gateway(requestChannel = "rateDriverChannel")
+    override fun handleRateDriverRequest(sendRatingModel: SendRatingModel)
 }

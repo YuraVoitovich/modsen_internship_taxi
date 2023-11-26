@@ -8,9 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.voitovich.yura.rideservice.dto.request.CancelRequest
 import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
+import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
+import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
 import io.voitovich.yura.rideservice.service.RidePassengerManagementService
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/ride/passenger")
 @Tag(name = "Passenger Ride Controller", description = "Passenger ride management operations")
-class PassengerRideController(val service: RidePassengerManagementService) {
+class PassengerRideController(val service: RidePassengerManagementService, val kafkaProducerService: KafkaProducerService) {
 
     @Operation(description = "Create a new ride for a passenger")
     @ApiResponses(
@@ -94,5 +96,11 @@ class PassengerRideController(val service: RidePassengerManagementService) {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun cancelRide(@Valid @RequestBody cancelRequest: CancelRequest) {
         service.cancelRide(cancelRequest)
+    }
+
+    @PostMapping("/rate")
+    @ResponseStatus(HttpStatus.OK)
+    fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
+        kafkaProducerService.rateDriver(request)
     }
 }

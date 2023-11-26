@@ -13,8 +13,7 @@ import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
-import io.voitovich.yura.rideservice.event.KafkaProducerService
-import io.voitovich.yura.rideservice.event.model.SendRatingModel
+import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
 import io.voitovich.yura.rideservice.service.RideDriverManagementService

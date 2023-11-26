@@ -5,12 +5,9 @@ import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaChannelGateway
-import io.voitovich.yura.rideservice.exception.KafkaSendingException
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import mu.KotlinLogging
-import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.support.SendResult
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -25,6 +22,17 @@ class KafkaProducerServiceImpl(
 
     private var topicName = "driver_rating_topic"
 
+    override fun rateDriver(request: SendRatingRequest) {
+        val ride = getIfRidePresent(request.rideId)
+        val model = SendRatingModel(
+            ride.passengerProfileId,
+            ride.driverProfileId!!,
+            request.rating
+        )
+
+        channelGateway.handleRateDriverRequest(model);
+    }
+
     override fun ratePassenger(request: SendRatingRequest) {
 
         val ride = getIfRidePresent(request.rideId)
@@ -34,7 +42,7 @@ class KafkaProducerServiceImpl(
             request.rating
         )
 
-        channelGateway.handleSendRatingRequest(model);
+        channelGateway.handleRatePassengerRequest(model);
 
 //        val future = template.send(topicName, "driver", model)
 //        future.whenComplete { result: SendResult<String, SendRatingModel?>, ex: Throwable? ->
@@ -53,4 +61,6 @@ class KafkaProducerServiceImpl(
             .format("Ride with id: {%s} was not found", id))
         }
     }
+
+
 }

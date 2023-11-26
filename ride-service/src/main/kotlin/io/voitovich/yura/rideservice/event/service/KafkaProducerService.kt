@@ -6,5 +6,5 @@ interface KafkaProducerService {
 
     fun ratePassenger(request: SendRatingRequest)
 
-
+    fun rateDriver(request: SendRatingRequest)
 }
