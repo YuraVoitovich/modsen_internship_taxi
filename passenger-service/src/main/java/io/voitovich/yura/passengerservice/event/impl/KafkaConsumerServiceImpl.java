@@ -21,8 +21,7 @@ public class KafkaConsumerServiceImpl implements KafkaConsumerService {
     }
 
     @Override
-    @KafkaListener(id = "passenger-service-group", topics = topicName)
-    public void consume(ReceiveRatingModel model) {
+    public void consumeRating(ReceiveRatingModel model) {
         log.info("Received message from Kafka. Processing rating for passenger with model: {}",
                 model);
         ratingService.saveAndRecalculateRating(model);

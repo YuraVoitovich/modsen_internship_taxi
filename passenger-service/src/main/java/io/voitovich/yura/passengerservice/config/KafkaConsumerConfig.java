@@ -1,11 +1,14 @@
 package io.voitovich.yura.passengerservice.config;
 
+import io.voitovich.yura.passengerservice.event.KafkaConsumerService;
 import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.kafka.dsl.Kafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -16,6 +19,13 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
+    private String topicName = "rate_passenger_topic";
+    @Bean
+    public IntegrationFlow consumeFromKafka(ConsumerFactory<String, ReceiveRatingModel> consumerFactory) {
+        return IntegrationFlow.from(Kafka.messageDrivenChannelAdapter(consumerFactory, topicName))
+                .handle(KafkaConsumerService.class.getName(), "consumeRating")
+                .get();
+    }
     @Bean
     public ConsumerFactory<String, ReceiveRatingModel> consumerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();

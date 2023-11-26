@@ -4,5 +4,5 @@ import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
 
 public interface KafkaConsumerService {
 
-    void consume(ReceiveRatingModel model);
+    void consumeRating(ReceiveRatingModel model);
 }

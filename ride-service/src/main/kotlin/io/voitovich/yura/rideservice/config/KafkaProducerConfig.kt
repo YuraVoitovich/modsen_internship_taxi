@@ -21,7 +21,7 @@ import org.springframework.messaging.MessageChannel
 class KafkaProducerConfig {
 
     private var replicasAssignments : Short = 1
-    private var topicName: String = "driver_rating_topic"
+    private var topicName: String = "rate_passenger_topic"
     private var numPartitions: Int = 1
     private var channelName = "sendToKafkaChannel"
 
