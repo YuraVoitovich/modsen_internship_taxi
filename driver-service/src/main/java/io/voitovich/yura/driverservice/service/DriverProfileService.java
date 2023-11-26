@@ -5,7 +5,10 @@ import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
+import io.voitovich.yura.driverservice.entity.DriverProfile;
+import io.voitovich.yura.driverservice.model.RecalculateRatingModel;
 
+import java.sql.Driver;
 import java.util.UUID;
 
 public interface DriverProfileService {
@@ -14,4 +17,5 @@ public interface DriverProfileService {
     DriverProfileResponse updateProfile(DriverProfileUpdateRequest profileDto);
     DriverProfilePageResponse getProfilePage(DriverProfilePageRequest pageRequest);
     void deleteProfileById(UUID uuid);
+    DriverProfile getPassengerProfileAndRecalculateRating(RecalculateRatingModel model);
 }

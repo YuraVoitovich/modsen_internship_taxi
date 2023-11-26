@@ -8,6 +8,7 @@ import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.entity.DriverProfile;
 import io.voitovich.yura.driverservice.exception.NoSuchRecordException;
 import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
+import io.voitovich.yura.driverservice.model.RecalculateRatingModel;
 import io.voitovich.yura.driverservice.repository.DriverProfileRepository;
 import io.voitovich.yura.driverservice.service.DriverProfileService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 import static io.voitovich.yura.driverservice.dto.mapper.DriverProfileMapper.INSTANCE;
@@ -27,6 +29,11 @@ public class DriverProfileServiceImpl implements DriverProfileService {
 
     private final DriverProfileRepository repository;
     private final BigDecimal START_RATING = BigDecimal.valueOf(5);
+
+    private final int INITIAL_PASSENGER_RATINGS_COUNT = 1;
+    private final int ADDITIONAL_RATINGS_COUNT_ON_UPDATE = 1;
+
+    private final int SCALE = 1;
 
     public DriverProfileServiceImpl(DriverProfileRepository repository) {
         this.repository = repository;
@@ -85,6 +92,23 @@ public class DriverProfileServiceImpl implements DriverProfileService {
         repository.deleteById(uuid);
     }
 
+    @Override
+    public DriverProfile getPassengerProfileAndRecalculateRating(RecalculateRatingModel model) {
+        log.info("Recalculating driver rating with model: {}", model);
+        DriverProfile profile = getIfPresent(model.passengerProfileId());
+        BigDecimal currentRating = profile.getRating();
+        BigDecimal ratingToAdd = model.newRating();
+        long ratingCount = model.ratingsCount() + INITIAL_PASSENGER_RATINGS_COUNT;
+        BigDecimal newRating = currentRating
+                .multiply(BigDecimal.valueOf(ratingCount))
+                .add(ratingToAdd)
+                .divide(BigDecimal
+                                .valueOf(ratingCount + ADDITIONAL_RATINGS_COUNT_ON_UPDATE),
+                        SCALE,
+                        RoundingMode.CEILING);
+        profile.setRating(newRating);
+        return repository.save(profile);
+    }
     private DriverProfile getIfPresent(UUID uuid) {
         return repository.getDriverProfilesById(uuid)
                 .orElseThrow(() -> new NoSuchRecordException(

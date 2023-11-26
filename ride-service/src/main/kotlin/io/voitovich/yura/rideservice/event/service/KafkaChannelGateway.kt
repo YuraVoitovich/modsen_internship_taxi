@@ -5,7 +5,7 @@ import org.springframework.integration.annotation.Gateway
 import org.springframework.integration.annotation.MessagingGateway
 
 
-@MessagingGateway(defaultRequestChannel = "ratePassengerChannel")
+@MessagingGateway
 interface KafkaChannelGateway : SendRatingHandler {
 
     @Gateway(requestChannel = "ratePassengerChannel")

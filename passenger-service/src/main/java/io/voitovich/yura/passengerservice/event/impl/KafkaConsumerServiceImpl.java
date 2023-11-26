@@ -9,10 +9,9 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-
 public class KafkaConsumerServiceImpl implements KafkaConsumerService {
 
-    private final String topicName = "driver_rating_topic";
+    private final String topicName = "rate_passenger_topic";
 
     private final RatingService ratingService;
 
