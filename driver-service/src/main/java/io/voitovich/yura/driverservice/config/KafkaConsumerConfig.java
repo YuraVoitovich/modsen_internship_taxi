@@ -2,6 +2,7 @@ package io.voitovich.yura.driverservice.config;
 
 import io.voitovich.yura.driverservice.event.service.KafkaConsumerService;
 import io.voitovich.yura.driverservice.event.model.ReceiveRatingModel;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -17,13 +18,15 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConsumerConfig {
 
     private String topicName = "rate_driver_topic";
+    private final KafkaConsumerService service;
     @Bean
     public IntegrationFlow consumeFromKafka(ConsumerFactory<String, ReceiveRatingModel> consumerFactory) {
         return IntegrationFlow.from(Kafka.messageDrivenChannelAdapter(consumerFactory, topicName))
-                .handle(KafkaConsumerService.class.getName(), "consumeRating")
+                .handle(service, "consumeRating")
                 .get();
     }
     @Bean
