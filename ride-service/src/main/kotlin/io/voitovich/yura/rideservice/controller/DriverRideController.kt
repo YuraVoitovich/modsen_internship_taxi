@@ -25,7 +25,7 @@ import java.util.*
 @RestController
 @RequestMapping("/api/ride/driver")
 @Tag(name = "Driver ride controller", description = "Driver ride management operations")
-class DriverRideController(val service: RideDriverManagementService, val kafkaProducerService: KafkaProducerService) {
+class DriverRideController(val service: RideDriverManagementService) {
 
     @Operation(description = "Get a list of all created rides around the driver within a specified radius")
     @ApiResponses(
@@ -154,7 +154,7 @@ class DriverRideController(val service: RideDriverManagementService, val kafkaPr
     @PostMapping("/rate")
     @ResponseStatus(HttpStatus.OK)
     fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
-        kafkaProducerService.ratePassenger(request)
+        service.ratePassenger(request)
     }
 
 }

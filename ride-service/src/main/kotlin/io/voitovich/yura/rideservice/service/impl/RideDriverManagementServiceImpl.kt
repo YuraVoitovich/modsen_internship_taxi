@@ -3,16 +3,16 @@ package io.voitovich.yura.rideservice.service.impl
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
 import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
+import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
-import io.voitovich.yura.rideservice.exception.NoSuchRecordException
-import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
-import io.voitovich.yura.rideservice.exception.RideEndConfirmationException
-import io.voitovich.yura.rideservice.exception.RideStartConfirmationException
+import io.voitovich.yura.rideservice.event.model.SendRatingModel
+import io.voitovich.yura.rideservice.event.service.KafkaProducerService
+import io.voitovich.yura.rideservice.exception.*
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
 import mu.KotlinLogging
@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideDriverManagementService {
+class RideDriverManagementServiceImpl(val repository: RideRepository,
+                                      val mapper: RideMapper,
+                                      val producerService : KafkaProducerService) : RideDriverManagementService {
 
     @Value("\${default.search-radius}")
     private var DEFAULT_RADIUS : Int = 300
@@ -52,6 +54,19 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
             throw RideAlreadyAccepted(String
                 .format("Ride with id: {id} is already accepted", acceptRideRequest.rideId))
         }
+    }
+
+    override fun ratePassenger(request: SendRatingRequest) {
+        val ride = getIfRidePresent(request.rideId)
+        if (ride.status != RideStatus.IN_PROGRESS) {
+            throw SendRatingException("You can't rate passenger if ride is not in progress")
+        }
+        val model = SendRatingModel(
+            ride.passengerProfileId,
+            ride.driverProfileId!!,
+            request.rating
+        )
+        producerService.ratePassenger(model)
     }
 
     private fun getIfRidePresent(id: UUID) : Ride {

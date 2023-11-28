@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/ride/passenger")
 @Tag(name = "Passenger Ride Controller", description = "Passenger ride management operations")
-class PassengerRideController(val service: RidePassengerManagementService, val kafkaProducerService: KafkaProducerService) {
+class PassengerRideController(val service: RidePassengerManagementService) {
 
     @Operation(description = "Create a new ride for a passenger")
     @ApiResponses(
@@ -101,6 +101,6 @@ class PassengerRideController(val service: RidePassengerManagementService, val k
     @PostMapping("/rate")
     @ResponseStatus(HttpStatus.OK)
     fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
-        kafkaProducerService.rateDriver(request)
+        service.rateDriver(request)
     }
 }

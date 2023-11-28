@@ -20,28 +20,15 @@ class KafkaProducerServiceImpl(
 
     private val log = KotlinLogging.logger { }
 
-    override fun rateDriver(request: SendRatingRequest) {
-        log.info { "handle rate driver request with model: $request" }
-        val ride = getIfRidePresent(request.rideId)
-        val model = SendRatingModel(
-            ride.passengerProfileId,
-            ride.driverProfileId!!,
-            request.rating
-        )
+    override fun rateDriver(model: SendRatingModel) {
+        log.info { "handle rate driver request with model: $model" }
+
 
         channelGateway.handleRateDriverRequest(model);
     }
 
-    override fun ratePassenger(request: SendRatingRequest) {
-
-        log.info { "handle rate passenger request with model: $request" }
-
-        val ride = getIfRidePresent(request.rideId)
-        val model = SendRatingModel(
-            ride.driverProfileId!!,
-            ride.passengerProfileId,
-            request.rating
-        )
+    override fun ratePassenger(model: SendRatingModel) {
+        log.info { "handle rate passenger request with model: $model" }
 
         channelGateway.handleRatePassengerRequest(model);
 

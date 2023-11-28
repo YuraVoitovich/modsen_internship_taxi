@@ -1,10 +1,11 @@
 package io.voitovich.yura.rideservice.event.service
 
 import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
+import io.voitovich.yura.rideservice.event.model.SendRatingModel
 
 interface KafkaProducerService {
 
-    fun ratePassenger(request: SendRatingRequest)
+    fun ratePassenger(model: SendRatingModel)
 
-    fun rateDriver(request: SendRatingRequest)
+    fun rateDriver(model: SendRatingModel)
 }
