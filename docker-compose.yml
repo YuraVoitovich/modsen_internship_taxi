@@ -19,12 +19,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  adminer:
-    image: adminer
-    ports:
-      - 8070:8080
-    networks:
-      - backend
   zookeeper:
     image: wurstmeister/zookeeper:latest
     ports:
