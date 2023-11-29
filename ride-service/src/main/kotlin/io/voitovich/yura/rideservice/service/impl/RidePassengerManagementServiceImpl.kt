@@ -94,7 +94,7 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
                 "with size ${request.pageSize} " +
                 "and ordering by ${request.orderBy}" }
         val page = repository.getRidesByPassengerProfileId(passengerId, PageRequest
-            .of(request.pageNumber,
+            .of(request.pageNumber - 1,
                 request.pageSize,
                 Sort.by(request.orderBy)))
         return RidePageResponse(page
