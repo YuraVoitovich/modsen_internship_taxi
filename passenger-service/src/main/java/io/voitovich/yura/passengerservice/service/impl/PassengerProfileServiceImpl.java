@@ -31,6 +31,9 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     private final int ADDITIONAL_RATINGS_COUNT_ON_UPDATE = 1;
 
     private final int SCALE = 1;
+
+    private final String NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Passenger profile with id: {%s} not found";
+    private final String NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE = "Passenger profile with phone number: {%s} already exists";
     private final PassengerProfileRepository repository;
 
     private final BigDecimal START_RATING = BigDecimal.valueOf(5);
@@ -96,13 +99,13 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     public PassengerProfile getIfPresent(UUID uuid) {
         return repository.getPassengerProfileById(uuid)
                 .orElseThrow(() -> new NoSuchRecordException(String
-                        .format("Passenger profile with id: {%s} not found", uuid)));
+                        .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, uuid)));
     }
 
     private void checkPhoneNumberUnique(String phoneNumber) {
         if (repository.existsByPhoneNumber(phoneNumber)) {
             throw new NotUniquePhoneException(String
-                    .format("Passenger profile with phone number: {%s} already exists",
+                    .format(NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE,
                             phoneNumber));
         }
     }

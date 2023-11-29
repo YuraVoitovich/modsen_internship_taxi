@@ -28,11 +28,17 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
 
     private val log = KotlinLogging.logger { }
 
+    private companion object {
+        private const val RATE_DRIVER_EXCEPTION_MESSAGE = "You can't rate driver if ride is not in progress"
+        private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
+        private const val RIDE_ALREADY_CANCELED_EXCEPTION_MESSAGE = "Ride with id: {%s} can't be canceled"
+        private const val RIDE_ALREADY_PRESENTED_EXCEPTION_MESSAGE = "Ride with requested status is already present for passenger with id: {%s}"
+    }
     override fun createRide(request: CreateRideRequest): CreateRideResponse {
         log.info {"Creating ride for passenger with id: ${request.passengerId}" }
         if (repository.existsRideByPassengerProfileIdAndStatus(request.passengerId, RideStatus.REQUESTED)) {
             throw RideAlreadyPresented(String
-                .format("Ride with requested status is already present for passenger with id: {%s}",
+                .format(RIDE_ALREADY_PRESENTED_EXCEPTION_MESSAGE,
                     request.passengerId))
         }
         val ride = mapper.fromCreateRequestToEntity(request)
@@ -44,7 +50,7 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
     override fun rateDriver(request: SendRatingRequest) {
         val ride = getIfRidePresent(request.rideId)
         if (ride.status != RideStatus.IN_PROGRESS) {
-            throw SendRatingException("You can't rate driver if ride is not in progress")
+            throw SendRatingException(RATE_DRIVER_EXCEPTION_MESSAGE)
         }
         val model = SendRatingModel(
             ride.passengerProfileId,
@@ -70,7 +76,7 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
         val ride = getIfRidePresent(cancelRequest.rideId)
         if (ride.status != RideStatus.REQUESTED) {
             throw RideAlreadyCanceled(String
-                .format("Ride with id: {%s} can't be canceled", cancelRequest.rideId))
+                .format(RIDE_ALREADY_CANCELED_EXCEPTION_MESSAGE, cancelRequest.rideId))
         }
         ride.status = RideStatus.CANCELED
         repository.save(ride)
@@ -79,7 +85,7 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
     private fun getIfRidePresent(id: UUID) : Ride {
         val rideOptional = repository.findById(id)
         return rideOptional.orElseThrow { NoSuchRecordException(String
-            .format("Ride with id: {%s} was not found", id))
+            .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, id))
         }
     }
 }

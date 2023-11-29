@@ -30,6 +30,14 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
 
     private val log = KotlinLogging.logger { }
 
+    private companion object {
+        private const val RATE_PASSENGER_EXCEPTION_MESSAGE = "You can't rate passenger if ride is not in progress"
+        private const val RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be ended as the driver is too far from the pickup location"
+        private const val RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be started as the driver is too far from the pickup location"
+        private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
+        private const val RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE = "Ride with id: {id} is already accepted"
+    }
+
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
         log.info("Getting all available rides for driver with id: ${getAvailableRidesRequest.id}")
         val rides = repository.getDriverAvailableRides(mapper
@@ -43,7 +51,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         log.info { "Accepting ride with id: ${acceptRideRequest.rideId}" }
         val rideOptional = repository.findById(acceptRideRequest.rideId)
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
-            .format("Ride with id: {%s} was not found", acceptRideRequest.rideId))
+            .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
         if (ride.status == RideStatus.REQUESTED) {
             ride.status = RideStatus.ACCEPTED
@@ -52,14 +60,14 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             return mapper.toRideResponse(repository.save(ride))
         } else {
             throw RideAlreadyAccepted(String
-                .format("Ride with id: {id} is already accepted", acceptRideRequest.rideId))
+                .format(RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
     }
 
     override fun ratePassenger(request: SendRatingRequest) {
         val ride = getIfRidePresent(request.rideId)
         if (ride.status != RideStatus.IN_PROGRESS) {
-            throw SendRatingException("You can't rate passenger if ride is not in progress")
+            throw SendRatingException(RATE_PASSENGER_EXCEPTION_MESSAGE)
         }
         val model = SendRatingModel(
             ride.passengerProfileId,
@@ -81,7 +89,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         val ride = getIfRidePresent(rideId)
         if (!repository.canStartRide(rideId)) {
             throw RideStartConfirmationException(String
-                .format("Ride cannot be started as the driver is too far from the pickup location"))
+                .format(RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE))
         }
         ride.status = RideStatus.IN_PROGRESS
         repository.save(ride)
@@ -92,7 +100,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         val ride = getIfRidePresent(rideId)
         if (!repository.canEndRide(rideId)) {
             throw RideEndConfirmationException(String
-                .format("Ride cannot be started as the driver is too far from the end-ride location"))
+                .format(RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE))
         }
         ride.status = RideStatus.COMPLETED
         repository.save(ride)

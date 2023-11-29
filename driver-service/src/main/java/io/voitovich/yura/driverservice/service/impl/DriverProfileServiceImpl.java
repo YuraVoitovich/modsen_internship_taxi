@@ -35,6 +35,10 @@ public class DriverProfileServiceImpl implements DriverProfileService {
 
     private final int SCALE = 1;
 
+    private final String NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Driver profile with id: {%s} not found";
+    private final String NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE = "Driver profile with phone number: {%s} already exists";
+
+
     public DriverProfileServiceImpl(DriverProfileRepository repository) {
         this.repository = repository;
     }
@@ -49,10 +53,7 @@ public class DriverProfileServiceImpl implements DriverProfileService {
     @Override
     public DriverProfileResponse saveProfile(DriverProfileSaveRequest request) {
         log.info("Saving driver profile: {}", request);
-        if (repository.existsDriverProfileByPhoneNumber(request.phoneNumber())) {
-            throw new NotUniquePhoneException(String
-                    .format("Driver profile with phone number: {%s} already exists", request.phoneNumber()));
-        }
+        checkPhoneNumberUnique(request.phoneNumber());
         DriverProfile profile = INSTANCE.toProfileFromSaveRequest(request);
         profile.setRating(START_RATING);
         return INSTANCE.toProfileResponse(repository.save(profile));
@@ -112,13 +113,13 @@ public class DriverProfileServiceImpl implements DriverProfileService {
     private DriverProfile getIfPresent(UUID uuid) {
         return repository.getDriverProfilesById(uuid)
                 .orElseThrow(() -> new NoSuchRecordException(
-                        String.format("Driver profile with id: {%s} not found", uuid)));
+                        String.format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, uuid)));
     }
 
     private void checkPhoneNumberUnique(String phoneNumber) {
         if (repository.existsDriverProfileByPhoneNumber(phoneNumber)) {
             throw new NotUniquePhoneException(String
-                    .format("Driver profile with phone number: {%s} already exists", phoneNumber));
+                    .format(NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE, phoneNumber));
         }
     }
 }
