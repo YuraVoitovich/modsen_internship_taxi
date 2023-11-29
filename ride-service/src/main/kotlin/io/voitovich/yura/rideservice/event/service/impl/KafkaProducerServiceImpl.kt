@@ -1,10 +1,9 @@
 package io.voitovich.yura.rideservice.event.service.impl
 
-import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 import io.voitovich.yura.rideservice.entity.Ride
-import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaChannelGateway
+import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import mu.KotlinLogging

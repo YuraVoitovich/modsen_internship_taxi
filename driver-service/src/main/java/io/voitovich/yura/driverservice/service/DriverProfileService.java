@@ -8,7 +8,6 @@ import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.entity.DriverProfile;
 import io.voitovich.yura.driverservice.model.RecalculateRatingModel;
 
-import java.sql.Driver;
 import java.util.UUID;
 
 public interface DriverProfileService {

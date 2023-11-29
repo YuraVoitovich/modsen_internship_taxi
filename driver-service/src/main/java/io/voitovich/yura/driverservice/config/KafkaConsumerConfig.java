@@ -1,7 +1,7 @@
 package io.voitovich.yura.driverservice.config;
 
-import io.voitovich.yura.driverservice.event.service.KafkaConsumerService;
 import io.voitovich.yura.driverservice.event.model.ReceiveRatingModel;
+import io.voitovich.yura.driverservice.event.service.KafkaConsumerService;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
