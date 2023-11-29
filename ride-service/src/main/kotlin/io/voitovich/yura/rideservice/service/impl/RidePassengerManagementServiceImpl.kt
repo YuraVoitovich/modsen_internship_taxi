@@ -1,11 +1,9 @@
 package io.voitovich.yura.rideservice.service.impl
 
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
-import io.voitovich.yura.rideservice.dto.request.CancelRequest
-import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
-import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
-import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
+import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
@@ -18,6 +16,8 @@ import io.voitovich.yura.rideservice.exception.SendRatingException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RidePassengerManagementService
 import mu.KotlinLogging
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -87,5 +87,21 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
         return rideOptional.orElseThrow { NoSuchRecordException(String
             .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, id))
         }
+    }
+
+    override fun getAllRides(passengerId: UUID, request: RidePageRequest) : RidePageResponse {
+        log.info { "Retrieving rides for passenger with id ${passengerId} for page ${request.pageNumber} " +
+                "with size ${request.pageSize} " +
+                "and ordering by ${request.orderBy}" }
+        val page = repository.getRidesByPassengerProfileId(passengerId, PageRequest
+            .of(request.pageNumber,
+                request.pageSize,
+                Sort.by(request.orderBy)))
+        return RidePageResponse(page
+            .content.stream()
+            .map {t-> mapper.toRideResponse(t)}.toList(),
+            request.pageNumber,
+            page.totalElements,
+            page.totalPages)
     }
 }

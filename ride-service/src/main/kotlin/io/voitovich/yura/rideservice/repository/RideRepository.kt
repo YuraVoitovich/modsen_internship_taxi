@@ -34,4 +34,6 @@ interface RideRepository: JpaRepository<Ride, UUID> {
 
     fun getRidesByDriverProfileId(id: UUID, pageable: Pageable): Page<Ride>
 
+    fun getRidesByPassengerProfileId(id: UUID, pageable: Pageable): Page<Ride>
+
 }
