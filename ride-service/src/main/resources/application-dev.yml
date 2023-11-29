@@ -19,5 +19,8 @@ spring:
     producer:
       bootstrap-servers: kafka:9092
       client-id: ride-service
+
 default:
   search-radius: 500
+  min-radius: 200
+  max-radius: 1000

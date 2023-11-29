@@ -11,6 +11,7 @@ import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exception.*
+import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
 import mu.KotlinLogging
@@ -23,10 +24,9 @@ import java.util.*
 @Service
 class RideDriverManagementServiceImpl(val repository: RideRepository,
                                       val mapper: RideMapper,
-                                      val producerService : KafkaProducerService) : RideDriverManagementService {
+                                      val producerService : KafkaProducerService,
+                                      val properties: DefaultApplicationProperties) : RideDriverManagementService {
 
-    @Value("\${default.search-radius}")
-    private var DEFAULT_RADIUS : Int = 300
 
     private val log = KotlinLogging.logger { }
 
@@ -36,13 +36,32 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         private const val RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be started as the driver is too far from the pickup location"
         private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
         private const val RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE = "Ride with id: {id} is already accepted"
+        private const val NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE = "Search radius must be in range {%d}:{%d}"
     }
 
+    private fun getRadius(userRadius: Int?) : Int {
+        if (userRadius == null) {
+            return properties.searchRadius
+        }
+        return if (userRadius > properties.maxRadius || userRadius < properties.minRadius) {
+            if (properties.useDefaultRadiusIfRadiusNotInRange) {
+                properties.searchRadius
+            } else {
+                throw NotValidSearchRadiusException(
+                    String
+                        .format(NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE, properties.minRadius, properties.maxRadius)
+                )
+            }
+        } else {
+            userRadius
+        }
+    }
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
-        log.info("Getting all available rides for driver with id: ${getAvailableRidesRequest.id}")
+        val radius = getRadius(getAvailableRidesRequest.radius);
+        log.info("Getting all available rides with radius: $radius for driver with id: ${getAvailableRidesRequest.id}")
         val rides = repository.getDriverAvailableRides(mapper
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
-            getAvailableRidesRequest.radius ?: DEFAULT_RADIUS)
+            radius)
         return GetAvailableRidesResponse(rides
             .map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
