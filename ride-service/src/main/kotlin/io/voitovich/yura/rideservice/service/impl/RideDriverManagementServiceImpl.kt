@@ -1,11 +1,9 @@
 package io.voitovich.yura.rideservice.service.impl
 
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
-import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
-import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
-import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
-import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
+import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
@@ -17,6 +15,8 @@ import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -75,6 +75,22 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             request.rating
         )
         producerService.ratePassenger(model)
+    }
+
+    override fun getAllRides(driverId: UUID, request: RidePageRequest) : RidePageResponse {
+        log.info { "Retrieving rides for driver with id ${driverId} for page ${request.pageNumber} " +
+                "with size ${request.pageSize} " +
+                "and ordering by ${request.orderBy}" }
+        val page = repository.getRidesByDriverProfileId(driverId, PageRequest
+            .of(request.pageNumber,
+                request.pageSize,
+                Sort.by(request.orderBy)))
+        return RidePageResponse(page
+            .content.stream()
+            .map {t-> mapper.toRideResponse(t)}.toList(),
+            request.pageNumber,
+            page.totalElements,
+            page.totalPages)
     }
 
     private fun getIfRidePresent(id: UUID) : Ride {

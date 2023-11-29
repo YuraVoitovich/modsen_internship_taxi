@@ -1,10 +1,8 @@
 package io.voitovich.yura.rideservice.service
 
-import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
-import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
-import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
-import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
+import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import java.util.*
@@ -22,4 +20,6 @@ interface RideDriverManagementService {
     fun acceptRide(acceptRideRequest: AcceptRideRequest): RideResponse
 
     fun ratePassenger(request: SendRatingRequest)
+
+    fun getAllRides(driverId: UUID, request: RidePageRequest) : RidePageResponse
 }

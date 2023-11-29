@@ -1,9 +1,12 @@
 package io.voitovich.yura.rideservice.repository
 
+import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.model.RideProjection
 import org.locationtech.jts.geom.Point
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -28,5 +31,7 @@ interface RideRepository: JpaRepository<Ride, UUID> {
         nativeQuery = true
     )
     fun canEndRide(rideId: UUID) : Boolean
+
+    fun getRidesByDriverProfileId(id: UUID, pageable: Pageable): Page<Ride>
 
 }

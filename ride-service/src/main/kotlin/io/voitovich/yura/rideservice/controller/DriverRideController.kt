@@ -6,11 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
-import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
-import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
-import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
+import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
@@ -150,10 +148,19 @@ class DriverRideController(val service: RideDriverManagementService) {
         service.confirmRideEnd(id)
     }
 
-    @PostMapping("/rate")
+    @PostMapping("/rides")
     @ResponseStatus(HttpStatus.OK)
     fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
         service.ratePassenger(request)
+    }
+
+    @GetMapping("/rides/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    fun getAllDriverRides(@PathVariable(name = "id") id: UUID,
+                          @RequestParam(name = "pageNumber") pageNumber: Int,
+                          @RequestParam(name = "pageSize") pageSize: Int,
+                          @RequestParam(name = "orderBy") orderBy: String) : RidePageResponse {
+        return service.getAllRides(id, RidePageRequest(pageNumber, pageSize, orderBy))
     }
 
 }
