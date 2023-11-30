@@ -5,6 +5,7 @@ import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.exception.NotValidUUIDException;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
+import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -55,6 +56,17 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
                 .message(exception.getMessage())
                 .build();
         return ResponseEntity.status(HttpStatus.CONFLICT).body(info);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ExceptionInfo> handleConstraintViolationException(ConstraintViolationException exception) {
+        log.info(String.format("Handled exception - %s", exception), exception);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(exception.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info);
     }
 
     @Override

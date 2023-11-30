@@ -7,9 +7,12 @@ import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageRespo
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.model.RecalculateRatingModel;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.UUID;
 
+@Validated
 public interface PassengerProfileService {
 
     PassengerProfileResponse getProfileById(UUID uuid);
@@ -18,7 +21,7 @@ public interface PassengerProfileService {
 
     PassengerProfileResponse saveProfile(PassengerSaveProfileRequest profileDto);
 
-    PassengerProfilePageResponse getProfilePage(PassengerProfilePageRequest pageRequest);
+    PassengerProfilePageResponse getProfilePage(@Valid PassengerProfilePageRequest pageRequest);
 
     void deleteProfile(UUID uuid);
 

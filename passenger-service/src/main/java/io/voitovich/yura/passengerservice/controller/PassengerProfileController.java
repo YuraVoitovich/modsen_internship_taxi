@@ -40,8 +40,16 @@ public class PassengerProfileController {
     })
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    PassengerProfilePageResponse getProfilePage(@Valid @RequestBody PassengerProfilePageRequest request) {
-        return profileService.getProfilePage(request);
+    PassengerProfilePageResponse getProfilePage(
+                                                @RequestParam(name = "pageNumber") int pageNumber,
+                                                @RequestParam(name = "pageSize") int pageSize,
+                                                @RequestParam(name = "orderBy") String orderBy) {
+        return profileService.getProfilePage(PassengerProfilePageRequest
+                .builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .orderBy(orderBy)
+                .build());
     }
 
     @Operation(description = "Get passenger profile by id")
