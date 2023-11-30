@@ -4,8 +4,11 @@ import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
+import jakarta.validation.Valid
+import org.springframework.validation.annotation.Validated
 import java.util.*
 
+@Validated
 interface RidePassengerManagementService {
 
     fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
@@ -16,6 +19,6 @@ interface RidePassengerManagementService {
 
     fun rateDriver(request: SendRatingRequest)
 
-    fun getAllRides(passengerId: UUID, request: RidePageRequest) : RidePageResponse
+    fun getAllRides(passengerId: UUID, @Valid request: RidePageRequest) : RidePageResponse
 
 }

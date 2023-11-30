@@ -5,8 +5,11 @@ import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
+import jakarta.validation.Valid
+import org.springframework.validation.annotation.Validated
 import java.util.*
 
+@Validated
 interface RideDriverManagementService {
 
     fun confirmRideStart(rideId: UUID)
@@ -21,5 +24,5 @@ interface RideDriverManagementService {
 
     fun ratePassenger(request: SendRatingRequest)
 
-    fun getAllRides(driverId: UUID, request: RidePageRequest) : RidePageResponse
+    fun getAllRides(driverId: UUID, @Valid request: RidePageRequest) : RidePageResponse
 }

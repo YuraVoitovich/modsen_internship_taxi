@@ -3,6 +3,7 @@ package io.voitovich.yura.rideservice.exceptionhandler
 import io.voitovich.yura.rideservice.exception.*
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
+import jakarta.validation.ConstraintViolationException
 import mu.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -111,5 +112,18 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
            )
 
         return ResponseEntity.badRequest().body(info)
+    }
+
+
+
+
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleConstraintValidationException(exception: ConstraintViolationException): ResponseEntity<ExceptionInfo> {
+        log.info {"Handled exception - $exception"}
+        val info = ExceptionInfo(
+            HttpStatus.BAD_REQUEST,
+            exception.message!!)
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info)
     }
 }
