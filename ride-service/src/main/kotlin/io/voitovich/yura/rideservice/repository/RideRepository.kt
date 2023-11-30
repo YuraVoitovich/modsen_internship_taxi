@@ -1,6 +1,5 @@
 package io.voitovich.yura.rideservice.repository
 
-import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.model.RideProjection
