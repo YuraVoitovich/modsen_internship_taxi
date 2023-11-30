@@ -65,8 +65,15 @@ public class DriverProfileController {
                                     schema = @Schema(implementation = ValidationExceptionInfo.class))
                     })
     })
-    private DriverProfilePageResponse getProfilePage(@Valid @RequestBody DriverProfilePageRequest request) {
-        return profileService.getProfilePage(request);
+    private DriverProfilePageResponse getProfilePage(@RequestParam(name = "pageNumber") int pageNumber,
+                                                     @RequestParam(name = "pageSize") int pageSize,
+                                                     @RequestParam(name = "orderBy") String orderBy) {
+        return profileService.getProfilePage(DriverProfilePageRequest
+                .builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .orderBy(orderBy)
+                .build());
     }
 
     @Operation(description = "Update driver profile")

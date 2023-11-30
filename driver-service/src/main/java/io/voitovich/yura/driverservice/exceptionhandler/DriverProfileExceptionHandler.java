@@ -5,6 +5,7 @@ import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.driverservice.exception.NotValidUUIDException;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ValidationExceptionInfo;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,18 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
                 .build();
         return ResponseEntity.badRequest().body(info);
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ExceptionInfo> handleConstraintViolationException(ConstraintViolationException exception) {
+        log.info(String.format("Handled exception - %s", exception), exception);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(exception.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info);
+    }
+
     @ExceptionHandler(NoSuchRecordException.class)
     public ResponseEntity<ExceptionInfo> handleNoSuchRecordException(NoSuchRecordException exception) {
         log.info(String.format("Handled exception - %s", exception), exception);
