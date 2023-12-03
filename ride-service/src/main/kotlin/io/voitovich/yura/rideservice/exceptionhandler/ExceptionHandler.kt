@@ -81,6 +81,15 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(info)
     }
 
+    @ExceptionHandler(SendRatingException::class)
+    fun handleSendRatingException(exception: SendRatingException): ResponseEntity<ExceptionInfo> {
+        log.info {"Handled exception - $exception"}
+        val info = ExceptionInfo(
+            HttpStatus.BAD_REQUEST,
+            exception.message!!)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
+    }
+
     @ExceptionHandler(NotValidSearchRadiusException::class)
     fun handleNotValidSearchRadiusException(exception: NotValidSearchRadiusException): ResponseEntity<ExceptionInfo> {
         log.info {"Handled exception - $exception"}
