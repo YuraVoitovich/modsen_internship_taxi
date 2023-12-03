@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
+import java.time.Duration
 
 @Service
 class RideDriverManagementServiceImpl(val repository: RideRepository,
@@ -31,12 +32,13 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
     private val log = KotlinLogging.logger { }
 
     private companion object {
-        private const val RATE_PASSENGER_EXCEPTION_MESSAGE = "You can't rate passenger if ride is not in progress"
+        private const val RATE_PASSENGER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE = "You can't rate passenger if ride is not in progress or if ride is not completed"
         private const val RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be ended as the driver is too far from the pickup location"
         private const val RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be started as the driver is too far from the pickup location"
         private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
         private const val RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE = "Ride with id: {id} is already accepted"
         private const val NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE = "Search radius must be in range {%d}:{%d}"
+        private const val RATE_PASSENGER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE = "Rating cannot be submitted after the specified time: {%s}h has elapsed after the completion of the ride"
     }
 
     private fun getRadius(userRadius: Int?) : Int {
@@ -70,22 +72,35 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
             .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
-        if (ride.status == RideStatus.REQUESTED) {
-            ride.status = RideStatus.ACCEPTED
-            ride.driverProfileId = acceptRideRequest.driverId
-            ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
-            return mapper.toRideResponse(repository.save(ride))
-        } else {
+        if (ride.status != RideStatus.REQUESTED) {
             throw RideAlreadyAcceptedException(String
                 .format(RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
+        ride.status = RideStatus.ACCEPTED
+        ride.driverProfileId = acceptRideRequest.driverId
+        ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
+        return mapper.toRideResponse(repository.save(ride))
+    }
+
+
+    private fun checkRideCanBeRated(ride: Ride) {
+        if (ride.status !in setOf(RideStatus.IN_PROGRESS, RideStatus.COMPLETED)) {
+            throw SendRatingException(RATE_PASSENGER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE)
+        }
+
+        if (ride.status == RideStatus.COMPLETED) {
+            val duration = Duration.between(ride.endDate, LocalDateTime.now()).toHours()
+            println(duration)
+            if (duration > properties.allowedRatingTimeInHours) {
+                throw SendRatingException(String.format(RATE_PASSENGER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE, properties.allowedRatingTimeInHours))
+            }
+        }
+
     }
 
     override fun ratePassenger(request: SendRatingRequest) {
         val ride = getIfRidePresent(request.rideId)
-        if (ride.status != RideStatus.IN_PROGRESS) {
-            throw SendRatingException(RATE_PASSENGER_EXCEPTION_MESSAGE)
-        }
+        checkRideCanBeRated(ride);
         val model = SendRatingModel(
             ride.passengerProfileId,
             ride.driverProfileId!!,
