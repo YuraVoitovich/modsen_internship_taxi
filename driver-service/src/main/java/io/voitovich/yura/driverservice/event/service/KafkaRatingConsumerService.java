@@ -2,7 +2,7 @@ package io.voitovich.yura.driverservice.event.service;
 
 import io.voitovich.yura.driverservice.event.model.ReceiveRatingModel;
 
-public interface KafkaConsumerService {
+public interface KafkaRatingConsumerService {
 
     void consumeRating(ReceiveRatingModel model);
 }

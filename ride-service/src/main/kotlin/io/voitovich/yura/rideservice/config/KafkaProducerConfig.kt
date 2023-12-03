@@ -1,6 +1,7 @@
 package io.voitovich.yura.rideservice.config
 
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
+import io.voitovich.yura.rideservice.properties.DefaultKafkaProperties
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
@@ -18,12 +19,8 @@ import org.springframework.messaging.MessageChannel
 
 
 @Configuration
-class KafkaProducerConfig {
+class KafkaProducerConfig(private val defaultKafkaProperties: DefaultKafkaProperties) {
 
-    private var replicasAssignments : Short = 1
-    private var ratePassengerTopicName: String = "rate_passenger_topic"
-    private var rateDriverTopicName: String = "rate_driver_topic"
-    private var numPartitions: Int = 1
     private var ratePassengerChannelName = "ratePassengerChannel"
     private var rateDriverChannelName = "rateDriverChannel"
 
@@ -34,7 +31,7 @@ class KafkaProducerConfig {
             f.channel(ratePassengerChannelName)
                 .handle(Kafka.outboundChannelAdapter(kafkaTemplate(properties))
                     .messageKey<Any?> { m -> m.headers[IntegrationMessageHeaderAccessor.SEQUENCE_NUMBER] }
-                    .topic(ratePassengerTopicName))
+                    .topic(defaultKafkaProperties.sendRatingToPassengerTopicName))
         }
     }
 
@@ -45,7 +42,7 @@ class KafkaProducerConfig {
             f.channel(rateDriverChannelName)
                 .handle(Kafka.outboundChannelAdapter(kafkaTemplate(properties))
                     .messageKey<Any?> { m -> m.headers[IntegrationMessageHeaderAccessor.SEQUENCE_NUMBER] }
-                    .topic(rateDriverTopicName))
+                    .topic(defaultKafkaProperties.sendRatingToDriverTopicName))
         }
     }
     @Bean
@@ -68,11 +65,15 @@ class KafkaProducerConfig {
 
     @Bean
     fun ratePassengerTopic(): NewTopic{
-        return NewTopic(ratePassengerTopicName, numPartitions,replicasAssignments)
+        return NewTopic(defaultKafkaProperties.sendRatingToPassengerTopicName,
+            defaultKafkaProperties.sendRatingToPassengerTopicNumPartitions,
+            defaultKafkaProperties.sendRatingToPassengerTopicReplicasAssignments)
     }
 
     @Bean
     fun rateDriverTopic(): NewTopic{
-        return NewTopic(rateDriverTopicName, numPartitions,replicasAssignments)
+        return NewTopic(defaultKafkaProperties.sendRatingToDriverTopicName,
+            defaultKafkaProperties.sendRatingToDriverTopicNumPartitions,
+            defaultKafkaProperties.sendRatingToDriverTopicReplicasAssignments)
     }
 }

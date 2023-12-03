@@ -24,3 +24,6 @@ default:
   search-radius: 500
   min-radius: 200
   max-radius: 1000
+  kafka:
+    send-rating-to-driver-topic-name: rate_driver_topic
+    send-rating-to-passenger-topic-name: rate_passenger_topic

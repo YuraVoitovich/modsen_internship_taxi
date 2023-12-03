@@ -1,7 +1,7 @@
 package io.voitovich.yura.driverservice.config;
 
 import io.voitovich.yura.driverservice.event.model.ReceiveRatingModel;
-import io.voitovich.yura.driverservice.event.service.KafkaConsumerService;
+import io.voitovich.yura.driverservice.event.service.KafkaRatingConsumerService;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     private String topicName = "rate_driver_topic";
-    private final KafkaConsumerService service;
+    private final KafkaRatingConsumerService service;
     @Bean
     public IntegrationFlow consumeFromKafka(ConsumerFactory<String, ReceiveRatingModel> consumerFactory) {
         return IntegrationFlow.from(Kafka.messageDrivenChannelAdapter(consumerFactory, topicName))
@@ -33,19 +33,15 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, ReceiveRatingModel> consumerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
 
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "driver-service-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 3_000);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 3);
 
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, ReceiveRatingModel.class);
 
         return new DefaultKafkaConsumerFactory<>(props);
-
     }
 
 

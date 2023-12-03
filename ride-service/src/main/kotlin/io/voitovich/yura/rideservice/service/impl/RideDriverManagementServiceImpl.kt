@@ -42,18 +42,16 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         if (userRadius == null) {
             return properties.searchRadius
         }
-        return if (userRadius > properties.maxRadius || userRadius < properties.minRadius) {
-            if (properties.useDefaultRadiusIfRadiusNotInRange) {
-                properties.searchRadius
-            } else {
-                throw NotValidSearchRadiusException(
-                    String
-                        .format(NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE, properties.minRadius, properties.maxRadius)
-                )
-            }
-        } else {
-            userRadius
+        if (userRadius < properties.maxRadius && userRadius > properties.minRadius) {
+            return userRadius
         }
+        if (properties.useDefaultRadiusIfRadiusNotInRange.not()) {
+            throw NotValidSearchRadiusException(
+                String
+                    .format(NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE, properties.minRadius, properties.maxRadius)
+            )
+        }
+        return properties.searchRadius
     }
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
         val radius = getRadius(getAvailableRidesRequest.radius);
@@ -77,7 +75,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
             return mapper.toRideResponse(repository.save(ride))
         } else {
-            throw RideAlreadyAccepted(String
+            throw RideAlreadyAcceptedException(String
                 .format(RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
     }

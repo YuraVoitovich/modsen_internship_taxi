@@ -148,7 +148,7 @@ class DriverRideController(val service: RideDriverManagementService) {
         service.confirmRideEnd(id)
     }
 
-    @PostMapping("/rides")
+    @PostMapping("/rate")
     @ResponseStatus(HttpStatus.OK)
     fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
         service.ratePassenger(request)

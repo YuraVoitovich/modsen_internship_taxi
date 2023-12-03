@@ -1,7 +1,7 @@
 package io.voitovich.yura.driverservice.event.service.impl;
 
 import io.voitovich.yura.driverservice.event.model.ReceiveRatingModel;
-import io.voitovich.yura.driverservice.event.service.KafkaConsumerService;
+import io.voitovich.yura.driverservice.event.service.KafkaRatingConsumerService;
 import io.voitovich.yura.driverservice.service.RatingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KafkaConsumerServiceImpl implements KafkaConsumerService {
+public class KafkaRatingConsumerServiceImpl implements KafkaRatingConsumerService {
 
     private final RatingService ratingService;
     @Override
