@@ -85,7 +85,7 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleSendRatingException(exception: SendRatingException): ResponseEntity<ExceptionInfo> {
         log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
-            HttpStatus.BAD_REQUEST,
+            HttpStatus.FORBIDDEN,
             exception.message!!)
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
     }
