@@ -33,7 +33,7 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
         private const val RATE_DRIVER_EXCEPTION_MESSAGE = "You can't rate driver if ride is not in progress"
         private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
         private const val RIDE_ALREADY_CANCELED_EXCEPTION_MESSAGE = "Ride with id: {%s} can't be canceled"
-        private const val RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE = "Ride for passenger with id: {%s} can not be started, complete or cancel current ride and repeat request: {%s}"
+        private const val RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE = "Ride for passenger with id: {%s} can not be started, complete or cancel current ride and repeat request"
     }
     override fun createRide(request: CreateRideRequest): CreateRideResponse {
         log.info {"Creating ride for passenger with id: ${request.passengerId}" }
