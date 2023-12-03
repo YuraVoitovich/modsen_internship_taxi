@@ -1,6 +1,6 @@
 package io.voitovich.yura.passengerservice.config;
 
-import io.voitovich.yura.passengerservice.event.KafkaConsumerService;
+import io.voitovich.yura.passengerservice.event.service.KafkaRatingConsumerService;
 import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     private String topicName = "rate_passenger_topic";
-    private final KafkaConsumerService service;
+    private final KafkaRatingConsumerService service;
     @Bean
     public IntegrationFlow consumeFromKafka(ConsumerFactory<String, ReceiveRatingModel> consumerFactory) {
         return IntegrationFlow.from(Kafka.messageDrivenChannelAdapter(consumerFactory, topicName))
