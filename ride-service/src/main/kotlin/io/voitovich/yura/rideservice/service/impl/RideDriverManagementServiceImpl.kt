@@ -75,7 +75,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
             return mapper.toRideResponse(repository.save(ride))
         } else {
-            throw RideAlreadyAccepted(String
+            throw RideAlreadyAcceptedException(String
                 .format(RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
     }
