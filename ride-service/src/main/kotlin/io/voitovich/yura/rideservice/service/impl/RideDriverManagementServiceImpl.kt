@@ -18,6 +18,7 @@ import mu.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -123,6 +124,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             throw RideStartConfirmationException(String
                 .format(RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE))
         }
+        ride.startDate = LocalDateTime.now()
         ride.status = RideStatus.IN_PROGRESS
         repository.save(ride)
     }
@@ -134,6 +136,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             throw RideEndConfirmationException(String
                 .format(RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE))
         }
+        ride.endDate = LocalDateTime.now()
         ride.status = RideStatus.COMPLETED
         repository.save(ride)
     }
