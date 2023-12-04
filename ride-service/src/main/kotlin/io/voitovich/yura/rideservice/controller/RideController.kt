@@ -12,7 +12,6 @@ import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
 import io.voitovich.yura.rideservice.service.RideService
-import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -39,8 +38,14 @@ class RideController(val service: RideService) {
     )
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun getRidePage(@Valid @RequestBody pageRequest: RidePageRequest): RidePageResponse {
-        return service.getRidePage(pageRequest)
+    fun getRidePage(@RequestParam(name = "pageNumber") pageNumber: Int,
+                    @RequestParam(name = "pageSize") pageSize: Int,
+                    @RequestParam(name = "orderBy") orderBy: String): RidePageResponse {
+
+        return service.getRidePage(RidePageRequest(
+            pageNumber = pageNumber,
+            pageSize = pageSize,
+            orderBy = orderBy))
     }
 
     @Operation(description = "Delete a ride by its ID")

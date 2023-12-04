@@ -3,6 +3,7 @@ package io.voitovich.yura.passengerservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -12,6 +13,7 @@ import java.util.UUID;
 @ToString
 @Entity
 @Table(name = "rating")
+@Builder
 public class Rating {
 
     @Id
@@ -19,7 +21,7 @@ public class Rating {
     private UUID id;
 
     @Column(name="rate_value", nullable = false)
-    private int rateValue;
+    private BigDecimal rateValue;
 
     @Column(name="driver_id", nullable = false)
     private UUID driverId;

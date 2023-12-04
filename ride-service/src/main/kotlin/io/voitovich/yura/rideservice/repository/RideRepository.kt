@@ -4,6 +4,8 @@ import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.model.RideProjection
 import org.locationtech.jts.geom.Point
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -17,16 +19,21 @@ interface RideRepository: JpaRepository<Ride, UUID> {
     fun getDriverAvailableRides(@Param("point") point: Point, @Param("radius") radius: Int): List<RideProjection>
     fun existsRideByPassengerProfileIdAndStatus(id: UUID, status: RideStatus) : Boolean
 
+    fun existsRideByPassengerProfileIdAndStatusIsNotIn(passengerProfileId: UUID, statuses: Set<RideStatus>): Boolean
     @Query(
-        value = "select ST_Distance(geography(driver_position), start_geo) < 30 from ride",
+        value = "select ST_Distance(geography(driver_position), start_geo) < 30 from ride where id = :rideId",
         nativeQuery = true
     )
     fun canStartRide(rideId: UUID) : Boolean
 
     @Query(
-        value = "select ST_Distance(geography(driver_position), end_geo) < 30 from ride",
+        value = "select ST_Distance(geography(driver_position), end_geo) < 30 from ride where id = :rideId",
         nativeQuery = true
     )
     fun canEndRide(rideId: UUID) : Boolean
+
+    fun getRidesByDriverProfileId(id: UUID, pageable: Pageable): Page<Ride>
+
+    fun getRidesByPassengerProfileId(id: UUID, pageable: Pageable): Page<Ride>
 
 }

@@ -8,6 +8,7 @@ import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
 import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
+import io.voitovich.yura.passengerservice.model.RecalculateRatingModel;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 import static io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper.INSTANCE;
@@ -25,6 +27,13 @@ import static io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapp
 @Slf4j
 public class PassengerProfileServiceImpl implements PassengerProfileService {
 
+    private final int INITIAL_PASSENGER_RATINGS_COUNT = 1;
+    private final int ADDITIONAL_RATINGS_COUNT_ON_UPDATE = 1;
+
+    private final int SCALE = 1;
+
+    private final String NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Passenger profile with id: {%s} not found";
+    private final String NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE = "Passenger profile with phone number: {%s} already exists";
     private final PassengerProfileRepository repository;
 
     private final BigDecimal START_RATING = BigDecimal.valueOf(5);
@@ -86,17 +95,36 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
 
     }
 
-    private PassengerProfile getIfPresent(UUID uuid) {
+    @Override
+    public PassengerProfile getIfPresent(UUID uuid) {
         return repository.getPassengerProfileById(uuid)
                 .orElseThrow(() -> new NoSuchRecordException(String
-                        .format("Passenger profile with id: {%s} not found", uuid)));
+                        .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, uuid)));
     }
 
     private void checkPhoneNumberUnique(String phoneNumber) {
         if (repository.existsByPhoneNumber(phoneNumber)) {
             throw new NotUniquePhoneException(String
-                    .format("Passenger profile with phone number: {%s} already exists",
+                    .format(NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE,
                             phoneNumber));
         }
+    }
+
+    @Override
+    public PassengerProfile getPassengerProfileAndRecalculateRating(RecalculateRatingModel model) {
+        log.info("Recalculating passenger rating with model: {}", model);
+        PassengerProfile profile = getIfPresent(model.passengerProfileId());
+        BigDecimal currentRating = profile.getRating();
+        BigDecimal ratingToAdd = model.newRating();
+        long ratingCount = model.ratingsCount() + INITIAL_PASSENGER_RATINGS_COUNT;
+        BigDecimal newRating = currentRating
+                .multiply(BigDecimal.valueOf(ratingCount))
+                .add(ratingToAdd)
+                .divide(BigDecimal
+                        .valueOf(ratingCount + ADDITIONAL_RATINGS_COUNT_ON_UPDATE),
+                        SCALE,
+                        RoundingMode.CEILING);
+        profile.setRating(newRating);
+        return repository.save(profile);
     }
 }

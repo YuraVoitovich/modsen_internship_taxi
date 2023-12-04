@@ -14,5 +14,16 @@ spring:
     enabled: true
   jooq:
     sql-dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      bootstrap-servers: kafka:9092
+      client-id: ride-service
+
 default:
   search-radius: 500
+  min-radius: 200
+  max-radius: 1000
+  kafka:
+    send-rating-to-driver-topic-name: rate_driver_topic
+    send-rating-to-passenger-topic-name: rate_passenger_topic

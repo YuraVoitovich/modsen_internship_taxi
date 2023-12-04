@@ -12,3 +12,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: driver-service-group

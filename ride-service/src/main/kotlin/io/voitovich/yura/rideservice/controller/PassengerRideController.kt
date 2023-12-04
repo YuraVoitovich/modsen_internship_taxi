@@ -6,10 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import io.voitovich.yura.rideservice.dto.request.CancelRequest
-import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
-import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
+import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
@@ -17,6 +16,7 @@ import io.voitovich.yura.rideservice.service.RidePassengerManagementService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/api/ride/passenger")
@@ -94,5 +94,20 @@ class PassengerRideController(val service: RidePassengerManagementService) {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun cancelRide(@Valid @RequestBody cancelRequest: CancelRequest) {
         service.cancelRide(cancelRequest)
+    }
+
+    @PostMapping("/rate")
+    @ResponseStatus(HttpStatus.OK)
+    fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
+        service.rateDriver(request)
+    }
+
+    @GetMapping("/rides/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    fun getAllPassengerRides(@PathVariable(name = "id") id: UUID,
+                          @RequestParam(name = "pageNumber") pageNumber: Int,
+                          @RequestParam(name = "pageSize") pageSize: Int,
+                          @RequestParam(name = "orderBy") orderBy: String) : RidePageResponse {
+        return service.getAllRides(id, RidePageRequest(pageNumber, pageSize, orderBy))
     }
 }

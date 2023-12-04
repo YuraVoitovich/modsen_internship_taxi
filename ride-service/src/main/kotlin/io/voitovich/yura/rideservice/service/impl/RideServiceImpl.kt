@@ -17,12 +17,16 @@ import java.util.*
 class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideService {
 
     private val log = KotlinLogging.logger {  }
+
+    private companion object {
+        private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
+    }
     override fun getRideById(id: UUID): RideResponse {
         log.info { "Retrieving ride information for ride with id: $id" }
         val ride = repository.findById(id)
         return mapper.toRideResponse(ride
             .orElseThrow { NoSuchRecordException(String
-            .format("Ride with id: {%s} was not found", id))}
+            .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, id))}
         )
     }
 
@@ -30,7 +34,7 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
         log.info{ "Deleting ride with id: $id" }
         val ride = repository.findById(id)
         if (ride.isEmpty) {
-            throw NoSuchRecordException(String.format("Ride with id: {%s} was not found", id))
+            throw NoSuchRecordException(String.format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, id))
         }
         repository.deleteById(id)
     }

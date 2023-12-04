@@ -1,38 +1,64 @@
 package io.voitovich.yura.rideservice.service.impl
 
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
-import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
-import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
-import io.voitovich.yura.rideservice.dto.request.UpdatePositionRequest
+import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
+import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
-import io.voitovich.yura.rideservice.exception.NoSuchRecordException
-import io.voitovich.yura.rideservice.exception.RideAlreadyAccepted
-import io.voitovich.yura.rideservice.exception.RideEndConfirmationException
-import io.voitovich.yura.rideservice.exception.RideStartConfirmationException
+import io.voitovich.yura.rideservice.event.model.SendRatingModel
+import io.voitovich.yura.rideservice.event.service.KafkaProducerService
+import io.voitovich.yura.rideservice.exception.*
+import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.RideDriverManagementService
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper: RideMapper) : RideDriverManagementService {
+class RideDriverManagementServiceImpl(val repository: RideRepository,
+                                      val mapper: RideMapper,
+                                      val producerService : KafkaProducerService,
+                                      val properties: DefaultApplicationProperties) : RideDriverManagementService {
 
-    @Value("\${default.search-radius}")
-    private var DEFAULT_RADIUS : Int = 300
 
     private val log = KotlinLogging.logger { }
 
+    private companion object {
+        private const val RATE_PASSENGER_EXCEPTION_MESSAGE = "You can't rate passenger if ride is not in progress"
+        private const val RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be ended as the driver is too far from the pickup location"
+        private const val RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be started as the driver is too far from the pickup location"
+        private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
+        private const val RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE = "Ride with id: {id} is already accepted"
+        private const val NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE = "Search radius must be in range {%d}:{%d}"
+    }
+
+    private fun getRadius(userRadius: Int?) : Int {
+        if (userRadius == null) {
+            return properties.searchRadius
+        }
+        if (userRadius < properties.maxRadius && userRadius > properties.minRadius) {
+            return userRadius
+        }
+        if (properties.useDefaultRadiusIfRadiusNotInRange.not()) {
+            throw NotValidSearchRadiusException(
+                String
+                    .format(NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE, properties.minRadius, properties.maxRadius)
+            )
+        }
+        return properties.searchRadius
+    }
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
-        log.info("Getting all available rides for driver with id: ${getAvailableRidesRequest.id}")
+        val radius = getRadius(getAvailableRidesRequest.radius);
+        log.info("Getting all available rides with radius: $radius for driver with id: ${getAvailableRidesRequest.id}")
         val rides = repository.getDriverAvailableRides(mapper
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
-            getAvailableRidesRequest.radius ?: DEFAULT_RADIUS)
+            radius)
         return GetAvailableRidesResponse(rides
             .map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
@@ -41,7 +67,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
         log.info { "Accepting ride with id: ${acceptRideRequest.rideId}" }
         val rideOptional = repository.findById(acceptRideRequest.rideId)
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
-            .format("Ride with id: {%s} was not found", acceptRideRequest.rideId))
+            .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
         if (ride.status == RideStatus.REQUESTED) {
             ride.status = RideStatus.ACCEPTED
@@ -49,9 +75,38 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
             ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
             return mapper.toRideResponse(repository.save(ride))
         } else {
-            throw RideAlreadyAccepted(String
-                .format("Ride with id: {id} is already accepted", acceptRideRequest.rideId))
+            throw RideAlreadyAcceptedException(String
+                .format(RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
+    }
+
+    override fun ratePassenger(request: SendRatingRequest) {
+        val ride = getIfRidePresent(request.rideId)
+        if (ride.status != RideStatus.IN_PROGRESS) {
+            throw SendRatingException(RATE_PASSENGER_EXCEPTION_MESSAGE)
+        }
+        val model = SendRatingModel(
+            ride.passengerProfileId,
+            ride.driverProfileId!!,
+            request.rating
+        )
+        producerService.ratePassenger(model)
+    }
+
+    override fun getAllRides(driverId: UUID, request: RidePageRequest) : RidePageResponse {
+        log.info { "Retrieving rides for driver with id ${driverId} for page ${request.pageNumber} " +
+                "with size ${request.pageSize} " +
+                "and ordering by ${request.orderBy}" }
+        val page = repository.getRidesByDriverProfileId(driverId, PageRequest
+            .of(request.pageNumber - 1,
+                request.pageSize,
+                Sort.by(request.orderBy)))
+        return RidePageResponse(page
+            .content.stream()
+            .map {t-> mapper.toRideResponse(t)}.toList(),
+            request.pageNumber,
+            page.totalElements,
+            page.totalPages)
     }
 
     private fun getIfRidePresent(id: UUID) : Ride {
@@ -66,7 +121,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
         val ride = getIfRidePresent(rideId)
         if (!repository.canStartRide(rideId)) {
             throw RideStartConfirmationException(String
-                .format("Ride cannot be started as the driver is too far from the pickup location"))
+                .format(RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE))
         }
         ride.status = RideStatus.IN_PROGRESS
         repository.save(ride)
@@ -77,7 +132,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository, val mapper
         val ride = getIfRidePresent(rideId)
         if (!repository.canEndRide(rideId)) {
             throw RideEndConfirmationException(String
-                .format("Ride cannot be started as the driver is too far from the end-ride location"))
+                .format(RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE))
         }
         ride.status = RideStatus.COMPLETED
         repository.save(ride)
