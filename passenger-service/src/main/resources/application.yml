@@ -1,7 +1,8 @@
 spring:
   profiles:
     active: dev
-
+  application:
+    name: PASSENGER-SERVICE
 
 server:
   port: 8081

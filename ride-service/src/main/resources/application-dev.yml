@@ -27,3 +27,7 @@ default:
   kafka:
     send-rating-to-driver-topic-name: rate_driver_topic
     send-rating-to-passenger-topic-name: rate_passenger_topic
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eurekaserver:8761/eureka/
