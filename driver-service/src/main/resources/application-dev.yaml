@@ -16,3 +16,8 @@ spring:
     bootstrap-servers: kafka:9092
     consumer:
       group-id: driver-service-group
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eurekaserver:8761/eureka/
