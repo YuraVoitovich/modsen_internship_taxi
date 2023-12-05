@@ -44,6 +44,18 @@ services:
       backend:
         aliases:
           - "kafka"
+  eurekaserver:
+    image:
+      discovery-service:latest
+    ports:
+      - "8761:8761"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      backend:
+        aliases:
+          - "eurekaserver"
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
