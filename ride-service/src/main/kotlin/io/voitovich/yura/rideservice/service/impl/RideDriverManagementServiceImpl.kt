@@ -69,7 +69,7 @@ class RideDriverManagementServiceImpl(
             .map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
 
-    override fun acceptRide(acceptRideRequest: AcceptRideRequest) : RideResponse {
+    override fun acceptRide(acceptRideRequest: AcceptRideRequest) {
         log.info { "Accepting ride with id: ${acceptRideRequest.rideId}" }
 
         driverServiceClient.getDriverProfile(acceptRideRequest.driverId)
@@ -85,7 +85,7 @@ class RideDriverManagementServiceImpl(
         ride.status = RideStatus.ACCEPTED
         ride.driverProfileId = acceptRideRequest.driverId
         ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
-        return mapper.toRideResponse(repository.save(ride))
+        repository.save(ride)
     }
 
 
