@@ -20,7 +20,7 @@ interface RideDriverManagementService {
 
     fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse
 
-    fun acceptRide(acceptRideRequest: AcceptRideRequest): RideResponse
+    fun acceptRide(acceptRideRequest: AcceptRideRequest)
 
     fun ratePassenger(request: SendRatingRequest)
 

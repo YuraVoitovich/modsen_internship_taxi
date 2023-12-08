@@ -1,11 +1,13 @@
 package io.voitovich.yura.rideservice.dto.mapper.impl
 
+import io.voitovich.yura.rideservice.client.model.DriverProfileModel
+import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
+import io.voitovich.yura.rideservice.client.service.DriverClientService
+import io.voitovich.yura.rideservice.client.service.PassengerClientService
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.CreateRideRequest
 import io.voitovich.yura.rideservice.dto.request.RequestPoint
-import io.voitovich.yura.rideservice.dto.responce.AvailableRideResponse
-import io.voitovich.yura.rideservice.dto.responce.ResponsePoint
-import io.voitovich.yura.rideservice.dto.responce.RideResponse
+import io.voitovich.yura.rideservice.dto.responce.*
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.model.RideProjection
@@ -18,12 +20,18 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
-class RideMapperImpl : RideMapper {
+class RideMapperImpl(
+    val driverClientService: DriverClientService,
+    val passengerClientService: PassengerClientService
+) : RideMapper {
     override fun toRideResponse(ride: Ride): RideResponse {
+        val driverProfileResponse = ride.driverProfileId?.let {
+            fromDriverProfileModelToDriverProfileResponse(driverClientService.getDriverProfile(it))
+        }
         return RideResponse(
             ride.id!!,
-            ride.passengerProfileId,
-            ride.driverProfileId,
+            fromPassengerProfileModelToPassengerProfileResponse(passengerClientService.getPassengerProfile(ride.passengerProfileId)),
+            driverProfileResponse,
             ride.startDate,
             ride.endDate,
             ride.driverRating,
@@ -33,6 +41,14 @@ class RideMapperImpl : RideMapper {
             fromPointToResponsePoint(ride.passengerPosition),
             fromPointToResponsePoint(ride.driverPosition),
             ride.status)
+    }
+
+    private fun fromPassengerProfileModelToPassengerProfileResponse(model: PassengerProfileModel): PassengerProfileResponse {
+        return PassengerProfileResponse(name = model.name, rating = model.rating)
+    }
+
+    private fun fromDriverProfileModelToDriverProfileResponse(model: DriverProfileModel): DriverProfileResponse {
+        return DriverProfileResponse(name = model.name, rating = model.rating, experience = model.experience)
     }
 
     override fun fromCreateRequestToEntity(createRideRequest: CreateRideRequest): Ride {

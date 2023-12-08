@@ -20,6 +20,7 @@
 		<hibernate.spatial.version>6.1.7.Final</hibernate.spatial.version>
 		<swagger.version>2.1.0</swagger.version>
 		<eureka.version>4.0.3</eureka.version>
+		<openfeign.version>4.0.3</openfeign.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -54,7 +55,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-spatial</artifactId>
 			<version>${hibernate.spatial.version}</version>
 		</dependency>
@@ -78,6 +79,12 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-stdlib</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<version>${openfeign.version}</version>
 		</dependency>
 
 		<dependency>

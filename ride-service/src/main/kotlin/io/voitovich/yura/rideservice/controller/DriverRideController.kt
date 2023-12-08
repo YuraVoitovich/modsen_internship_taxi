@@ -77,8 +77,8 @@ class DriverRideController(val service: RideDriverManagementService) {
             )
         ]
     )
-    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest): RideResponse {
-        return service.acceptRide(acceptRideRequest)
+    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest) {
+        service.acceptRide(acceptRideRequest)
     }
 
     @PostMapping("/update-position")

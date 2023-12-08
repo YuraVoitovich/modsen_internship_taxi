@@ -1,5 +1,6 @@
 package io.voitovich.yura.rideservice.service.impl
 
+import io.voitovich.yura.rideservice.client.DriverServiceClient
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
@@ -23,10 +24,12 @@ import java.util.*
 import java.time.Duration
 
 @Service
-class RideDriverManagementServiceImpl(val repository: RideRepository,
-                                      val mapper: RideMapper,
-                                      val producerService : KafkaProducerService,
-                                      val properties: DefaultApplicationProperties) : RideDriverManagementService {
+class RideDriverManagementServiceImpl(
+    val repository: RideRepository,
+    val mapper: RideMapper,
+    val producerService : KafkaProducerService,
+    var driverServiceClient: DriverServiceClient,
+    val properties: DefaultApplicationProperties) : RideDriverManagementService {
 
 
     private val log = KotlinLogging.logger { }
@@ -66,8 +69,11 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             .map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
 
-    override fun acceptRide(acceptRideRequest: AcceptRideRequest) : RideResponse {
+    override fun acceptRide(acceptRideRequest: AcceptRideRequest) {
         log.info { "Accepting ride with id: ${acceptRideRequest.rideId}" }
+
+        driverServiceClient.getDriverProfile(acceptRideRequest.driverId)
+
         val rideOptional = repository.findById(acceptRideRequest.rideId)
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
             .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
@@ -79,7 +85,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         ride.status = RideStatus.ACCEPTED
         ride.driverProfileId = acceptRideRequest.driverId
         ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
-        return mapper.toRideResponse(repository.save(ride))
+        repository.save(ride)
     }
 
 
