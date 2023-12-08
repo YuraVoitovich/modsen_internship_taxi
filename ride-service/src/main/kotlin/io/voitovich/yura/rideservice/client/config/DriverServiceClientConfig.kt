@@ -5,7 +5,6 @@ import io.voitovich.yura.rideservice.client.errordecoder.DriverServiceClientErro
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-@Configuration
 class DriverServiceClientConfig {
 
     @Bean

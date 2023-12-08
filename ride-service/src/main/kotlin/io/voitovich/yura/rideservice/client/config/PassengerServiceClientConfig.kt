@@ -6,7 +6,6 @@ import io.voitovich.yura.rideservice.client.errordecoder.PassengerServiceClientE
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-@Configuration
 class PassengerServiceClientConfig {
 
     @Bean
