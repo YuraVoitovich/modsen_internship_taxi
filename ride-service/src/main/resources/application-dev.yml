@@ -19,6 +19,16 @@ spring:
     producer:
       bootstrap-servers: kafka:9092
       client-id: ride-service
+  cloud:
+    openfeign:
+      client:
+        config:
+          driver-service:
+            connect-timeout: 1000
+            read-timeout: 1000
+          passenger-service:
+            connect-timeout: 1000
+            read-timeout: 1000
 
 default:
   search-radius: 500
