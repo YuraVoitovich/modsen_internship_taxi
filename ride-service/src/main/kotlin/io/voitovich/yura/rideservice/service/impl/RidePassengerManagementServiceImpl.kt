@@ -1,5 +1,7 @@
 package io.voitovich.yura.rideservice.service.impl
 
+import io.voitovich.yura.rideservice.client.DriverServiceClient
+import io.voitovich.yura.rideservice.client.PassengerServiceClient
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
@@ -25,10 +27,12 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Service
-class RidePassengerManagementServiceImpl(val repository: RideRepository,
-                                         val mapper: RideMapper,
-                                         val producerService: KafkaProducerService,
-                                         var properties: DefaultApplicationProperties) : RidePassengerManagementService {
+class RidePassengerManagementServiceImpl(
+    val repository: RideRepository,
+    val mapper: RideMapper,
+    val producerService: KafkaProducerService,
+    var properties: DefaultApplicationProperties,
+    var passengerServiceClient: PassengerServiceClient) : RidePassengerManagementService {
 
     private val log = KotlinLogging.logger { }
 
@@ -40,8 +44,16 @@ class RidePassengerManagementServiceImpl(val repository: RideRepository,
         private const val RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE = "Ride for passenger with id: {%s} can not be started, complete or cancel current ride and repeat request"
         private const val RATE_DRIVER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE = "Rating cannot be submitted after the specified time: {%s}h has elapsed after the completion of the ride"
     }
+
+    fun checkPassengerExistence(id: UUID) {
+
+        passengerServiceClient.getPassengerProfile(id)
+    }
     override fun createRide(request: CreateRideRequest): CreateRideResponse {
         log.info {"Creating ride for passenger with id: ${request.passengerId}" }
+
+        checkPassengerExistence(request.passengerId)
+
         if (repository.existsRideByPassengerProfileIdAndStatusIsNotIn(request.passengerId,
                 ALLOWED_RIDE_START_STATUSES)) {
             throw RideCantBeStartedException(String

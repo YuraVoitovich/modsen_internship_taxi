@@ -1,6 +1,8 @@
 package io.voitovich.yura.rideservice.dto.responce
 
 import io.swagger.v3.oas.annotations.media.Schema
+import io.voitovich.yura.rideservice.client.model.DriverProfileModel
+import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.entity.RideStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -12,10 +14,10 @@ data class RideResponse(
     var id: UUID,
 
     @Schema(description = "The UUID of the passenger profile.")
-    val passengerProfileId: UUID,
+    val passengerProfile: PassengerProfileResponse,
 
     @Schema(description = "The UUID of the driver profile.")
-    var driverProfileId: UUID?,
+    var driverProfile: DriverProfileResponse,
 
     @Schema(description = "The start date of the ride.")
     var startDate: LocalDateTime?,
