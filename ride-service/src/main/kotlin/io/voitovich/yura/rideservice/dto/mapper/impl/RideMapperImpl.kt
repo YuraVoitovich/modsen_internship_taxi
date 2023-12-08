@@ -25,10 +25,13 @@ class RideMapperImpl(
     val passengerClientService: PassengerClientService
 ) : RideMapper {
     override fun toRideResponse(ride: Ride): RideResponse {
+        val driverProfileResponse = ride.driverProfileId?.let {
+            fromDriverProfileModelToDriverProfileResponse(driverClientService.getDriverProfile(it))
+        }
         return RideResponse(
             ride.id!!,
             fromPassengerProfileModelToPassengerProfileResponse(passengerClientService.getPassengerProfile(ride.passengerProfileId)),
-            fromDriverProfileModelToDriverProfileResponse(driverClientService.getDriverProfile(ride.driverProfileId!!)),
+            driverProfileResponse,
             ride.startDate,
             ride.endDate,
             ride.driverRating,
