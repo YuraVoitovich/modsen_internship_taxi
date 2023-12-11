@@ -6,5 +6,6 @@ import java.util.*
 data class SendRatingModel(
     val raterId: UUID,
     val ratedId: UUID,
+    val rideId: UUID,
     val rating: BigDecimal
 )
