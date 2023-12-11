@@ -1,7 +1,7 @@
 package io.voitovich.yura.rideservice.client.model
 
 import java.math.BigDecimal
-import java.util.UUID
+import java.util.*
 
 data class PassengerProfileModel(
     val id: UUID,

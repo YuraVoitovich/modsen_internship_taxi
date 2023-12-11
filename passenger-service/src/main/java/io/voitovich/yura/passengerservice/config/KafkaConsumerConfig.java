@@ -1,7 +1,7 @@
 package io.voitovich.yura.passengerservice.config;
 
-import io.voitovich.yura.passengerservice.event.service.KafkaRatingConsumerService;
 import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
+import io.voitovich.yura.passengerservice.event.service.KafkaRatingConsumerService;
 import io.voitovich.yura.passengerservice.properties.DefaultKafkaProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

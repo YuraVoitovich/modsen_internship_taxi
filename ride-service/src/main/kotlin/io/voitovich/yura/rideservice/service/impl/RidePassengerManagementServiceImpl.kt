@@ -1,6 +1,5 @@
 package io.voitovich.yura.rideservice.service.impl
 
-import io.voitovich.yura.rideservice.client.DriverServiceClient
 import io.voitovich.yura.rideservice.client.PassengerServiceClient
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*

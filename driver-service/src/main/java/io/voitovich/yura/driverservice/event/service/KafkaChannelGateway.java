@@ -2,7 +2,6 @@ package io.voitovich.yura.driverservice.event.service;
 
 
 import io.voitovich.yura.driverservice.event.model.ConfirmRatingReceiveModel;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 

@@ -1,8 +1,6 @@
 package io.voitovich.yura.rideservice.dto.responce
 
 import io.swagger.v3.oas.annotations.media.Schema
-import io.voitovich.yura.rideservice.client.model.DriverProfileModel
-import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.entity.RideStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime

@@ -1,9 +1,9 @@
 package io.voitovich.yura.passengerservice.event.service.impl;
 
 import io.voitovich.yura.passengerservice.event.model.ConfirmRatingReceiveModel;
+import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
 import io.voitovich.yura.passengerservice.event.service.KafkaConfirmRatingReceiveService;
 import io.voitovich.yura.passengerservice.event.service.KafkaRatingConsumerService;
-import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
 import io.voitovich.yura.passengerservice.service.RatingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -4,7 +4,6 @@ import feign.Response
 import feign.codec.ErrorDecoder
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import org.springframework.http.HttpStatus
-import java.lang.Exception
 
 
 class PassengerServiceClientErrorDecoder : ErrorDecoder {
