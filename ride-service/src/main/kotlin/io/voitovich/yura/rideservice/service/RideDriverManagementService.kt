@@ -5,6 +5,7 @@ import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
+import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
 import jakarta.validation.Valid
 import org.springframework.validation.annotation.Validated
 import java.util.*
@@ -15,6 +16,8 @@ interface RideDriverManagementService {
     fun confirmRideStart(rideId: UUID)
 
     fun confirmRideEnd(rideId: UUID)
+
+    fun confirmDriverRated(model: ConfirmRatingReceiveModel)
 
     fun updateDriverPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
 
