@@ -83,7 +83,7 @@ class RidePassengerManagementServiceImpl(
     }
     override fun rateDriver(request: SendRatingRequest) {
         val ride = getIfRidePresent(request.rideId)
-        checkRideCanBeRated(ride);
+        checkRideCanBeRated(ride)
         val model = SendRatingModel(
             raterId = ride.passengerProfileId,
             ratedId = ride.driverProfileId!!,

@@ -60,7 +60,7 @@ class RideDriverManagementServiceImpl(
         return properties.searchRadius
     }
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
-        val radius = getRadius(getAvailableRidesRequest.radius);
+        val radius = getRadius(getAvailableRidesRequest.radius)
         log.info("Getting all available rides with radius: $radius for driver with id: ${getAvailableRidesRequest.id}")
         val rides = repository.getDriverAvailableRides(mapper
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
@@ -106,7 +106,7 @@ class RideDriverManagementServiceImpl(
 
     override fun ratePassenger(request: SendRatingRequest) {
         val ride = getIfRidePresent(request.rideId)
-        checkRideCanBeRated(ride);
+        checkRideCanBeRated(ride)
         val model = SendRatingModel(
             ratedId = ride.passengerProfileId,
             raterId = ride.driverProfileId!!,
