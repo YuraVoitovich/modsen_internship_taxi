@@ -1,12 +1,12 @@
 package io.voitovich.yura.driverservice.event.model;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record ReceiveRatingModel(
-        UUID raterId,
-        UUID ratedId,
-
+@Builder
+public record ConfirmRatingReceiveModel(
         UUID rideId,
         BigDecimal rating
 ) {

@@ -21,3 +21,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://eurekaserver:8761/eureka/
+
+default:
+  kafka:
+    confirm-rating-receive-topic-name: driver_confirm_rating_receive
+    consume-rating-topic-name: rate_driver_topic
