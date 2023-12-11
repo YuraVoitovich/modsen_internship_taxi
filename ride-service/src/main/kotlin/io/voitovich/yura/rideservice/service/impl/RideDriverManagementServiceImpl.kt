@@ -9,6 +9,7 @@ import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
+import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exception.*
@@ -108,9 +109,10 @@ class RideDriverManagementServiceImpl(
         val ride = getIfRidePresent(request.rideId)
         checkRideCanBeRated(ride);
         val model = SendRatingModel(
-            ride.passengerProfileId,
-            ride.driverProfileId!!,
-            request.rating
+            ratedId = ride.passengerProfileId,
+            raterId = ride.driverProfileId!!,
+            rating = request.rating,
+            rideId = request.rideId,
         )
         producerService.ratePassenger(model)
     }
@@ -159,6 +161,13 @@ class RideDriverManagementServiceImpl(
         }
         ride.endDate = LocalDateTime.now()
         ride.status = RideStatus.COMPLETED
+        repository.save(ride)
+    }
+
+    override fun confirmDriverRated(model: ConfirmRatingReceiveModel) {
+        log.info { "Confirming driver rated with model: $model" }
+        val ride = getIfRidePresent(model.rideId)
+        ride.driverRating = model.rating
         repository.save(ride)
     }
 

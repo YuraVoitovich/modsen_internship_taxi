@@ -9,6 +9,7 @@ import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
+import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
@@ -85,11 +86,12 @@ class RidePassengerManagementServiceImpl(
         val ride = getIfRidePresent(request.rideId)
         checkRideCanBeRated(ride);
         val model = SendRatingModel(
-            ride.passengerProfileId,
-            ride.driverProfileId!!,
-            request.rating
+            raterId = ride.passengerProfileId,
+            ratedId = ride.driverProfileId!!,
+            rating = request.rating,
+            rideId = request.rideId,
         )
-        producerService.ratePassenger(model)
+        producerService.rateDriver(model)
     }
 
     override fun updatePassengerPosition(updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
@@ -101,6 +103,13 @@ class RidePassengerManagementServiceImpl(
             updatePositionRequest.rideId,
             mapper.fromPointToResponsePoint(ride.driverPosition),
             ride.status)
+    }
+
+    override fun confirmPassengerRated(model: ConfirmRatingReceiveModel) {
+        log.info { "Confirming passenger rated with model: $model" }
+        val ride = getIfRidePresent(model.rideId)
+        ride.passengerRating = model.rating
+        repository.save(ride)
     }
 
     override fun cancelRide(cancelRequest: CancelRequest) {

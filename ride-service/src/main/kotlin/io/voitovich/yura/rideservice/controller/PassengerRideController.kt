@@ -98,7 +98,7 @@ class PassengerRideController(val service: RidePassengerManagementService) {
 
     @PostMapping("/rate")
     @ResponseStatus(HttpStatus.OK)
-    fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
+    fun rateDriver(@Valid @RequestBody request: SendRatingRequest) {
         service.rateDriver(request)
     }
 
