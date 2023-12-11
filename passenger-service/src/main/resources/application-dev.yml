@@ -11,6 +11,12 @@ spring:
       enabled: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      bootstrap-servers: kafka:9092
+    producer:
+      bootstrap-servers: kafka:9092
 
 
 eureka:
@@ -21,3 +27,8 @@ eureka:
 message:
   source:
     basenames: "classpath:messages/api-error-response"
+
+default:
+  kafka:
+    confirm-rating-receive-topic-name: passenger_confirm_rating_receive
+    consume-rating-topic-name: rate_passenger_topic
