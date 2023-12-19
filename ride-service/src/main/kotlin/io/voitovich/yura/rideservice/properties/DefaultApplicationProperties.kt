@@ -10,4 +10,5 @@ class DefaultApplicationProperties {
     var maxRadius: Int = 1000
     var minRadius: Int = 100
     var useDefaultRadiusIfRadiusNotInRange: Boolean = false
+    var allowedRatingTimeInHours: Long = 1
 }

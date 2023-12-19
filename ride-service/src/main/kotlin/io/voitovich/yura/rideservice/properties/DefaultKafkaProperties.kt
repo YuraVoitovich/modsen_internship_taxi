@@ -13,4 +13,6 @@ class DefaultKafkaProperties {
     var sendRatingToDriverTopicNumPartitions = 1
     var sendRatingToPassengerTopicReplicasAssignments: Short = 1
     var sendRatingToPassengerTopicNumPartitions = 1
+    var confirmPassengerRatingReceiveTopicName = ""
+    var confirmDriverRatingReceiveTopicName = ""
 }

@@ -1,13 +1,14 @@
 package io.voitovich.yura.rideservice.service.impl
 
+import io.voitovich.yura.rideservice.client.DriverServiceClient
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
-import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
+import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exception.*
@@ -18,24 +19,29 @@ import mu.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import java.time.Duration
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
-class RideDriverManagementServiceImpl(val repository: RideRepository,
-                                      val mapper: RideMapper,
-                                      val producerService : KafkaProducerService,
-                                      val properties: DefaultApplicationProperties) : RideDriverManagementService {
+class RideDriverManagementServiceImpl(
+    val repository: RideRepository,
+    val mapper: RideMapper,
+    val producerService : KafkaProducerService,
+    var driverServiceClient: DriverServiceClient,
+    val properties: DefaultApplicationProperties) : RideDriverManagementService {
 
 
     private val log = KotlinLogging.logger { }
 
     private companion object {
-        private const val RATE_PASSENGER_EXCEPTION_MESSAGE = "You can't rate passenger if ride is not in progress"
+        private const val RATE_PASSENGER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE = "You can't rate passenger if ride is not in progress or if ride is not completed"
         private const val RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be ended as the driver is too far from the pickup location"
         private const val RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE = "Ride cannot be started as the driver is too far from the pickup location"
         private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
         private const val RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE = "Ride with id: {id} is already accepted"
         private const val NOT_VALID_SEARCH_RADIUS_EXCEPTION_MESSAGE = "Search radius must be in range {%d}:{%d}"
+        private const val RATE_PASSENGER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE = "Rating cannot be submitted after the specified time: {%s}h has elapsed after the completion of the ride"
     }
 
     private fun getRadius(userRadius: Int?) : Int {
@@ -54,7 +60,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
         return properties.searchRadius
     }
     override fun getAvailableRides(getAvailableRidesRequest: GetAvailableRidesRequest): GetAvailableRidesResponse {
-        val radius = getRadius(getAvailableRidesRequest.radius);
+        val radius = getRadius(getAvailableRidesRequest.radius)
         log.info("Getting all available rides with radius: $radius for driver with id: ${getAvailableRidesRequest.id}")
         val rides = repository.getDriverAvailableRides(mapper
             .fromRequestPointToPoint(getAvailableRidesRequest.currentLocation),
@@ -63,32 +69,49 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             .map { t -> mapper.toAvailableRideResponse(t) }.toList())
     }
 
-    override fun acceptRide(acceptRideRequest: AcceptRideRequest) : RideResponse {
+    override fun acceptRide(acceptRideRequest: AcceptRideRequest) {
         log.info { "Accepting ride with id: ${acceptRideRequest.rideId}" }
+
+        driverServiceClient.getDriverProfile(acceptRideRequest.driverId)
+
         val rideOptional = repository.findById(acceptRideRequest.rideId)
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
             .format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
-        if (ride.status == RideStatus.REQUESTED) {
-            ride.status = RideStatus.ACCEPTED
-            ride.driverProfileId = acceptRideRequest.driverId
-            ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
-            return mapper.toRideResponse(repository.save(ride))
-        } else {
+        if (ride.status != RideStatus.REQUESTED) {
             throw RideAlreadyAcceptedException(String
                 .format(RIDE_ALREADY_ACCEPTED_EXCEPTION_MESSAGE, acceptRideRequest.rideId))
         }
+        ride.status = RideStatus.ACCEPTED
+        ride.driverProfileId = acceptRideRequest.driverId
+        ride.driverPosition = mapper.fromRequestPointToPoint(acceptRideRequest.location)
+        repository.save(ride)
+    }
+
+
+    private fun checkRideCanBeRated(ride: Ride) {
+        if (ride.status !in setOf(RideStatus.IN_PROGRESS, RideStatus.COMPLETED)) {
+            throw SendRatingException(RATE_PASSENGER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE)
+        }
+
+        if (ride.status == RideStatus.COMPLETED) {
+            val duration = Duration.between(ride.endDate, LocalDateTime.now()).toHours()
+            println(duration)
+            if (duration > properties.allowedRatingTimeInHours) {
+                throw SendRatingException(String.format(RATE_PASSENGER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE, properties.allowedRatingTimeInHours))
+            }
+        }
+
     }
 
     override fun ratePassenger(request: SendRatingRequest) {
         val ride = getIfRidePresent(request.rideId)
-        if (ride.status != RideStatus.IN_PROGRESS) {
-            throw SendRatingException(RATE_PASSENGER_EXCEPTION_MESSAGE)
-        }
+        checkRideCanBeRated(ride)
         val model = SendRatingModel(
-            ride.passengerProfileId,
-            ride.driverProfileId!!,
-            request.rating
+            ratedId = ride.passengerProfileId,
+            raterId = ride.driverProfileId!!,
+            rating = request.rating,
+            rideId = request.rideId,
         )
         producerService.ratePassenger(model)
     }
@@ -123,6 +146,7 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             throw RideStartConfirmationException(String
                 .format(RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE))
         }
+        ride.startDate = LocalDateTime.now()
         ride.status = RideStatus.IN_PROGRESS
         repository.save(ride)
     }
@@ -134,7 +158,15 @@ class RideDriverManagementServiceImpl(val repository: RideRepository,
             throw RideEndConfirmationException(String
                 .format(RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE))
         }
+        ride.endDate = LocalDateTime.now()
         ride.status = RideStatus.COMPLETED
+        repository.save(ride)
+    }
+
+    override fun confirmDriverRated(model: ConfirmRatingReceiveModel) {
+        log.info { "Confirming driver rated with model: $model" }
+        val ride = getIfRidePresent(model.rideId)
+        ride.driverRating = model.rating
         repository.save(ride)
     }
 

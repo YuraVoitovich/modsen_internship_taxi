@@ -19,7 +19,18 @@ spring:
     producer:
       bootstrap-servers: kafka:9092
       client-id: ride-service
-
+    consumer:
+      group-id: ride-service-group
+  cloud:
+    openfeign:
+      client:
+        config:
+          driver-service:
+            connect-timeout: 1000
+            read-timeout: 1000
+          passenger-service:
+            connect-timeout: 1000
+            read-timeout: 1000
 default:
   search-radius: 500
   min-radius: 200
@@ -27,3 +38,9 @@ default:
   kafka:
     send-rating-to-driver-topic-name: rate_driver_topic
     send-rating-to-passenger-topic-name: rate_passenger_topic
+    confirm-driver-rating-receive-topic-name: driver_confirm_rating_receive
+    confirm-passenger-rating-receive-topic-name: passenger_confirm_rating_receive
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eurekaserver:8761/eureka/

@@ -12,10 +12,10 @@ data class RideResponse(
     var id: UUID,
 
     @Schema(description = "The UUID of the passenger profile.")
-    val passengerProfileId: UUID,
+    val passengerProfile: PassengerProfileResponse,
 
     @Schema(description = "The UUID of the driver profile.")
-    var driverProfileId: UUID?,
+    var driverProfile: DriverProfileResponse?,
 
     @Schema(description = "The start date of the ride.")
     var startDate: LocalDateTime?,

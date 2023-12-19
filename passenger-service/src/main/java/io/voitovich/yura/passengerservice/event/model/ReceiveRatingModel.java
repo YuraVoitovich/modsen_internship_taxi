@@ -6,6 +6,8 @@ import java.util.UUID;
 public record ReceiveRatingModel(
         UUID raterId,
         UUID ratedId,
+
+        UUID rideId,
         BigDecimal rating
 ) {
 }
