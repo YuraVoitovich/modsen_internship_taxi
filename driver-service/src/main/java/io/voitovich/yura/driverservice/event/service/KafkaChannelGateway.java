@@ -6,9 +6,8 @@ import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 
 @MessagingGateway
-public interface KafkaChannelGateway extends KafkaConfirmRatingReceiveHandler {
+public interface KafkaChannelGateway {
 
-    @Override
     @Gateway(requestChannel = "confirmRatingReceiveChannel")
     void handleRatingReceiveMessage(ConfirmRatingReceiveModel model);
 }
