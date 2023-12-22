@@ -1,6 +1,5 @@
-package io.voitovich.yura.rideservice.unit.util
+package io.voitovich.yura.rideservice.unit
 
-import io.voitovich.yura.rideservice.client.PassengerServiceClient
 import io.voitovich.yura.rideservice.client.service.DriverClientService
 import io.voitovich.yura.rideservice.client.service.PassengerClientService
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
@@ -18,6 +17,7 @@ import io.voitovich.yura.rideservice.exception.SendRatingException
 import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl
+import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultCancelRequest
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultCreateRideRequest
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultPoint

@@ -1,5 +1,6 @@
 package io.voitovich.yura.rideservice.unit.util
 
+import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
@@ -37,6 +38,15 @@ class UnitTestsUtils {
 
         fun createDefaultCreateRideRequest(): CreateRideRequest {
             return CreateRideRequest(passengerId = UUID.randomUUID(), startGeo = createLocation(), endGeo = createLocation())
+        }
+
+        fun createDefaultPassengerProfileModel(): PassengerProfileModel {
+            return PassengerProfileModel(
+                id = UUID.randomUUID(),
+                phoneNumber = "+375295432551",
+                name = "Name",
+                surname = "Surname",
+                rating = BigDecimal(5))
         }
 
         fun createDefaultCancelRequest(): CancelRequest {
