@@ -1,0 +1,6 @@
+default:
+  searchRadius: 300
+  maxRadius: 1000
+  minRadius: 500
+  useDefaultRadiusIfRadiusNotInRange: false
+  allowedRatingTimeInHours: 1
