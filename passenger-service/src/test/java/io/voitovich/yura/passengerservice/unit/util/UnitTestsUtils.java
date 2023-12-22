@@ -6,7 +6,6 @@ import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileReques
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
-import io.voitovich.yura.passengerservice.model.RecalculateRatingModel;
 
 import java.math.BigDecimal;
 import java.util.List;

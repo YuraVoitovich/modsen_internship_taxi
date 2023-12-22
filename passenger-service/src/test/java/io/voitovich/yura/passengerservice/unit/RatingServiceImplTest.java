@@ -4,11 +4,8 @@ import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.entity.Rating;
 import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
 import io.voitovich.yura.passengerservice.model.RecalculateRatingModel;
-import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.repository.RatingRepository;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
-import io.voitovich.yura.passengerservice.service.RatingService;
-import io.voitovich.yura.passengerservice.service.impl.PassengerProfileServiceImpl;
 import io.voitovich.yura.passengerservice.service.impl.RatingServiceImpl;
 import io.voitovich.yura.passengerservice.unit.util.UnitTestsUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
-import static io.voitovich.yura.passengerservice.unit.util.UnitTestsUtils.*;
+import static io.voitovich.yura.passengerservice.unit.util.UnitTestsUtils.createDefaultReceiveRatingModel;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

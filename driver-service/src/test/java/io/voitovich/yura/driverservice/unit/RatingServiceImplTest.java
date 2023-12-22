@@ -18,7 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
-import static io.voitovich.yura.driverservice.unit.util.UnitTestsUtils.*;
+import static io.voitovich.yura.driverservice.unit.util.UnitTestsUtils.createDefaultDriverProfileWithId;
+import static io.voitovich.yura.driverservice.unit.util.UnitTestsUtils.createDefaultReceiveRatingModel;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

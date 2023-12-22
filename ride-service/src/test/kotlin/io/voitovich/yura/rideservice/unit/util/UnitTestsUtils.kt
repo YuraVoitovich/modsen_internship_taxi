@@ -4,7 +4,6 @@ import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
-import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import org.locationtech.jts.geom.Point
 import java.math.BigDecimal
 import java.util.*

@@ -1,13 +1,10 @@
 package io.voitovich.yura.rideservice.unit
 
-import io.voitovich.yura.rideservice.client.DriverServiceClient
-import io.voitovich.yura.rideservice.client.PassengerServiceClient
 import io.voitovich.yura.rideservice.client.service.DriverClientService
 import io.voitovich.yura.rideservice.client.service.PassengerClientService
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.mapper.impl.RideMapperImpl
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
-import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
@@ -16,10 +13,8 @@ import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exception.*
 import io.voitovich.yura.rideservice.model.RideProjection
 import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
-import io.voitovich.yura.rideservice.properties.DefaultKafkaProperties
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.impl.RideDriverManagementServiceImpl
-import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultAcceptRideRequest
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultGetAvailableRidesRequest
@@ -31,14 +26,9 @@ import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDe
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultUpdatePositionRequest
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.locationtech.jts.geom.Point
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -47,8 +37,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Optional
-import java.util.UUID
+import java.util.*
 
 
 @TestPropertySource(locations = ["classpath:application-test.yml"])

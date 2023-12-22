@@ -8,9 +8,7 @@ import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
-import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.repository.RideRepository
-import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl
 import io.voitovich.yura.rideservice.service.impl.RideServiceImpl
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultPassengerProfileModel
