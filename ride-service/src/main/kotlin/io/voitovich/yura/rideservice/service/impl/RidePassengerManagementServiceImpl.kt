@@ -1,6 +1,6 @@
 package io.voitovich.yura.rideservice.service.impl
 
-import io.voitovich.yura.rideservice.client.PassengerServiceClient
+import io.voitovich.yura.rideservice.client.service.PassengerClientService
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
@@ -32,7 +32,8 @@ class RidePassengerManagementServiceImpl(
     val mapper: RideMapper,
     val producerService: KafkaProducerService,
     var properties: DefaultApplicationProperties,
-    var passengerServiceClient: PassengerServiceClient) : RidePassengerManagementService {
+    var passengerService: PassengerClientService
+) : RidePassengerManagementService {
 
     private val log = KotlinLogging.logger { }
 
@@ -47,7 +48,7 @@ class RidePassengerManagementServiceImpl(
 
     fun checkPassengerExistence(id: UUID) {
 
-        passengerServiceClient.getPassengerProfile(id)
+        passengerService.getPassengerProfile(id)
     }
     override fun createRide(request: CreateRideRequest): CreateRideResponse {
         log.info {"Creating ride for passenger with id: ${request.passengerId}" }
