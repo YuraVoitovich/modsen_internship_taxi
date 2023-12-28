@@ -22,7 +22,6 @@ import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDe
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultCreateRideRequest
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultPoint
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest

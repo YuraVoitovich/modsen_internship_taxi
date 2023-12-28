@@ -12,7 +12,6 @@ import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.impl.RideServiceImpl
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultPassengerProfileModel
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,7 +21,6 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
