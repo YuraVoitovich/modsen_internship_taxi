@@ -3,12 +3,12 @@
 -- Запись для confirmRideStart_driverLocationIsNotValid_shouldReturnRideStartConfirmationErrorResponse()
 INSERT INTO ride (id, passenger_profile_id, driver_profile_id, start_date, end_date, driver_rating, passenger_rating, start_geo, end_geo, status, passenger_position, driver_position)
 VALUES
-    ('4ba65be8-cd97-4d40-aeae-8eb5a71fa50c', '4ba65be8-cd97-4d40-aeae-8eb5a71fa58c', '025fe6d1-8363-4a1a-925d-d91a8b640b8f', '2023-01-01 12:00:00', '2023-01-01 14:00:00', 4.5, 5.0, ST_GeomFromText('POINT(40.7128 -74.0060)'), ST_GeomFromText('POINT(40.7128 -74.0460)'), 'ACCEPTED', ST_GeomFromText('POINT(15 25)'), ST_GeomFromText('POINT(40.7128 -74.0064)'));
+    ('4ba65be8-cd97-4d40-aeae-8eb5a71fa50c', '4ba65be8-cd97-4d40-aeae-8eb5a71fa58c', '025fe6d1-8363-4a1a-925d-d91a8b640b8f', null, null, 4.5, 5.0, ST_GeomFromText('POINT(40.7128 -74.0060)'), ST_GeomFromText('POINT(40.7128 -74.0460)'), 'ACCEPTED', ST_GeomFromText('POINT(15 25)'), ST_GeomFromText('POINT(40.7128 -74.0064)'));
 
 -- Запись для confirmRideStart_notValidRideStatus_shouldReturnRideStartConfirmationErrorResponse()
 INSERT INTO ride (id, passenger_profile_id, driver_profile_id, start_date, end_date, driver_rating, passenger_rating, start_geo, end_geo, status, passenger_position, driver_position)
 VALUES
-    ('4ba65be8-cd97-4d40-aeae-8eb5a71fa51c', 'f00a8f6f-9294-4e4e-aa4d-42f801b69a95', '6d8a8f9a-7f9d-4c71-8b4c-2e0e487b3262', '2023-01-02 14:30:00', '2023-01-02 16:30:00', 4.2, 4.8, ST_GeomFromText('POINT(40.7128 -74.0060)'), ST_GeomFromText('POINT(40.7128 -74.0460)'), 'IN_PROGRESS', ST_GeomFromText('POINT(15 25)'), ST_GeomFromText('POINT(40.7128 -74.0064)'));
+    ('4ba65be8-cd97-4d40-aeae-8eb5a71fa51c', 'f00a8f6f-9294-4e4e-aa4d-42f801b69a95', '6d8a8f9a-7f9d-4c71-8b4c-2e0e487b3262', null, null, 4.2, 4.8, ST_GeomFromText('POINT(40.7128 -74.0060)'), ST_GeomFromText('POINT(40.7128 -74.0460)'), 'IN_PROGRESS', ST_GeomFromText('POINT(15 25)'), ST_GeomFromText('POINT(40.7128 -74.0064)'));
 
 -- Запись для confirmRideStart_validRideCondition_shouldConfirmRideStart()
 INSERT INTO ride (id, passenger_profile_id, driver_profile_id, start_date, end_date, driver_rating, passenger_rating, start_geo, end_geo, status, passenger_position, driver_position)

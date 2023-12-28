@@ -18,8 +18,8 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
 
     private val log = KotlinLogging.logger {  }
 
-    private companion object {
-        private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
+    companion object {
+        const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
     }
     override fun getRideById(id: UUID): RideResponse {
         log.info { "Retrieving ride information for ride with id: $id" }

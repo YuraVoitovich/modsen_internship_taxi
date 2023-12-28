@@ -50,11 +50,11 @@ import java.util.*
 @Testcontainers
 @SqlGroup(
     Sql(
-        scripts = ["classpath:sql/truncate-passenger-profile-table.sql"],
+        scripts = ["classpath:sql/truncate-ride-table.sql"],
         executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
     ),
     Sql(
-        scripts = ["classpath:sql/insert-test-values-in-passenger-profile-table.sql"],
+        scripts = ["classpath:sql/insert-test-values-in-ride-table.sql"],
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
     )
 )
