@@ -12,6 +12,7 @@ import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequ
 import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
+import io.voitovich.yura.passengerservice.dto.response.PassengerProfilesResponse;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
@@ -20,11 +21,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
+
 import static io.voitovich.yura.passengerservice.controller.utils.UUIDUtils.getUUIDFromString;
 
 @RestController
 @Tag(name = "Passenger profile controller", description = "Passenger profile API")
-@RequestMapping("api/passenger/profile")
+@RequestMapping("api/passenger")
 @RequiredArgsConstructor
 public class PassengerProfileController {
     private final PassengerProfileService profileService;
@@ -38,7 +42,7 @@ public class PassengerProfileController {
                                     schema = @Schema(implementation = ValidationExceptionInfo.class))
                     })
     })
-    @GetMapping()
+    @GetMapping("/profile")
     @ResponseStatus(HttpStatus.OK)
     PassengerProfilePageResponse getProfilePage(
                                                 @RequestParam(name = "pageNumber") int pageNumber,
@@ -70,7 +74,7 @@ public class PassengerProfileController {
                                     schema = @Schema(implementation = ExceptionInfo.class))
                     })
     })
-    @GetMapping("{id}")
+    @GetMapping("/profile/{id}")
     @ResponseStatus(HttpStatus.OK)
     PassengerProfileResponse getProfileById(@PathVariable(name = "id") String id) {
         return profileService.getProfileById(getUUIDFromString(id));
@@ -96,7 +100,7 @@ public class PassengerProfileController {
                                     schema = @Schema(implementation = ExceptionInfo.class))
                     })
     })
-    @PostMapping()
+    @PostMapping("/profile")
     @ResponseStatus(HttpStatus.OK)
     PassengerProfileResponse updateProfile(@Valid @RequestBody PassengerProfileUpdateRequest request) {
         return profileService.updateProfile(request);
@@ -122,7 +126,7 @@ public class PassengerProfileController {
                                     schema = @Schema(implementation = ExceptionInfo.class))
                     })
     })
-    @PutMapping()
+    @PutMapping("/profile")
     @ResponseStatus(HttpStatus.CREATED)
     PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerSaveProfileRequest passengerSaveProfileRequest) {
         return profileService.saveProfile(passengerSaveProfileRequest);
@@ -143,9 +147,16 @@ public class PassengerProfileController {
                                     schema = @Schema(implementation = ExceptionInfo.class))
                     })
     })
-    @DeleteMapping("{id}")
+    @DeleteMapping("/profile/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteProfile(@PathVariable(name = "id") String id) {
         profileService.deleteProfile(getUUIDFromString(id));
+    }
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/profiles/{ids}")
+    private PassengerProfilesResponse getByIds(@PathVariable(name = "ids") List<UUID> uuids) {
+        return profileService.getByIds(uuids);
     }
 }

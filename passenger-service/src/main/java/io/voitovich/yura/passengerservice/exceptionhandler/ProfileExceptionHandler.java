@@ -52,10 +52,10 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(String.format("Handled exception - %s", exception), exception);
         ExceptionInfo info = ExceptionInfo
                 .builder()
-                .status(HttpStatus.CONFLICT)
+                .status(HttpStatus.BAD_REQUEST)
                 .message(exception.getMessage())
                 .build();
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(info);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

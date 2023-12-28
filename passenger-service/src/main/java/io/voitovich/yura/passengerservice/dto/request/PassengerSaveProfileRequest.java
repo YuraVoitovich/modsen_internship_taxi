@@ -11,8 +11,6 @@ import java.util.UUID;
 @Builder
 @Schema(name = "PassengerProfileSaveRequest", description = "represents passenger save request")
 public record PassengerSaveProfileRequest(
-    @Schema(name = "id", description = "UUID of the user", example = "e80a23a7-71e0-4d82-b042-96fdd6f43bd8")
-    UUID id,
     @Schema(name = "phoneNumber", description = "Mobile phone of a resident of Minsk", example = "+375295554433")
     @NotBlank(message = "{api.error.empty.phone}")
     @Pattern(regexp = "^\\+375(17|29|33|44)[0-9]{7}$")
