@@ -1,5 +1,6 @@
 package io.voitovich.yura.rideservice.unit.util
 
+import io.voitovich.yura.rideservice.client.model.DriverProfileModel
 import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
@@ -46,6 +47,16 @@ class UnitTestsUtils {
                 name = "Name",
                 surname = "Surname",
                 rating = BigDecimal(5))
+        }
+
+        fun createDefaultDriverProfileModel(): DriverProfileModel {
+            return DriverProfileModel(
+                id = UUID.randomUUID(),
+                phoneNumber = "+375295432551",
+                name = "Name",
+                surname = "Surname",
+                rating = BigDecimal(5),
+                experience = 3)
         }
 
         fun createDefaultCancelRequest(): CancelRequest {

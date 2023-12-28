@@ -2,6 +2,7 @@ package io.voitovich.yura.rideservice.client.service.impl
 
 import io.voitovich.yura.rideservice.client.DriverServiceClient
 import io.voitovich.yura.rideservice.client.model.DriverProfileModel
+import io.voitovich.yura.rideservice.client.model.DriverProfileModels
 import io.voitovich.yura.rideservice.client.service.DriverClientService
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -19,4 +20,8 @@ class DriverClientServiceImpl(
         return driverServiceClient.getDriverProfile(id).body!!
     }
 
+    override fun getDriverProfiles(ids: List<UUID>): List<DriverProfileModel> {
+        logger.info { "Execute getDriverProfiles method with ids: $ids" }
+        return driverServiceClient.getDriverProfiles(ids).body!!.models
+    }
 }

@@ -1,6 +1,51 @@
+
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      group-id: ride-service-group
+    producer:
+      client-id: ride-service
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  jooq:
+    sql-dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            driver-service:
+              - uri: http://localhost:80
+            passenger-service:
+              - uri: http://localhost:81
+    openfeign:
+      client:
+        config:
+          driver-service:
+            connect-timeout: 1000
+            read-timeout: 1000
+          passenger-service:
+            connect-timeout: 1000
+            read-timeout: 1000
+
+eureka:
+  client:
+    enabled: false
+
 default:
-  searchRadius: 300
+  searchRadius: 700
   maxRadius: 1000
-  minRadius: 500
+  minRadius: 100
   useDefaultRadiusIfRadiusNotInRange: false
   allowedRatingTimeInHours: 1
+  kafka:
+    send-rating-to-driver-topic-name: rate_driver_topic
+    send-rating-to-passenger-topic-name: rate_passenger_topic
+    confirm-driver-rating-receive-topic-name: driver_confirm_rating_receive
+    confirm-passenger-rating-receive-topic-name: passenger_confirm_rating_receive

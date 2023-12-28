@@ -2,6 +2,7 @@ package io.voitovich.yura.rideservice.client.service.impl
 
 import io.voitovich.yura.rideservice.client.PassengerServiceClient
 import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
+import io.voitovich.yura.rideservice.client.model.PassengerProfileModels
 import io.voitovich.yura.rideservice.client.service.PassengerClientService
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -14,7 +15,12 @@ class PassengerClientServiceImpl(
 
     val logger = KotlinLogging.logger {  }
     override fun getPassengerProfile(id: UUID): PassengerProfileModel {
-        logger.info { "Execute getPassengerProfile method with id: ${id}" }
+        logger.info { "Execute getPassengerProfile method with id: $id" }
         return passengerServiceClient.getPassengerProfile(id).body!!
+    }
+
+    override fun getPassengerProfiles(ids: List<UUID>): List<PassengerProfileModel> {
+        logger.info { "Execute getPassengerProfiles method with ids: $ids" }
+        return passengerServiceClient.getPassengerProfiles(ids).body!!.models
     }
 }

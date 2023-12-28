@@ -47,12 +47,12 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
             .of(pageRideRequest.pageNumber - 1,
                 pageRideRequest.pageSize,
                 Sort.by(pageRideRequest.orderBy)))
-        return RidePageResponse(page
-            .content.stream()
-            .map {t-> mapper.toRideResponse(t)}.toList(),
-            pageRideRequest.pageNumber,
-            page.totalElements,
-            page.totalPages)
+        return RidePageResponse(
+            profiles = mapper.toRideResponses(page.content),
+            pageNumber = pageRideRequest.pageNumber,
+            totalElements = page.totalElements,
+            totalPages = page.totalPages
+        )
     }
 
 }

@@ -219,7 +219,7 @@ class RideDriverManagementServiceImplTest {
             passengerProfileId = UUID.randomUUID(),
             startPoint = createDefaultPoint(mapper),
             endPoint = createDefaultPoint(mapper),
-            status = RideStatus.REQUESTED
+            status = RideStatus.IN_PROGRESS
         )
         .id(rideId)
         .driverProfileId(null)
@@ -272,7 +272,7 @@ class RideDriverManagementServiceImplTest {
             passengerProfileId = UUID.randomUUID(),
             startPoint = createDefaultPoint(mapper),
             endPoint = createDefaultPoint(mapper),
-            status = RideStatus.REQUESTED
+            status = RideStatus.ACCEPTED
         )
         .id(rideId)
         .driverProfileId(null)
@@ -301,14 +301,11 @@ class RideDriverManagementServiceImplTest {
             passengerProfileId = UUID.randomUUID(),
             startPoint = createDefaultPoint(mapper),
             endPoint = createDefaultPoint(mapper),
-            status = RideStatus.REQUESTED
+            status = RideStatus.ACCEPTED
         )
         .id(rideId)
         .driverProfileId(null)
         .build()
-
-
-
 
         val expectedRide = Ride.builder(
             passengerProfileId = ride.passengerProfileId,
@@ -320,7 +317,6 @@ class RideDriverManagementServiceImplTest {
         .driverProfileId(null)
         .startDate(LocalDateTime.now(clock))
         .build()
-
 
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(rideId)
@@ -359,7 +355,7 @@ class RideDriverManagementServiceImplTest {
             passengerProfileId = UUID.randomUUID(),
             startPoint = createDefaultPoint(mapper),
             endPoint = createDefaultPoint(mapper),
-            status = RideStatus.REQUESTED
+            status = RideStatus.IN_PROGRESS
         )
         .id(rideId)
         .build()
