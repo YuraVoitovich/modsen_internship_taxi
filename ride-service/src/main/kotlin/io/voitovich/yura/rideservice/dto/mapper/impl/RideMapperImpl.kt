@@ -19,7 +19,7 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequence
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.UUID
+import java.util.*
 
 @Component
 class RideMapperImpl(

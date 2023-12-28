@@ -2,7 +2,6 @@ package io.voitovich.yura.rideservice.client.service.impl
 
 import io.voitovich.yura.rideservice.client.DriverServiceClient
 import io.voitovich.yura.rideservice.client.model.DriverProfileModel
-import io.voitovich.yura.rideservice.client.model.DriverProfileModels
 import io.voitovich.yura.rideservice.client.service.DriverClientService
 import mu.KotlinLogging
 import org.springframework.stereotype.Service

@@ -1,34 +1,26 @@
 package io.voitovich.yura.passengerservice.integration.controller;
 
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequest;
 import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilesResponse;
-import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
-import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
-import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.PostgisContainerProvider;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;

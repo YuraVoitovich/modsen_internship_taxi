@@ -2,11 +2,13 @@ package io.voitovich.yura.rideservice.integration.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.get
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
-import io.voitovich.yura.rideservice.dto.request.*
+import io.voitovich.yura.rideservice.dto.request.CancelRequest
+import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo

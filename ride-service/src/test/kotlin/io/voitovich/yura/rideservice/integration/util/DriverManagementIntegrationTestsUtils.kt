@@ -6,7 +6,7 @@ import io.voitovich.yura.rideservice.client.model.PassengerProfileModels
 import io.voitovich.yura.rideservice.dto.responce.*
 import io.voitovich.yura.rideservice.entity.RideStatus
 import java.math.BigDecimal
-import java.util.UUID
+import java.util.*
 
 class DriverManagementIntegrationTestsUtils {
     companion object {

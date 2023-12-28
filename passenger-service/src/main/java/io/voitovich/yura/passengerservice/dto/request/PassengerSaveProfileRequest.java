@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
-import java.util.UUID;
-
 @Builder
 @Schema(name = "PassengerProfileSaveRequest", description = "represents passenger save request")
 public record PassengerSaveProfileRequest(

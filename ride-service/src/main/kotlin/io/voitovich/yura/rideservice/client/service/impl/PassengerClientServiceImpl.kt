@@ -2,7 +2,6 @@ package io.voitovich.yura.rideservice.client.service.impl
 
 import io.voitovich.yura.rideservice.client.PassengerServiceClient
 import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
-import io.voitovich.yura.rideservice.client.model.PassengerProfileModels
 import io.voitovich.yura.rideservice.client.service.PassengerClientService
 import mu.KotlinLogging
 import org.springframework.stereotype.Service

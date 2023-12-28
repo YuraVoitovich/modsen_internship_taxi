@@ -1,7 +1,6 @@
 package io.voitovich.yura.rideservice.client
 
 import io.voitovich.yura.rideservice.client.config.PassengerServiceClientConfig
-import io.voitovich.yura.rideservice.client.model.DriverProfileModels
 import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.client.model.PassengerProfileModels
 import org.springframework.cloud.openfeign.FeignClient
