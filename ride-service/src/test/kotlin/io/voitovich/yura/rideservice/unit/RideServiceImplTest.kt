@@ -17,16 +17,19 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
+import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import java.util.*
 
+@ExtendWith(MockitoExtension::class)
 class RideServiceImplTest {
 
     private lateinit var mapper: RideMapper
@@ -39,14 +42,10 @@ class RideServiceImplTest {
     @Mock
     private lateinit var passengerClientService: PassengerClientService
 
-    private var closeable: AutoCloseable? = null
-
     private lateinit var service: RideServiceImpl
 
     @BeforeEach
     fun setUp() {
-        closeable = MockitoAnnotations.openMocks(this)
-
         mapper = RideMapperImpl(driverClientService, passengerClientService)
 
         service = RideServiceImpl(
@@ -54,13 +53,6 @@ class RideServiceImplTest {
             mapper = mapper,
         )
     }
-
-    @AfterEach
-    @Throws(Exception::class)
-    fun tearDown() {
-        closeable!!.close()
-    }
-
     @Test
     fun getRideById_rideExists_shouldReturnRide() {
         val id = UUID.randomUUID()
@@ -85,9 +77,6 @@ class RideServiceImplTest {
     @Test
     fun getRideById_rideNotExists_shouldThrowNoSuchRecordException() {
         val id = UUID.randomUUID()
-
-        val passengerModel = createDefaultPassengerProfileModel()
-        doReturn(passengerModel).`when`(passengerClientService).getPassengerProfile(passengerModel.id)
 
         doReturn(Optional.empty<Ride>()).`when`(repository)
             .findById(id)

@@ -26,9 +26,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
+import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -38,6 +40,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
+@ExtendWith(MockitoExtension::class)
 class RidePassengerManagementServiceImplTest {
 
     @Mock
@@ -58,13 +61,8 @@ class RidePassengerManagementServiceImplTest {
 
     private lateinit var service: RidePassengerManagementServiceImpl
 
-    private var closeable: AutoCloseable? = null
-
-    private lateinit var clock: Clock
-
     @BeforeEach
     fun setUp() {
-        closeable = MockitoAnnotations.openMocks(this)
         //clock = Clock.fixed(Instant.parse("2023-01-01T00:00:00Z"), ZoneId.systemDefault())
         mapper = RideMapperImpl(driverClientService, passengerClientService)
         properties = DefaultApplicationProperties()
@@ -78,13 +76,6 @@ class RidePassengerManagementServiceImplTest {
         )
 
     }
-
-    @AfterEach
-    @Throws(Exception::class)
-    fun tearDown() {
-        closeable!!.close()
-    }
-
 
     @Test
     fun createRide_correctRequest_shouldCreateRide() {
@@ -128,8 +119,6 @@ class RidePassengerManagementServiceImplTest {
             .`when`(repository).existsRideByPassengerProfileIdAndStatusIsNotIn(
                 passengerId,
                 setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
-
-        doReturn(rideToReturn).`when`(repository).save(rideToSave)
 
         assertThrows<RideCantBeStartedException> { service.createRide(request) }
 

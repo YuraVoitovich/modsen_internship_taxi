@@ -14,9 +14,11 @@ import io.voitovich.yura.driverservice.service.impl.DriverProfileServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class DriverProfileServiceTest {
 
 
@@ -38,18 +41,6 @@ public class DriverProfileServiceTest {
     private DriverProfileRepository repository;
     @InjectMocks
     private DriverProfileServiceImpl service;
-    private AutoCloseable closeable;
-
-
-    @BeforeEach
-    public void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        closeable.close();
-    }
 
     @Test
     public void deleteDriverProfileById_driverProfileNotFound_throwNoSuchRecordException () {
@@ -111,8 +102,6 @@ public class DriverProfileServiceTest {
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(true).when(repository).existsDriverProfileByPhoneNumber(any());
-        doReturn(profile).when(repository).save(any(DriverProfile.class));
-
 
 
         assertThrows(NotUniquePhoneException.class, () -> service.saveProfile(request));
@@ -136,7 +125,6 @@ public class DriverProfileServiceTest {
         doReturn(Optional.of(profile)).when(repository).getDriverProfilesById(uuid);
 
         doReturn(true).when(repository).existsDriverProfileByPhoneNumber(any());
-        doReturn(profile).when(repository).save(any(DriverProfile.class));
 
 
 
@@ -156,10 +144,6 @@ public class DriverProfileServiceTest {
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         DriverProfileUpdateRequest request = createDefaultDriverProfileUpdateRequest(uuid);
-
-        doReturn(true).when(repository).existsDriverProfileByPhoneNumber(any());
-        doReturn(profile).when(repository).save(any(DriverProfile.class));
-
 
 
         assertThrows(NoSuchRecordException.class, () -> service.updateProfile(request));
@@ -192,7 +176,6 @@ public class DriverProfileServiceTest {
                 .build();
 
         doReturn(Optional.of(profile)).when(repository).getDriverProfilesById(uuid);
-        doReturn(false).when(repository).existsDriverProfileByPhoneNumber(any());
         doReturn(profile).when(repository).save(any(DriverProfile.class));
 
 

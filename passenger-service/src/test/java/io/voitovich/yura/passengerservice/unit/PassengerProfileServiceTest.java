@@ -14,9 +14,11 @@ import io.voitovich.yura.passengerservice.service.impl.PassengerProfileServiceIm
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class PassengerProfileServiceTest {
 
 
@@ -38,18 +41,6 @@ public class PassengerProfileServiceTest {
     private PassengerProfileRepository repository;
     @InjectMocks
     private PassengerProfileServiceImpl service;
-    private AutoCloseable closeable;
-
-
-    @BeforeEach
-    public void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        closeable.close();
-    }
 
     @Test
     public void deletePassengerProfile_passengerProfileNotFound_throwNoSuchRecordException () {
@@ -110,7 +101,6 @@ public class PassengerProfileServiceTest {
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(true).when(repository).existsByPhoneNumber(any());
-        doReturn(profile).when(repository).save(any(PassengerProfile.class));
 
 
 
@@ -135,7 +125,6 @@ public class PassengerProfileServiceTest {
         doReturn(Optional.of(profile)).when(repository).getPassengerProfileById(uuid);
 
         doReturn(true).when(repository).existsByPhoneNumber(any());
-        doReturn(profile).when(repository).save(any(PassengerProfile.class));
 
 
 
@@ -155,9 +144,6 @@ public class PassengerProfileServiceTest {
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         PassengerProfileUpdateRequest request = createDefaultPassengerProfileUpdateRequest(uuid);
-
-        doReturn(true).when(repository).existsByPhoneNumber(any());
-        doReturn(profile).when(repository).save(any(PassengerProfile.class));
 
 
 
@@ -190,7 +176,6 @@ public class PassengerProfileServiceTest {
                 .build();
 
         doReturn(Optional.of(profile)).when(repository).getPassengerProfileById(uuid);
-        doReturn(false).when(repository).existsByPhoneNumber(any());
         doReturn(profile).when(repository).save(any(PassengerProfile.class));
 
 

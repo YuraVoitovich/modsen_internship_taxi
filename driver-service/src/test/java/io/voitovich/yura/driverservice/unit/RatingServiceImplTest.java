@@ -35,20 +35,6 @@ public class RatingServiceImplTest {
     @InjectMocks
     private RatingServiceImpl service;
 
-    private AutoCloseable closeable;
-
-    @BeforeEach
-    public void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
-        service = new RatingServiceImpl(repository, passengerProfileService);
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        closeable.close();
-    }
-
-
     @Test
     public void saveAndRecalculateRating_correctRatingModelReceived_recalculateRatingAndSaveIt() {
 

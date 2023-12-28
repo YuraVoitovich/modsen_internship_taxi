@@ -26,9 +26,11 @@ import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDe
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultUpdatePositionRequest
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
+import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -41,6 +43,7 @@ import java.util.*
 
 
 @TestPropertySource(locations = ["classpath:application-test.yml"])
+@ExtendWith(MockitoExtension::class)
 class RideDriverManagementServiceImplTest {
 
 
@@ -62,13 +65,10 @@ class RideDriverManagementServiceImplTest {
 
     private lateinit var service: RideDriverManagementServiceImpl
 
-    private var closeable: AutoCloseable? = null
-
     private lateinit var clock: Clock;
 
     @BeforeEach
     fun setUp() {
-        closeable = MockitoAnnotations.openMocks(this)
         clock = Clock.fixed(Instant.parse("2023-01-01T00:00:00Z"), ZoneId.systemDefault())
         mapper = RideMapperImpl(driverClientService, passengerClientService)
         properties = DefaultApplicationProperties()
@@ -88,13 +88,6 @@ class RideDriverManagementServiceImplTest {
         )
 
     }
-
-    @AfterEach
-    @Throws(Exception::class)
-    fun tearDown() {
-        closeable!!.close()
-    }
-
     @Test
     fun getAvailableRides_correctRequest_shouldReturnRide() {
         val getAvailableRidesRequest = createDefaultGetAvailableRidesRequest()
@@ -342,8 +335,6 @@ class RideDriverManagementServiceImplTest {
 
         doReturn(Optional.empty<Ride>()).`when`(repository)
             .findById(rideId)
-
-        doReturn(true).`when`(repository).canStartRide(rideId)
 
 
         assertThrows<NoSuchRecordException> { service.confirmRideStart(rideId) }
