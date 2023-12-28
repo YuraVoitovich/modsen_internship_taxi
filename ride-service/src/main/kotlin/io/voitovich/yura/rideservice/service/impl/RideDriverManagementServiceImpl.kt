@@ -1,6 +1,6 @@
 package io.voitovich.yura.rideservice.service.impl
 
-import io.voitovich.yura.rideservice.client.DriverServiceClient
+import io.voitovich.yura.rideservice.client.service.DriverClientService
 import io.voitovich.yura.rideservice.dto.mapper.RideMapper
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
@@ -19,6 +19,7 @@ import mu.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
@@ -28,8 +29,9 @@ class RideDriverManagementServiceImpl(
     val repository: RideRepository,
     val mapper: RideMapper,
     val producerService : KafkaProducerService,
-    var driverServiceClient: DriverServiceClient,
-    val properties: DefaultApplicationProperties) : RideDriverManagementService {
+    var driverService: DriverClientService,
+    val properties: DefaultApplicationProperties,
+    val clock: Clock, ) : RideDriverManagementService {
 
 
     private val log = KotlinLogging.logger { }
@@ -48,7 +50,7 @@ class RideDriverManagementServiceImpl(
         if (userRadius == null) {
             return properties.searchRadius
         }
-        if (userRadius < properties.maxRadius && userRadius > properties.minRadius) {
+        if (userRadius <= properties.maxRadius && userRadius >= properties.minRadius) {
             return userRadius
         }
         if (properties.useDefaultRadiusIfRadiusNotInRange.not()) {
@@ -72,7 +74,7 @@ class RideDriverManagementServiceImpl(
     override fun acceptRide(acceptRideRequest: AcceptRideRequest) {
         log.info { "Accepting ride with id: ${acceptRideRequest.rideId}" }
 
-        driverServiceClient.getDriverProfile(acceptRideRequest.driverId)
+        driverService.getDriverProfile(acceptRideRequest.driverId)
 
         val rideOptional = repository.findById(acceptRideRequest.rideId)
         val ride = rideOptional.orElseThrow { NoSuchRecordException(String
@@ -95,8 +97,7 @@ class RideDriverManagementServiceImpl(
         }
 
         if (ride.status == RideStatus.COMPLETED) {
-            val duration = Duration.between(ride.endDate, LocalDateTime.now()).toHours()
-            println(duration)
+            val duration = Duration.between(ride.endDate, LocalDateTime.now(clock)).toHours()
             if (duration > properties.allowedRatingTimeInHours) {
                 throw SendRatingException(String.format(RATE_PASSENGER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE, properties.allowedRatingTimeInHours))
             }
@@ -120,6 +121,7 @@ class RideDriverManagementServiceImpl(
         log.info { "Retrieving rides for driver with id ${driverId} for page ${request.pageNumber} " +
                 "with size ${request.pageSize} " +
                 "and ordering by ${request.orderBy}" }
+
         val page = repository.getRidesByDriverProfileId(driverId, PageRequest
             .of(request.pageNumber - 1,
                 request.pageSize,
@@ -146,7 +148,7 @@ class RideDriverManagementServiceImpl(
             throw RideStartConfirmationException(String
                 .format(RIDE_START_CONFIRMATION_EXCEPTION_MESSAGE))
         }
-        ride.startDate = LocalDateTime.now()
+        ride.startDate = LocalDateTime.now(clock)
         ride.status = RideStatus.IN_PROGRESS
         repository.save(ride)
     }
@@ -158,7 +160,7 @@ class RideDriverManagementServiceImpl(
             throw RideEndConfirmationException(String
                 .format(RIDE_END_CONFIRMATION_EXCEPTION_MESSAGE))
         }
-        ride.endDate = LocalDateTime.now()
+        ride.endDate = LocalDateTime.now(clock)
         ride.status = RideStatus.COMPLETED
         repository.save(ride)
     }

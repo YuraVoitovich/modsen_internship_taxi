@@ -14,6 +14,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @Entity
+@Builder
 @Table(name = "passenger_profile")
 public class PassengerProfile {
 
