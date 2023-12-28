@@ -38,17 +38,17 @@ public class RatingServiceImplTest {
     @Test
     public void saveAndRecalculateRating_correctRatingModelReceived_recalculateRatingAndSaveIt() {
 
+        // Arrange
         UUID uuid = UUID.randomUUID();
         ReceiveRatingModel model = createDefaultReceiveRatingModel();
-
         PassengerProfile passengerProfile = UnitTestsUtils.createDefaultPassengerProfileWithId(uuid);
-
         when(passengerProfileService
                 .getPassengerProfileAndRecalculateRating(any(RecalculateRatingModel.class))).thenReturn(passengerProfile);
 
-
+        // Act
         service.saveAndRecalculateRating(model);
 
+        // Assert
         verify(passengerProfileService, times(1)).getPassengerProfileAndRecalculateRating(any(RecalculateRatingModel.class));
         verify(repository, times(1)).save(any(Rating.class));
 

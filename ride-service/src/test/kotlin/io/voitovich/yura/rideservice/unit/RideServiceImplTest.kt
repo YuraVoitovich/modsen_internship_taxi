@@ -55,6 +55,7 @@ class RideServiceImplTest {
     }
     @Test
     fun getRideById_rideExists_shouldReturnRide() {
+        // Arrange
         val id = UUID.randomUUID()
 
         val passengerModel = createDefaultPassengerProfileModel()
@@ -69,25 +70,30 @@ class RideServiceImplTest {
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(id)
 
+        // Act
         service.getRideById(id)
 
+        // Assert
         verify(repository, Mockito.times(1)).findById(id)
     }
 
     @Test
     fun getRideById_rideNotExists_shouldThrowNoSuchRecordException() {
+        // Arrange
         val id = UUID.randomUUID()
 
         doReturn(Optional.empty<Ride>()).`when`(repository)
             .findById(id)
 
-        assertThrows<NoSuchRecordException>{ service.getRideById(id) }
+        // Act and Assert
+        assertThrows<NoSuchRecordException> { service.getRideById(id) }
 
         verify(repository, Mockito.times(1)).findById(id)
     }
 
     @Test
     fun deleteRideById_rideExists_shouldDeleteRide() {
+        // Arrange
         val id = UUID.randomUUID()
 
         val ride = Ride.builder(
@@ -100,19 +106,23 @@ class RideServiceImplTest {
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(id)
 
+        // Act
         service.deleteRideById(id)
 
+        // Assert
         verify(repository, Mockito.times(1)).findById(id)
         verify(repository, Mockito.times(1)).deleteById(id)
     }
 
     @Test
     fun deleteRideById_rideNotExists_shouldThrowNoSuchRecordException() {
+        // Arrange
         val id = UUID.randomUUID()
 
         doReturn(Optional.empty<Ride>()).`when`(repository)
             .findById(id)
 
+        // Act and Assert
         assertThrows<NoSuchRecordException> { service.deleteRideById(id) }
 
         verify(repository, Mockito.times(1)).findById(id)
@@ -120,22 +130,25 @@ class RideServiceImplTest {
 
     @Test
     fun getRidePage_correctRequest_returnRidePage() {
+        // Arrange
         val driverId = UUID.randomUUID()
         val request = UnitTestsUtils.createDefaultRidePageRequest()
         val pageRequest = PageRequest.of(request.pageNumber - 1, request.pageSize, Sort.by(request.orderBy))
         val page = PageImpl<Ride>(listOf())
         doReturn(page).`when`(repository).findAll(pageRequest)
         val expectedResult = RidePageResponse(
-            listOf(),
-            1,
-            0,
-            1)
+            profiles = listOf(),
+            pageNumber = 1,
+            totalElements = 0,
+            totalPages = 1
+        )
 
-
+        // Act
         val result = service.getRidePage(request)
 
-
+        // Assert
         assertEquals(expectedResult, result)
         verify(repository, Mockito.times(1)).findAll(pageRequest)
     }
+
 }

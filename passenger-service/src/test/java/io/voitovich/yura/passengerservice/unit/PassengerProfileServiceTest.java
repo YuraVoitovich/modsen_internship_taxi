@@ -44,28 +44,34 @@ public class PassengerProfileServiceTest {
 
     @Test
     public void deletePassengerProfile_passengerProfileNotFound_throwNoSuchRecordException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
+
+        // Act
         assertThrows(NoSuchRecordException.class, () -> service.deleteProfile(uuid));
+
+        // Assert
         verify(repository, times(1)).getPassengerProfileById(uuid);
     }
 
     @Test
     public void deletePassengerProfile_passengerWasFound_shouldDeletePassengerProfile () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
         PassengerProfile profile = createDefaultPassengerProfileWithId(uuid);
-        doReturn(Optional.of(profile)).when(repository)
-                .getPassengerProfileById(uuid);
+        doReturn(Optional.of(profile)).when(repository).getPassengerProfileById(uuid);
 
-
+        // Act
         service.deleteProfile(uuid);
 
-
+        // Assert
         verify(repository, times(1)).getPassengerProfileById(uuid);
         verify(repository, times(1)).deleteById(uuid);
     }
 
     @Test
     public void savePassengerProfile_correctPassengerProfile_shouldSavePassengerProfile () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
         PassengerSaveProfileRequest request = createDefaultPassengerProfileSaveRequest();
         PassengerProfile profile = PassengerProfileMapper.INSTANCE.fromSaveRequestToEntity(request);
@@ -83,10 +89,10 @@ public class PassengerProfileServiceTest {
                 .phoneNumber(request.phoneNumber())
                 .build();
 
-
+        // Act
         PassengerProfileResponse savedProfile = service.saveProfile(request);
 
-
+        // Assert
         assertEquals(expected, savedProfile);
         verify(repository, times(1)).existsByPhoneNumber(any());
         verify(repository, times(1)).save(any());
@@ -95,6 +101,7 @@ public class PassengerProfileServiceTest {
 
     @Test
     public void savePassengerProfile_phoneNumberExists_shouldThrowNotUniquePhoneException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
         PassengerSaveProfileRequest request = createDefaultPassengerProfileSaveRequest();
         PassengerProfile profile = PassengerProfileMapper.INSTANCE.fromSaveRequestToEntity(request);
@@ -102,11 +109,8 @@ public class PassengerProfileServiceTest {
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(true).when(repository).existsByPhoneNumber(any());
 
-
-
+        // Act & Assert
         assertThrows(NotUniquePhoneException.class, () -> service.saveProfile(request));
-
-
 
         verify(repository, times(1)).existsByPhoneNumber(any());
 
@@ -114,23 +118,18 @@ public class PassengerProfileServiceTest {
 
     @Test
     public void updatePassengerProfile_phoneNumberExists_shouldThrowNotUniquePhoneException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         PassengerProfile profile = createDefaultPassengerProfileWithId(uuid);
-        profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         profile.setPhoneNumber("+375295432550");
         PassengerProfileUpdateRequest request = createDefaultPassengerProfileUpdateRequest(uuid);
 
         doReturn(Optional.of(profile)).when(repository).getPassengerProfileById(uuid);
-
         doReturn(true).when(repository).existsByPhoneNumber(any());
 
-
-
+        // Act & Assert
         assertThrows(NotUniquePhoneException.class, () -> service.updateProfile(request));
-
-
 
         verify(repository, times(1)).existsByPhoneNumber(any());
 
@@ -138,18 +137,16 @@ public class PassengerProfileServiceTest {
 
     @Test
     public void updatePassengerProfile_passengerProfileNotExists_shouldThrowNoSuchRecordException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         PassengerProfile profile = createDefaultPassengerProfileWithId(uuid);
-        profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         PassengerProfileUpdateRequest request = createDefaultPassengerProfileUpdateRequest(uuid);
 
+        doReturn(Optional.empty()).when(repository).getPassengerProfileById(uuid);
 
-
+        // Act & Assert
         assertThrows(NoSuchRecordException.class, () -> service.updateProfile(request));
-
-
 
         verify(repository).getPassengerProfileById(uuid);
 
@@ -158,14 +155,11 @@ public class PassengerProfileServiceTest {
 
     @Test
     public void updatePassengerProfile_correctPassengerProfile_shouldUpdatePassengerProfile () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         PassengerProfile profile = createDefaultPassengerProfileWithId(uuid);
-        profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
-
         PassengerProfileUpdateRequest request = createDefaultPassengerProfileUpdateRequest(uuid);
-
         PassengerProfileResponse expected = PassengerProfileResponse
                 .builder()
                 .id(uuid)
@@ -178,10 +172,10 @@ public class PassengerProfileServiceTest {
         doReturn(Optional.of(profile)).when(repository).getPassengerProfileById(uuid);
         doReturn(profile).when(repository).save(any(PassengerProfile.class));
 
-
-
+        // Act
         PassengerProfileResponse updateProfile = service.updateProfile(request);
 
+        // Assert
         assertEquals(expected, updateProfile);
         verify(repository, times(1)).save(any());
 
@@ -191,12 +185,10 @@ public class PassengerProfileServiceTest {
     @Test
     public void getPassengerProfileById_passengerProfileExists_shouldReturnPassengerProfile() {
 
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         PassengerProfile profile = createDefaultPassengerProfileWithId(uuid);
-        profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
-
         PassengerProfileResponse expected = PassengerProfileResponse
                 .builder()
                 .id(uuid)
@@ -208,8 +200,10 @@ public class PassengerProfileServiceTest {
 
         doReturn(Optional.of(profile)).when(repository).getPassengerProfileById(uuid);
 
+        // Act
         PassengerProfileResponse foundProfile = service.getProfileById(uuid);
 
+        // Assert
         assertEquals(expected, foundProfile);
         verify(repository, times(1)).getPassengerProfileById(uuid);
 
@@ -219,18 +213,14 @@ public class PassengerProfileServiceTest {
     @Test
     public void getPassengerProfileById_passengerProfileNotExists_shouldThrowNoSuchRecordException() {
 
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         PassengerProfile profile = createDefaultPassengerProfileWithId(uuid);
-        profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
-
         doReturn(Optional.empty()).when(repository).getPassengerProfileById(uuid);
 
-
-
+        // Act & Assert
         assertThrows(NoSuchRecordException.class, () -> service.getProfileById(uuid));
-
 
         verify(repository, times(1)).getPassengerProfileById(uuid);
 
@@ -240,16 +230,12 @@ public class PassengerProfileServiceTest {
     @Test
     public void getPassengerProfilePage_passengerProfilePageEmptyPage_shouldReturnPassengerProfilePage() {
 
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         PassengerProfile profile = createDefaultPassengerProfileWithId(uuid);
-        profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
-
         Page<PassengerProfile> page = new PageImpl<>(List.of());
-
         PassengerProfilePageRequest pageRequest = createDefaultPassengerProfilePageRequest();
-
         PassengerProfilePageResponse expected = PassengerProfilePageResponse
                 .builder()
                 .totalElements(0)
@@ -260,15 +246,12 @@ public class PassengerProfileServiceTest {
 
         doReturn(page).when(repository).findAll(any(PageRequest.class));
 
+        // Act
         PassengerProfilePageResponse pageResponse = service.getProfilePage(pageRequest);
 
+        // Assert
         assertEquals(expected, pageResponse);
         verify(repository, times(1)).findAll(any(PageRequest.class));
-
-    }
-
-    @Test
-    public void getPassengerProfileAndRecalculateRating_correctRecalculateRatingModel_saveAndReturnProfileWithRecalculatedRating() {
 
     }
 

@@ -44,28 +44,32 @@ public class DriverProfileServiceTest {
 
     @Test
     public void deleteDriverProfileById_driverProfileNotFound_throwNoSuchRecordException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
+
+        // Act & Assert
         assertThrows(NoSuchRecordException.class, () -> service.deleteProfileById(uuid));
         verify(repository, times(1)).getDriverProfilesById(uuid);
     }
 
     @Test
     public void deleteDriverProfile_driverWasFound_shouldDeleteDriverProfile () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
         DriverProfile profile = createDefaultDriverProfileWithId(uuid);
-        doReturn(Optional.of(profile)).when(repository)
-                .getDriverProfilesById(uuid);
+        doReturn(Optional.of(profile)).when(repository).getDriverProfilesById(uuid);
 
-
+        // Act
         service.deleteProfileById(uuid);
 
-
+        // Assert
         verify(repository, times(1)).getDriverProfilesById(uuid);
         verify(repository, times(1)).deleteById(uuid);
     }
 
     @Test
     public void saveDriverProfile_correctDriverProfile_shouldSaveDriverProfile () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
         DriverProfileSaveRequest request = createDefaultDriverProfileSaveRequest();
         DriverProfile profile = DriverProfileMapper.INSTANCE.toProfileFromSaveRequest(request);
@@ -84,10 +88,10 @@ public class DriverProfileServiceTest {
                 .experience(3)
                 .build();
 
-
+        // Act
         DriverProfileResponse savedProfile = service.saveProfile(request);
 
-
+        // Assert
         assertEquals(expected, savedProfile);
         verify(repository, times(1)).existsDriverProfileByPhoneNumber(any());
         verify(repository, times(1)).save(any());
@@ -96,6 +100,7 @@ public class DriverProfileServiceTest {
 
     @Test
     public void saveDriverProfile_phoneNumberExists_shouldThrowNotUniquePhoneException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
         DriverProfileSaveRequest request = createDefaultDriverProfileSaveRequest();
         DriverProfile profile = DriverProfileMapper.INSTANCE.toProfileFromSaveRequest(request);
@@ -103,53 +108,41 @@ public class DriverProfileServiceTest {
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(true).when(repository).existsDriverProfileByPhoneNumber(any());
 
-
+        // Act & Assert
         assertThrows(NotUniquePhoneException.class, () -> service.saveProfile(request));
 
-
-
         verify(repository, times(1)).existsDriverProfileByPhoneNumber(any());
-
     }
 
     @Test
     public void updateDriverProfile_phoneNumberExists_shouldThrowNotUniquePhoneException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         DriverProfile profile = createDefaultDriverProfileWithId(uuid);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         profile.setPhoneNumber("+375295432550");
         DriverProfileUpdateRequest request = createDefaultDriverProfileUpdateRequest(uuid);
-
         doReturn(Optional.of(profile)).when(repository).getDriverProfilesById(uuid);
-
         doReturn(true).when(repository).existsDriverProfileByPhoneNumber(any());
 
-
-
+        // Act & Assert
         assertThrows(NotUniquePhoneException.class, () -> service.updateProfile(request));
-
-
-
         verify(repository, times(1)).getDriverProfilesById(any());
 
     }
 
     @Test
     public void updateDriverProfile_DriverProfileNotExists_shouldThrowNoSuchRecordException () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         DriverProfile profile = createDefaultDriverProfileWithId(uuid);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         DriverProfileUpdateRequest request = createDefaultDriverProfileUpdateRequest(uuid);
 
-
+        // Act & Assert
         assertThrows(NoSuchRecordException.class, () -> service.updateProfile(request));
-
-
-
         verify(repository).getDriverProfilesById(uuid);
 
     }
@@ -157,8 +150,8 @@ public class DriverProfileServiceTest {
 
     @Test
     public void updateDriverProfile_correctDriverProfile_shouldUpdateDriverProfile () {
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         DriverProfile profile = createDefaultDriverProfileWithId(uuid);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
@@ -178,10 +171,10 @@ public class DriverProfileServiceTest {
         doReturn(Optional.of(profile)).when(repository).getDriverProfilesById(uuid);
         doReturn(profile).when(repository).save(any(DriverProfile.class));
 
-
-
+        // Act
         DriverProfileResponse updateProfile = service.updateProfile(request);
 
+        // Assert
         assertEquals(expected, updateProfile);
         verify(repository, times(1)).save(any());
 
@@ -191,8 +184,8 @@ public class DriverProfileServiceTest {
     @Test
     public void getDriverProfileById_DriverProfileExists_shouldReturnDriverProfile() {
 
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         DriverProfile profile = createDefaultDriverProfileWithId(uuid);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
@@ -209,8 +202,10 @@ public class DriverProfileServiceTest {
 
         doReturn(Optional.of(profile)).when(repository).getDriverProfilesById(uuid);
 
+        // Act
         DriverProfileResponse foundProfile = service.getProfileById(uuid);
 
+        // Assert
         assertEquals(expected, foundProfile);
         verify(repository, times(1)).getDriverProfilesById(uuid);
 
@@ -220,19 +215,15 @@ public class DriverProfileServiceTest {
     @Test
     public void getDriverProfileById_DriverProfileNotExists_shouldThrowNoSuchRecordException() {
 
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         DriverProfile profile = createDefaultDriverProfileWithId(uuid);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
-
         doReturn(Optional.empty()).when(repository).getDriverProfilesById(uuid);
 
-
-
+        // Act & Assert
         assertThrows(NoSuchRecordException.class, () -> service.getProfileById(uuid));
-
-
         verify(repository, times(1)).getDriverProfilesById(uuid);
 
     }
@@ -241,8 +232,8 @@ public class DriverProfileServiceTest {
     @Test
     public void getDriverProfilePage_DriverProfilePageEmptyPage_shouldReturnDriverProfilePage() {
 
+        // Arrange
         UUID uuid = UUID.randomUUID();
-
         DriverProfile profile = createDefaultDriverProfileWithId(uuid);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
@@ -261,15 +252,12 @@ public class DriverProfileServiceTest {
 
         doReturn(page).when(repository).findAll(any(PageRequest.class));
 
+        // Act
         DriverProfilePageResponse pageResponse = service.getProfilePage(pageRequest);
 
+        // Assert
         assertEquals(expected, pageResponse);
         verify(repository, times(1)).findAll(any(PageRequest.class));
-
-    }
-
-    @Test
-    public void getDriverProfileAndRecalculateRating_correctRecalculateRatingModel_saveAndReturnProfileWithRecalculatedRating() {
 
     }
 

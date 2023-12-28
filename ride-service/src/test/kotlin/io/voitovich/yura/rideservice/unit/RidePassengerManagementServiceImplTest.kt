@@ -19,6 +19,7 @@ import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultCancelRequest
+import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultCreateRideRequest
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultPoint
 import org.junit.jupiter.api.AfterEach
@@ -79,6 +80,7 @@ class RidePassengerManagementServiceImplTest {
 
     @Test
     fun createRide_correctRequest_shouldCreateRide() {
+        // Arrange
         val request = createDefaultCreateRideRequest()
         val passengerId = request.passengerId
         val rideId = UUID.randomUUID()
@@ -96,8 +98,10 @@ class RidePassengerManagementServiceImplTest {
 
         doReturn(rideToReturn).`when`(repository).save(rideToSave)
 
+        // Act
         val response = service.createRide(request)
 
+        // Assert
         verify(repository, times(1))
             .existsRideByPassengerProfileIdAndStatusIsNotIn(passengerId, setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
         verify(repository, times(1)).save(rideToSave)
@@ -107,29 +111,27 @@ class RidePassengerManagementServiceImplTest {
 
     @Test
     fun createRide_rideCanNotBeStarted_shouldThrowRideCantBeStartedException() {
+        // Arrange
         val request = createDefaultCreateRideRequest()
         val passengerId = request.passengerId
-        val rideId = UUID.randomUUID()
 
         val rideToSave = mapper.fromCreateRequestToEntity(request)
-        val rideToReturn = mapper.fromCreateRequestToEntity(request)
-        rideToReturn.id = rideId
 
         doReturn(true)
             .`when`(repository).existsRideByPassengerProfileIdAndStatusIsNotIn(
                 passengerId,
                 setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
 
+        // Act and Assert
         assertThrows<RideCantBeStartedException> { service.createRide(request) }
 
         verify(repository, times(1))
             .existsRideByPassengerProfileIdAndStatusIsNotIn(passengerId, setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
-
     }
-
 
     @Test
     fun rateDriver_correctRequest_DriverRated() {
+        // Arrange
         val request = UnitTestsUtils.createDefaultSendRatingRequest()
         val rideId = request.rideId
 
@@ -139,10 +141,9 @@ class RidePassengerManagementServiceImplTest {
             endPoint = createDefaultPoint(mapper),
             status = RideStatus.IN_PROGRESS
         )
-        .id(rideId)
-        .driverProfileId(UUID.randomUUID())
-        .build()
-
+            .id(rideId)
+            .driverProfileId(UUID.randomUUID())
+            .build()
 
         val expectedSendRatingModel = SendRatingModel(
             rideId = rideId,
@@ -154,17 +155,17 @@ class RidePassengerManagementServiceImplTest {
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(rideId)
 
+        // Act
         service.rateDriver(request)
 
+        // Assert
         verify(repository, times(1)).findById(rideId)
         verify(producerService, times(1)).rateDriver(expectedSendRatingModel)
-
-
     }
-
 
     @Test
     fun rateDriver_incorrectRideStatus_shouldThrowSendRatingException() {
+        // Arrange
         val request = UnitTestsUtils.createDefaultSendRatingRequest()
         val rideId = request.rideId
 
@@ -178,20 +179,18 @@ class RidePassengerManagementServiceImplTest {
             .driverProfileId(UUID.randomUUID())
             .build()
 
-
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(rideId)
 
+        // Act and Assert
         assertThrows<SendRatingException> { service.rateDriver(request) }
 
         verify(repository, times(1)).findById(rideId)
-
-
     }
-
 
     @Test
     fun rateDriver_notAllowedTimeAfterRideCompleted_shouldThrowSendRatingException() {
+        // Arrange
         val request = UnitTestsUtils.createDefaultSendRatingRequest()
         val rideId = request.rideId
 
@@ -208,35 +207,30 @@ class RidePassengerManagementServiceImplTest {
             .endDate(LocalDateTime.now(rideEndClock))
             .build()
 
-
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(rideId)
 
+        // Act and Assert
         assertThrows<SendRatingException> { service.rateDriver(request) }
 
         verify(repository, times(1)).findById(rideId)
-
-
     }
-
-
-
 
     @Test
     fun confirmPassengerRated_correctRequest_confirmPassengerRated() {
-
-        val model = UnitTestsUtils.createDefaultConfirmRatingReceiveModel()
+        // Arrange
+        val model = createDefaultConfirmRatingReceiveModel()
         val rideId = model.rideId
+
         val ride = Ride.builder(
             passengerProfileId = UUID.randomUUID(),
             startPoint = createDefaultPoint(mapper),
             endPoint = createDefaultPoint(mapper),
             status = RideStatus.COMPLETED
         )
-        .id(rideId)
-        .driverProfileId(UUID.randomUUID())
-        .build()
-
+            .id(rideId)
+            .driverProfileId(UUID.randomUUID())
+            .build()
 
         val expectedRide = Ride.builder(
             passengerProfileId = ride.passengerProfileId,
@@ -244,25 +238,25 @@ class RidePassengerManagementServiceImplTest {
             endPoint = createDefaultPoint(mapper),
             status = RideStatus.COMPLETED
         )
-        .id(rideId)
-        .driverProfileId(ride.driverProfileId)
-        .passengerRating(model.rating)
-        .build()
-
+            .id(rideId)
+            .driverProfileId(ride.driverProfileId)
+            .passengerRating(model.rating)
+            .build()
 
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(rideId)
 
+        // Act
         service.confirmPassengerRated(model = model)
 
+        // Assert
         verify(repository, times(1)).findById(rideId)
         verify(repository, times(1)).save(expectedRide)
-
     }
-
 
     @Test
     fun updatePassengerPosition_correctUpdateRequest_updatePassengerPosition() {
+        // Arrange
         val request = UnitTestsUtils.createDefaultUpdatePositionRequest()
         val rideId = request.rideId
 
@@ -294,10 +288,10 @@ class RidePassengerManagementServiceImplTest {
             status = RideStatus.COMPLETED,
         )
 
-
+        // Act
         val result = service.updatePassengerPosition(request)
 
-
+        // Assert
         assertEquals(expectedResult, result)
         verify(repository, times(1)).findById(rideId)
         verify(repository, times(1)).save(expectedSaveRide)
@@ -305,6 +299,7 @@ class RidePassengerManagementServiceImplTest {
 
     @Test
     fun getAllRides_correctRequest_returnRidePage() {
+        // Arrange
         val passengerId = UUID.randomUUID()
         val request = UnitTestsUtils.createDefaultRidePageRequest()
         val pageRequest = PageRequest.of(request.pageNumber - 1, request.pageSize, Sort.by(request.orderBy))
@@ -316,16 +311,17 @@ class RidePassengerManagementServiceImplTest {
             0,
             1)
 
-
+        // Act
         val result = service.getAllRides(passengerId, request)
 
-
+        // Assert
         assertEquals(expectedResult, result)
         verify(repository, times(1)).getRidesByPassengerProfileId(passengerId, pageRequest)
     }
 
     @Test
     fun cancelRide_correctRequest_shouldCancelRide() {
+        // Arrange
         val cancelRequest = createDefaultCancelRequest()
         val rideId = cancelRequest.rideId
 
@@ -340,8 +336,10 @@ class RidePassengerManagementServiceImplTest {
 
         doReturn(Optional.of(ride)).`when`(repository).findById(rideId)
 
+        // Act
         service.cancelRide(cancelRequest)
 
+        // Assert
         verify(repository, times(1)).findById(rideId)
         verify(repository, times(1)).save(ride)
 
@@ -350,6 +348,7 @@ class RidePassengerManagementServiceImplTest {
 
     @Test
     fun cancelRide_rideAlreadyCanceled_shouldThrowRideAlreadyCanceledException() {
+        // Arrange
         val cancelRequest = createDefaultCancelRequest()
         val rideId = cancelRequest.rideId
 
@@ -364,10 +363,11 @@ class RidePassengerManagementServiceImplTest {
 
         doReturn(Optional.of(ride)).`when`(repository).findById(rideId)
 
+        // Act and Assert
         assertThrows<RideAlreadyCanceledException> { service.cancelRide(cancelRequest) }
 
         verify(repository, times(1)).findById(rideId)
-
     }
+
 
 }
