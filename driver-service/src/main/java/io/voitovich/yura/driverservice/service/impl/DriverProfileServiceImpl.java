@@ -5,6 +5,7 @@ import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
+import io.voitovich.yura.driverservice.dto.response.DriverProfilesResponse;
 import io.voitovich.yura.driverservice.entity.DriverProfile;
 import io.voitovich.yura.driverservice.exception.NoSuchRecordException;
 import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.UUID;
 
 import static io.voitovich.yura.driverservice.dto.mapper.DriverProfileMapper.INSTANCE;
@@ -110,6 +112,19 @@ public class DriverProfileServiceImpl implements DriverProfileService {
         profile.setRating(newRating);
         return repository.save(profile);
     }
+
+    @Override
+    public DriverProfilesResponse getByIds(List<UUID> uuids) {
+        log.info("Getting profiles by ids: {}", uuids);
+        var profiles = repository.findAllById(uuids);
+        return DriverProfilesResponse.builder()
+                .profiles(profiles
+                        .stream()
+                        .map(INSTANCE::toProfileResponse)
+                        .toList())
+                .build();
+    }
+
     private DriverProfile getIfPresent(UUID uuid) {
         return repository.getDriverProfilesById(uuid)
                 .orElseThrow(() -> new NoSuchRecordException(
