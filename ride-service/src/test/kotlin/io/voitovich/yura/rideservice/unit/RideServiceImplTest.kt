@@ -129,7 +129,6 @@ class RideServiceImplTest {
     @Test
     fun getRidePage_correctRequest_returnRidePage() {
         // Arrange
-        val driverId = UUID.randomUUID()
         val request = UnitTestsUtils.createDefaultRidePageRequest()
         val pageRequest = PageRequest.of(request.pageNumber - 1, request.pageSize, Sort.by(request.orderBy))
         val page = PageImpl<Ride>(listOf())

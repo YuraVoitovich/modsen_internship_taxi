@@ -113,7 +113,7 @@ class RidePassengerManagementServiceImplTest {
         val request = createDefaultCreateRideRequest()
         val passengerId = request.passengerId
 
-        val rideToSave = mapper.fromCreateRequestToEntity(request)
+        mapper.fromCreateRequestToEntity(request)
 
         doReturn(true)
             .`when`(repository).existsRideByPassengerProfileIdAndStatusIsNotIn(

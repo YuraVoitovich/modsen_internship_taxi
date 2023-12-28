@@ -66,7 +66,7 @@ class RideDriverManagementServiceImplTest {
 
     private lateinit var service: RideDriverManagementServiceImpl
 
-    private lateinit var clock: Clock;
+    private lateinit var clock: Clock
 
     @BeforeEach
     fun setUp() {
@@ -99,7 +99,7 @@ class RideDriverManagementServiceImplTest {
             .getDriverAvailableRides(point, radius)
 
         // Act
-        val response = service.getAvailableRides(getAvailableRidesRequest)
+        service.getAvailableRides(getAvailableRidesRequest)
 
         // Assert
         verify(repository, times(1)).getDriverAvailableRides(point, radius = radius)
@@ -115,7 +115,7 @@ class RideDriverManagementServiceImplTest {
             .getDriverAvailableRides(point, properties.searchRadius)
 
         // Act
-        val response = service.getAvailableRides(getAvailableRidesRequest)
+        service.getAvailableRides(getAvailableRidesRequest)
 
         // Assert
         verify(repository, times(1)).getDriverAvailableRides(point, properties.searchRadius)
@@ -141,7 +141,7 @@ class RideDriverManagementServiceImplTest {
             .getDriverAvailableRides(point, radius)
 
         // Act
-        val response = service.getAvailableRides(getAvailableRidesRequest)
+        service.getAvailableRides(getAvailableRidesRequest)
 
         // Assert
         verify(repository, times(1)).getDriverAvailableRides(point, radius)
