@@ -14,7 +14,6 @@ import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupDrive
 import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupDriversWireMock
 import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPassengerWireMock
 import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPassengersWireMock
-import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.service.impl.RideServiceImpl.Companion.NO_SUCH_RECORD_EXCEPTION_MESSAGE
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
