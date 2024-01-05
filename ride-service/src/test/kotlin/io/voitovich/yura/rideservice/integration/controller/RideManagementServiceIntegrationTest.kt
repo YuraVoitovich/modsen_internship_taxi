@@ -56,9 +56,6 @@ import java.util.*
 @ActiveProfiles("test")
 class RideManagementServiceIntegrationTest {
 
-    @Autowired
-    lateinit var properties: DefaultApplicationProperties
-
     @LocalServerPort
     private val port: Int? = null
 

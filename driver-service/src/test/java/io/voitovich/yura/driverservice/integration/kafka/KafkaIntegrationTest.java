@@ -66,11 +66,6 @@ public class KafkaIntegrationTest {
     @Autowired
     private DriverProfileRepository driverProfilerepository;
 
-    @LocalServerPort
-    private Integer port;
-
-    private final String PASSENGER_SERVICE_BASE_URL = "api/passenger/profile";
-
     @Container
     static final KafkaContainer kafka = new KafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:latest")
@@ -114,9 +109,7 @@ public class KafkaIntegrationTest {
                     ConsumerRecords<String, ConfirmRatingReceiveModel> consumerRecords = consumer.poll(Duration.ofSeconds(5));
                     assertEquals(1, consumerRecords.count());
                     var records = consumerRecords.records(properties.getConfirmRatingReceiveTopicName());
-                    records.forEach((val) -> {
-                        assertEquals(expectedConfirmRatingReceiveModel, val.value());
-                    });
+                    records.forEach((val) -> assertEquals(expectedConfirmRatingReceiveModel, val.value()));
                     consumer.unsubscribe();
                 }
                 );

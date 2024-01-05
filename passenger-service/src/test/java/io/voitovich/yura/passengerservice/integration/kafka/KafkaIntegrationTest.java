@@ -108,9 +108,7 @@ public class KafkaIntegrationTest {
                     ConsumerRecords<String, ConfirmRatingReceiveModel> consumerRecords = consumer.poll(Duration.ofSeconds(5));
                     assertEquals(1, consumerRecords.count());
                     var records = consumerRecords.records(properties.getConfirmRatingReceiveTopicName());
-                    records.forEach((val) -> {
-                        assertEquals(expectedConfirmRatingReceiveModel, val.value());
-                    });
+                    records.forEach((val) -> assertEquals(expectedConfirmRatingReceiveModel, val.value()));
                     consumer.unsubscribe();
                 }
                 );

@@ -49,9 +49,6 @@ class KafkaConsumerIntegrationTest {
     @Autowired
     lateinit var properties: DefaultKafkaProperties
 
-    @LocalServerPort
-    private val port: Int? = null
-
     @Autowired
     lateinit var kafkaTemplate: KafkaTemplate<String, ConfirmRatingReceiveModel>
 
