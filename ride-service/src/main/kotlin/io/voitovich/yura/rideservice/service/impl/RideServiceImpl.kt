@@ -18,8 +18,8 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
 
     private val log = KotlinLogging.logger {  }
 
-    private companion object {
-        private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
+    companion object {
+        const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
     }
     override fun getRideById(id: UUID): RideResponse {
         log.info { "Retrieving ride information for ride with id: $id" }
@@ -47,12 +47,12 @@ class RideServiceImpl(val repository: RideRepository, val mapper: RideMapper) : 
             .of(pageRideRequest.pageNumber - 1,
                 pageRideRequest.pageSize,
                 Sort.by(pageRideRequest.orderBy)))
-        return RidePageResponse(page
-            .content.stream()
-            .map {t-> mapper.toRideResponse(t)}.toList(),
-            pageRideRequest.pageNumber,
-            page.totalElements,
-            page.totalPages)
+        return RidePageResponse(
+            profiles = mapper.toRideResponses(page.content),
+            pageNumber = pageRideRequest.pageNumber,
+            totalElements = page.totalElements,
+            totalPages = page.totalPages
+        )
     }
 
 }

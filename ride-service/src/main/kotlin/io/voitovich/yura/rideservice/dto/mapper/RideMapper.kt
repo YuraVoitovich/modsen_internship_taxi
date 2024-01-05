@@ -11,7 +11,14 @@ import org.locationtech.jts.geom.Point
 
 
 interface RideMapper {
+
+
+    fun toDriverRideResponses(rides: List<Ride>): List<RideResponse>
+
+    fun toPassengerRideResponses(rides: List<Ride>): List<RideResponse>
     fun toRideResponse(ride: Ride): RideResponse
+
+    fun toRideResponses(rides: List<Ride>): List<RideResponse>
 
     fun fromCreateRequestToEntity(createRideRequest: CreateRideRequest) : Ride
 

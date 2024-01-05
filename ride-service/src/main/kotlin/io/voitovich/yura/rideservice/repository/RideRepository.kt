@@ -21,7 +21,7 @@ interface RideRepository: JpaRepository<Ride, UUID> {
 
     fun existsRideByPassengerProfileIdAndStatusIsNotIn(passengerProfileId: UUID, statuses: Set<RideStatus>): Boolean
     @Query(
-        value = "select ST_Distance(geography(driver_position), start_geo) < 30 from ride where id = :rideId",
+        value = "select ST_Distance(geography(driver_position), start_geo) < 30 AND status = 'ACCEPTED' from ride where id = :rideId",
         nativeQuery = true
     )
     fun canStartRide(rideId: UUID) : Boolean

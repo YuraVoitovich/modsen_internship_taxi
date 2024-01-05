@@ -5,11 +5,13 @@ import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
+import io.voitovich.yura.driverservice.dto.response.DriverProfilesResponse;
 import io.voitovich.yura.driverservice.entity.DriverProfile;
 import io.voitovich.yura.driverservice.model.RecalculateRatingModel;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
 import java.util.UUID;
 
 @Validated
@@ -20,4 +22,6 @@ public interface DriverProfileService {
     DriverProfilePageResponse getProfilePage(@Valid DriverProfilePageRequest pageRequest);
     void deleteProfileById(UUID uuid);
     DriverProfile getPassengerProfileAndRecalculateRating(RecalculateRatingModel model);
+
+    DriverProfilesResponse getByIds(List<UUID> uuids);
 }

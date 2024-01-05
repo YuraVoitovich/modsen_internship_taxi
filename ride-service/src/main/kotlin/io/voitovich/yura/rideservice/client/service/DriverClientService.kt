@@ -6,4 +6,6 @@ import java.util.*
 interface DriverClientService {
 
     fun getDriverProfile(id: UUID): DriverProfileModel
+
+    fun getDriverProfiles(ids: List<UUID>): List<DriverProfileModel>
 }

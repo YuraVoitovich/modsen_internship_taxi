@@ -5,6 +5,7 @@ import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequ
 import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
+import io.voitovich.yura.passengerservice.dto.response.PassengerProfilesResponse;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
 import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.UUID;
 
 import static io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper.INSTANCE;
@@ -126,5 +128,17 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
                         RoundingMode.CEILING);
         profile.setRating(newRating);
         return repository.save(profile);
+    }
+
+    @Override
+    public PassengerProfilesResponse getByIds(List<UUID> uuids) {
+        log.info("Getting profiles by ids: {}", uuids);
+        var profiles = repository.findAllById(uuids);
+        return PassengerProfilesResponse.builder()
+                .profiles(profiles
+                        .stream()
+                        .map(INSTANCE::toProfileResponse)
+                        .toList())
+                .build();
     }
 }

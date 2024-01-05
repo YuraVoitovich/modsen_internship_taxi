@@ -14,7 +14,12 @@ class PassengerClientServiceImpl(
 
     val logger = KotlinLogging.logger {  }
     override fun getPassengerProfile(id: UUID): PassengerProfileModel {
-        logger.info { "Execute getPassengerProfile method with id: ${id}" }
+        logger.info { "Execute getPassengerProfile method with id: $id" }
         return passengerServiceClient.getPassengerProfile(id).body!!
+    }
+
+    override fun getPassengerProfiles(ids: List<UUID>): List<PassengerProfileModel> {
+        logger.info { "Execute getPassengerProfiles method with ids: $ids" }
+        return passengerServiceClient.getPassengerProfiles(ids).body!!.models
     }
 }
