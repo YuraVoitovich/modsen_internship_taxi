@@ -68,17 +68,6 @@ public class KafkaIntegrationTest {
     @Autowired
     private DriverProfileRepository driverProfilerepository;
 
-
-    @BeforeAll
-    static void beforeAll() {
-        postgres.start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        postgres.stop();
-    }
-
     @LocalServerPort
     private Integer port;
 

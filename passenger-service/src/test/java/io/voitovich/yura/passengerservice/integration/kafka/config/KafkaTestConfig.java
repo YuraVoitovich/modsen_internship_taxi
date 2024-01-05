@@ -17,7 +17,7 @@ import java.util.Map;
 
 @ActiveProfiles("test")
 @TestConfiguration
-public class KafkaConfig {
+public class KafkaTestConfig {
 
     @Bean
     public KafkaTemplate<String, ReceiveRatingModel> template(KafkaProperties properties) {

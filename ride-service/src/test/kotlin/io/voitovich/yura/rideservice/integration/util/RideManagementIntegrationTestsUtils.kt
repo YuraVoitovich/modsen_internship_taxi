@@ -87,6 +87,15 @@ class RideManagementIntegrationTestsUtils {
             )
         }
 
+        fun createDefaultPassengerProfileModel(passengerId: UUID): PassengerProfileModel {
+            return PassengerProfileModel(
+                id = passengerId,
+                phoneNumber = "+375295432551",
+                name = "Name",
+                surname = "Surname",
+                rating = BigDecimal.ONE,
+            )
+        }
         fun getAllRidesPassengerProfileModels(): PassengerProfileModels {
             return PassengerProfileModels(
                 models = listOf(

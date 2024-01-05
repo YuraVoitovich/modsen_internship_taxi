@@ -3,7 +3,7 @@ package io.voitovich.yura.passengerservice.integration.kafka;
 
 import io.voitovich.yura.passengerservice.event.model.ConfirmRatingReceiveModel;
 import io.voitovich.yura.passengerservice.event.model.ReceiveRatingModel;
-import io.voitovich.yura.passengerservice.integration.kafka.config.KafkaConfig;
+import io.voitovich.yura.passengerservice.integration.kafka.config.KafkaTestConfig;
 import io.voitovich.yura.passengerservice.properties.DefaultKafkaProperties;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -49,7 +49,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
                 executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 }
 )
-@ContextConfiguration(classes = {KafkaConfig.class})
+@ContextConfiguration(classes = {KafkaTestConfig.class})
 @ActiveProfiles("test")
 public class KafkaIntegrationTest {
 
@@ -67,22 +67,6 @@ public class KafkaIntegrationTest {
 
     @Autowired
     private PassengerProfileRepository passengerProfilerepository;
-
-
-    @BeforeAll
-    static void beforeAll() {
-        postgres.start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        postgres.stop();
-    }
-
-    @LocalServerPort
-    private Integer port;
-
-    private final String PASSENGER_SERVICE_BASE_URL = "api/passenger/profile";
 
     @Container
     static final KafkaContainer kafka = new KafkaContainer(

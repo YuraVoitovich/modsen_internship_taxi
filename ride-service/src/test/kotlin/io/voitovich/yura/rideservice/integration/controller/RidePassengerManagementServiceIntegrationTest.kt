@@ -6,6 +6,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import io.restassured.response.ValidatableResponse
+import io.restassured.specification.RequestSpecification
 import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.dto.request.CancelRequest
 import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
@@ -17,18 +19,22 @@ import io.voitovich.yura.rideservice.integration.util.PassengerManagementIntegra
 import io.voitovich.yura.rideservice.integration.util.PassengerManagementIntegrationTestsUtils.Companion.getAllPassengerRidesDriverProfilesModels
 import io.voitovich.yura.rideservice.integration.util.PassengerManagementIntegrationTestsUtils.Companion.getAllPassengerRidesPassengerProfileModel
 import io.voitovich.yura.rideservice.integration.util.PassengerManagementIntegrationTestsUtils.Companion.getDefaultCreateRideRequest
+import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.createDefaultPassengerProfileModel
+import io.voitovich.yura.rideservice.integration.util.Utils
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.executeRequest
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupDriversWireMock
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPassengerWireMock
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.NO_SUCH_RECORD_EXCEPTION_MESSAGE
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.RATE_DRIVER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.RIDE_CANT_BE_CANCELED_EXCEPTION_MESSAGE
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
@@ -92,18 +98,6 @@ class RidePassengerManagementServiceIntegrationTest {
             .withUsername("postgres")
             .withPassword("postgres")
 
-        @BeforeAll
-        @JvmStatic
-        fun beforeAll() {
-            postgres.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun afterAll() {
-            postgres.stop()
-        }
-
         private const val PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL = "api/ride/passenger"
 
         @DynamicPropertySource
@@ -116,316 +110,340 @@ class RidePassengerManagementServiceIntegrationTest {
         }
     }
 
-    @Test
-    fun createRide_correctRequest_shouldReturnCreateRideResponse() {
-        val passengerId = UUID.randomUUID()
-        val passengerProfileModel = PassengerProfileModel(
-            id = passengerId,
-            phoneNumber = "+375295432551",
-            name = "Name",
-            surname = "Surname",
-            rating = BigDecimal.ONE,
-        )
-        val passengerProfileModelJSON = jacksonObjectMapper().writeValueAsString(passengerProfileModel)
-        passengerWireMock.stubFor(
-            get("/api/passenger/profile/$passengerId")
-                .willReturn(aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody(passengerProfileModelJSON))
-        )
-        val request = getDefaultCreateRideRequest(passengerId)
+    @Nested
+    @DisplayName("Create ride tests")
+    inner class CreateRideTests {
+        @Test
+        fun createRide_correctRequest_shouldReturnCreateRideResponse() {
+            // Arrange
+            val passengerId = UUID.randomUUID()
+            val passengerProfileModel = createDefaultPassengerProfileModel(passengerId)
+            val passengerProfileModelJSON = jacksonObjectMapper().writeValueAsString(passengerProfileModel)
 
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(request)
-            .put(PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract()
-            .`as`(CreateRideResponse::class.java)
-
-        assertEquals(passengerId, actual.passengerId)
-    }
-
-    @Test
-    fun createRide_passengerProfileNotFound_shouldReturnNoSuchRecordErrorResponse() {
-        val passengerId = UUID.randomUUID()
-
-        passengerWireMock.stubFor(
-            get("/api/passenger/profile/$passengerId")
-                .willReturn(aResponse()
-                    .withStatus(HttpStatus.NOT_FOUND.value()))
-        )
-        val request = getDefaultCreateRideRequest(passengerId)
-
-        val expected = ExceptionInfo(
-            status = HttpStatus.NOT_FOUND,
-            message = "Passenger profile was not found"
-        )
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(request)
-            .put(PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun createRide_rideForPassengerExists_shouldReturnRideCantBeStartedErrorResponse() {
-        val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
-
-        val passengerProfileModel = PassengerProfileModel(
-            id = passengerId,
-            phoneNumber = "+375295432551",
-            name = "Name",
-            surname = "Surname",
-            rating = BigDecimal.ONE,
-        )
-        val passengerProfileModelJSON = jacksonObjectMapper().writeValueAsString(passengerProfileModel)
-        passengerWireMock.stubFor(
-            get("/api/passenger/profile/$passengerId")
-                .willReturn(aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody(passengerProfileModelJSON)))
-
-        val request = getDefaultCreateRideRequest(passengerId)
-
-        val expected = ExceptionInfo(
-            status = HttpStatus.CONFLICT,
-            message = String.format(RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE, passengerId)
-        )
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(request)
-            .put(PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun cancelRide_rideCantBeCanceled_shouldReturnRideCantBeCanceledErrorResponse() {
-        val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
-
-        val request = CancelRequest(
-            passengerId = passengerId,
-            rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa63c")
-        )
-
-        val expected = ExceptionInfo(
-            status = HttpStatus.CONFLICT,
-            message = String.format(RIDE_CANT_BE_CANCELED_EXCEPTION_MESSAGE, request.rideId)
-        )
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(request)
-            .delete(PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun cancelRide_rideNotExists_shouldReturnNoSuchRecordErrorResponse() {
-        val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
-
-        val request = CancelRequest(
-            passengerId = passengerId,
-            rideId = UUID.randomUUID()
-        )
-
-        val expected = ExceptionInfo(
-            status = HttpStatus.NOT_FOUND,
-            message = String.format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, request.rideId)
-        )
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(request)
-            .delete(PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun cancelRide_correctRequest_shouldCancelRide() {
-        val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
-
-        val request = CancelRequest(
-            passengerId = passengerId,
-            rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa62c")
-        )
-
-        given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(request)
-            .delete(PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-
-
-    }
-
-    @Test
-    fun getAllRides_validRequest_shouldReturnAllRidesForDriverWithId() {
-        val allPassengerRides = getAllPassengerRides()
-        val expected = RidePageResponse(
-            profiles = allPassengerRides,
-            pageNumber = 1,
-            totalElements = 3,
-            totalPages = 2
-        )
-        val driverIds = listOf("d1e4120d-aa71-448c-843f-5a5e801ed287", "d1843c0d-aa71-448c-843f-5a5e801ed287")
-
-        val passengerId = "7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10"
-
-
-        val modelsJson = jacksonObjectMapper().writeValueAsString(getAllPassengerRidesDriverProfilesModels())
-        driverWireMock.stubFor(
-            get("/api/driver/profiles/" + driverIds.joinToString(","))
-                .willReturn(aResponse()
-                    .withStatus(HttpStatus.OK.value())
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody(modelsJson))
-        )
-
-        passengerWireMock.stubFor(
-            get("/api/passenger/profile/$passengerId")
-                .willReturn(aResponse()
-                    .withStatus(HttpStatus.OK.value())
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody(jacksonObjectMapper().writeValueAsString(getAllPassengerRidesPassengerProfileModel())))
-        )
-
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .pathParam("id", passengerId)
-            .params(
-                mapOf(
-                Pair("pageNumber", 1),
-                Pair("pageSize", 2),
-                Pair("orderBy", "id"))
+            setupPassengerWireMock(
+                passengerWireMock = passengerWireMock,
+                passengerId = passengerId.toString(),
+                responseStatus = HttpStatus.OK,
+                responseBody = passengerProfileModelJSON
             )
-            .get("$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rides/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .`as`(RidePageResponse::class.java)
 
-        assertEquals(expected, actual)
+            val request = getDefaultCreateRideRequest(passengerId)
 
-    }
-
-    @Test
-    fun getAllRides_badParams_shouldReturnConstraintViolationErrorResponse() {
-
-        val passengerId = "7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10"
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .pathParam("id", passengerId)
-            .params(
-                mapOf(
-                    Pair("pageNumber", 0),
-                    Pair("pageSize", 0),
-                    Pair("orderBy", "ids"))
+            // Act
+            val actual = executeRequest(
+                port = port,
+                url = PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL,
+                method = HttpMethod.PUT,
+                body = request,
+                expectedStatus = HttpStatus.CREATED,
+                extractClass = CreateRideResponse::class.java
             )
-            .get("$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rides/{id}")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
 
-        assertEquals(HttpStatus.BAD_REQUEST, actual.status)
+            // Assert
+            assertEquals(passengerId, actual.passengerId)
+        }
 
+        @Test
+        fun createRide_passengerProfileNotFound_shouldReturnNoSuchRecordErrorResponse() {
+            // Arrange
+            val passengerId = UUID.randomUUID()
+
+            setupPassengerWireMock(
+                passengerWireMock = passengerWireMock,
+                passengerId = passengerId.toString(),
+                responseStatus = HttpStatus.NOT_FOUND
+            )
+
+            val request = getDefaultCreateRideRequest(passengerId)
+
+            // Act
+            val expected = ExceptionInfo(
+                status = HttpStatus.NOT_FOUND,
+                message = "Passenger profile was not found"
+            )
+            val actual = executeRequest(
+                port = port,
+                url = PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL,
+                method = HttpMethod.PUT,
+                body = request,
+                expectedStatus = HttpStatus.NOT_FOUND,
+                extractClass = ExceptionInfo::class.java
+            )
+
+            // Assert
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        fun createRide_rideForPassengerExists_shouldReturnRideCantBeStartedErrorResponse() {
+            // Arrange
+            val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
+            val passengerProfileModel = createDefaultPassengerProfileModel(passengerId)
+            val passengerProfileModelJSON = jacksonObjectMapper().writeValueAsString(passengerProfileModel)
+
+            setupPassengerWireMock(
+                passengerWireMock = passengerWireMock,
+                passengerId = passengerId.toString(),
+                responseStatus = HttpStatus.OK,
+                responseBody = passengerProfileModelJSON
+            )
+
+            val request = getDefaultCreateRideRequest(passengerId)
+
+            // Act
+            val expected = ExceptionInfo(
+                status = HttpStatus.CONFLICT,
+                message = String.format(RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE, passengerId)
+            )
+            val actual = executeRequest(
+                port = port,
+                url = PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL,
+                method = HttpMethod.PUT,
+                body = request,
+                expectedStatus = HttpStatus.CONFLICT,
+                extractClass = ExceptionInfo::class.java
+            )
+
+            // Assert
+            assertEquals(expected, actual)
+        }
     }
 
 
-    @Test
-    fun rateDriver_correctRequest_shouldRateDriver() {
-        val rateDriverRequest = SendRatingRequest(
-            rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa65c"),
-            rating = BigDecimal.ONE
-        )
+    @Nested
+    @DisplayName("Cancel ride tests")
+    inner class CancelRideTests {
+        @Test
+        fun cancelRide_rideCantBeCanceled_shouldReturnRideCantBeCanceledErrorResponse() {
+            // Arrange
+            val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
+            val request = CancelRequest(
+                passengerId = passengerId,
+                rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa63c")
+            )
+            val expected = ExceptionInfo(
+                status = HttpStatus.CONFLICT,
+                message = String.format(RIDE_CANT_BE_CANCELED_EXCEPTION_MESSAGE, request.rideId)
+            )
 
-        given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(rateDriverRequest)
-            .post("$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate")
-            .then()
-            .statusCode(HttpStatus.OK.value())
+            // Act
+            val actual = executeRequest(
+                port = port,
+                url = PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL,
+                method = HttpMethod.DELETE,
+                body = request,
+                expectedStatus = HttpStatus.CONFLICT,
+                extractClass = ExceptionInfo::class.java
+            )
 
+            // Assert
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        fun cancelRide_rideNotExists_shouldReturnNoSuchRecordErrorResponse() {
+            // Arrange
+            val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
+            val request = CancelRequest(
+                passengerId = passengerId,
+                rideId = UUID.randomUUID()
+            )
+            val expected = ExceptionInfo(
+                status = HttpStatus.NOT_FOUND,
+                message = String.format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, request.rideId)
+            )
+
+            // Act
+            val actual: ExceptionInfo = executeRequest(
+                port = port,
+                url = PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL,
+                method = HttpMethod.DELETE,
+                body = request,
+                expectedStatus = HttpStatus.NOT_FOUND,
+                extractClass = ExceptionInfo::class.java
+            )
+
+            // Assert
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        fun cancelRide_correctRequest_shouldCancelRide() {
+            // Arrange
+            val passengerId = UUID.fromString("7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10")
+            val request = CancelRequest(
+                passengerId = passengerId,
+                rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa62c")
+            )
+
+            // Act
+            executeRequest(
+                port = port,
+                url = PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL,
+                method = HttpMethod.DELETE,
+                body = request,
+                expectedStatus = HttpStatus.NO_CONTENT
+            )
+
+        }
     }
 
-    @Test
-    fun rateDriver_rideNotExists_shouldReturnNoSuchRecordErrorResponse() {
-        val rateDriverRequest = SendRatingRequest(
-            rideId = UUID.randomUUID(),
-            rating = BigDecimal.ONE
-        )
+    @Nested
+    @DisplayName("Get all passenger rides tests")
+    inner class GetAllRidesTests {
+        @Test
+        fun getAllRides_validRequest_shouldReturnAllRidesForDriverWithId() {
+            // Arrange
+            val allPassengerRides = getAllPassengerRides()
+            val expected = RidePageResponse(
+                profiles = allPassengerRides,
+                pageNumber = 1,
+                totalElements = 3,
+                totalPages = 2
+            )
+            val driverIds = listOf("d1e4120d-aa71-448c-843f-5a5e801ed287", "d1843c0d-aa71-448c-843f-5a5e801ed287")
+            val passengerId = "7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10"
+            val modelsJson = jacksonObjectMapper().writeValueAsString(getAllPassengerRidesDriverProfilesModels())
+            setupDriversWireMock(
+                driverWireMock = driverWireMock,
+                ids = driverIds,
+                responseStatus = HttpStatus.OK,
+                responseBody = modelsJson
+            )
+            val passengerProfileModelJson = jacksonObjectMapper().writeValueAsString(getAllPassengerRidesPassengerProfileModel())
+            setupPassengerWireMock(
+                passengerWireMock = passengerWireMock,
+                passengerId = passengerId,
+                responseStatus = HttpStatus.OK,
+                responseBody = passengerProfileModelJson
+            )
 
-        val expected = ExceptionInfo(
-            HttpStatus.NOT_FOUND,
-            message = String.format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, rateDriverRequest.rideId)
-        )
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(rateDriverRequest)
-            .post("$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate")
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
+            // Act
+            val actual = executeRequest(
+                port = port,
+                url = "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rides/{id}",
+                method = HttpMethod.GET,
+                expectedStatus = HttpStatus.OK,
+                pathParamName = "id",
+                pathParam = passengerId,
+                params = mapOf(
+                    "pageNumber" to 1,
+                    "pageSize" to 2,
+                    "orderBy" to "id"
+                ),
+                extractClass = RidePageResponse::class.java
+            )
 
-        assertEquals(expected, actual)
+            // Assert
+            assertEquals(expected, actual)
+        }
 
+        @Test
+        fun getAllRides_badParams_shouldReturnConstraintViolationErrorResponse() {
+            // Arrange
+            val passengerId = "7e4f5342-cb2b-4e8c-8ab7-1629afcf5d10"
+
+            // Act
+            val actual = executeRequest(
+                port = port,
+                url = "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rides/{id}",
+                method = HttpMethod.GET,
+                expectedStatus = HttpStatus.BAD_REQUEST,
+                pathParamName = "id",
+                pathParam = passengerId,
+                params = mapOf(
+                    "pageNumber" to 0,
+                    "pageSize" to 0,
+                    "orderBy" to "ids"
+                ),
+                extractClass = ExceptionInfo::class.java
+            )
+
+            // Assert
+            assertEquals(HttpStatus.BAD_REQUEST, actual.status)
+        }
     }
 
-    @Test
-    fun rateDriver_rideStatusIsNotValid_shouldReturnSendRatingErrorResponse() {
-        val rateDriverRequest = SendRatingRequest(
-            rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa62c"),
-            rating = BigDecimal.ONE
-        )
 
-        val expected = ExceptionInfo(
-            HttpStatus.BAD_REQUEST,
-            message = RATE_DRIVER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE
-        )
-        val actual = given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .body(rateDriverRequest)
-            .post("$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
+    @Nested
+    @DisplayName("Rate driver tests")
+    inner class RateDriverTests {
+        @Test
+        fun rateDriver_correctRequest_shouldRateDriver() {
+            // Arrange
+            val rateDriverRequest = SendRatingRequest(
+                rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa65c"),
+                rating = BigDecimal.ONE
+            )
 
-        assertEquals(expected, actual)
+            // Act
+            executeRequest(
+                port = port,
+                "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate",
+                HttpMethod.POST,
+                rateDriverRequest,
+                HttpStatus.OK
+            )
 
+            // No explicit Assert needed for this test case
+        }
+
+        @Test
+        fun rateDriver_rideNotExists_shouldReturnNoSuchRecordErrorResponse() {
+            // Arrange
+            val rateDriverRequest = SendRatingRequest(
+                rideId = UUID.randomUUID(),
+                rating = BigDecimal.ONE
+            )
+
+            val expected = ExceptionInfo(
+                HttpStatus.NOT_FOUND,
+                message = String.format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, rateDriverRequest.rideId)
+            )
+
+            // Act
+            val actual: ExceptionInfo = executeRequest(
+                port = port,
+                "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate",
+                HttpMethod.POST,
+                rateDriverRequest,
+                HttpStatus.NOT_FOUND,
+                ExceptionInfo::class.java
+            )
+
+            // Assert
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        fun rateDriver_rideStatusIsNotValid_shouldReturnSendRatingErrorResponse() {
+            // Arrange
+            val rateDriverRequest = SendRatingRequest(
+                rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa62c"),
+                rating = BigDecimal.ONE
+            )
+
+            val expected = ExceptionInfo(
+                HttpStatus.BAD_REQUEST,
+                message = RATE_DRIVER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE
+            )
+
+            // Act
+            val actual: ExceptionInfo = executeRequest(
+                port = port,
+                url = "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate",
+                method = HttpMethod.POST,
+                body = rateDriverRequest,
+                expectedStatus = HttpStatus.BAD_REQUEST,
+                extractClass = ExceptionInfo::class.java
+            )
+
+            // Assert
+            assertEquals(expected, actual)
+        }
     }
+
+
+
 
 }

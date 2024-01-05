@@ -71,8 +71,6 @@ class KafkaConsumerIntegrationTest {
             DockerImageName.parse("confluentinc/cp-kafka:latest")
         )
 
-
-
         @Container
         @JvmStatic
         private val postgres = PostgisContainerProvider()
@@ -80,20 +78,6 @@ class KafkaConsumerIntegrationTest {
             .withDatabaseName("test")
             .withUsername("postgres")
             .withPassword("postgres")
-
-
-
-        @BeforeAll
-        @JvmStatic
-        fun beforeAll() {
-            postgres.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun afterAll() {
-            postgres.stop()
-        }
 
         @DynamicPropertySource
         @JvmStatic

@@ -13,6 +13,11 @@ import io.voitovich.yura.rideservice.integration.config.WireMockConfig
 import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.getAllRides
 import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.getAllRidesDriverProfileModels
 import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.getAllRidesPassengerProfileModels
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.executeRequest
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupDriverWireMock
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupDriversWireMock
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPassengerWireMock
+import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPassengersWireMock
 import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.service.impl.RideServiceImpl.Companion.NO_SUCH_RECORD_EXCEPTION_MESSAGE
 import org.junit.jupiter.api.AfterAll
@@ -23,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
@@ -87,20 +93,6 @@ class RideManagementServiceIntegrationTest {
             .withUsername("postgres")
             .withPassword("postgres")
 
-
-
-        @BeforeAll
-        @JvmStatic
-        fun beforeAll() {
-            postgres.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun afterAll() {
-            postgres.stop()
-        }
-
         private const val RIDE_MANAGEMENT_CONTROLLER_BASE_URL = "api/ride"
 
         @DynamicPropertySource
@@ -115,27 +107,29 @@ class RideManagementServiceIntegrationTest {
 
     @Test
     fun getRideById_rideNotExists_shouldReturnNoSuchRecordErrorResponse() {
-
+        // Arrange
         val rideId = UUID.randomUUID()
-
         val expected = ExceptionInfo(
             status = HttpStatus.NOT_FOUND,
             message = String.format(NO_SUCH_RECORD_EXCEPTION_MESSAGE, rideId)
         )
-        val actual = RestAssured.given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .get("$RIDE_MANAGEMENT_CONTROLLER_BASE_URL/$rideId")
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
 
+        // Act
+        val actual = executeRequest(
+            port = port!!,
+            url = "$RIDE_MANAGEMENT_CONTROLLER_BASE_URL/$rideId",
+            method = HttpMethod.GET,
+            expectedStatus = HttpStatus.NOT_FOUND,
+            extractClass = ExceptionInfo::class.java
+        )
+
+        // Assert
         assertEquals(expected, actual)
     }
 
     @Test
     fun getRideById_rideExists_shouldReturnRideResponse() {
+        // Arrange
         val rideId = UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa50c")
         val expected = getAllRides()[0]
 
@@ -144,39 +138,37 @@ class RideManagementServiceIntegrationTest {
 
         val passengerModelJson = jacksonObjectMapper().writeValueAsString(passengerModel)
         val driverModelJson = jacksonObjectMapper().writeValueAsString(driverModel)
-        passengerWireMock.stubFor(
-            get("/api/passenger/profile/" + passengerModel.id)
-                .willReturn(
-                    WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                        .withBody(passengerModelJson))
+        setupPassengerWireMock(
+            passengerWireMock,
+            passengerModel.id.toString(),
+            HttpStatus.OK,
+            passengerModelJson
         )
 
-        driverWireMock.stubFor(
-            get("/api/driver/profile/" + driverModel.id)
-                .willReturn(
-                    WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                        .withBody(driverModelJson))
+        setupDriverWireMock(
+            driverWireMock,
+            driverModel.id.toString(),
+            HttpStatus.OK,
+            driverModelJson
         )
 
-        val actual = RestAssured.given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .get("$RIDE_MANAGEMENT_CONTROLLER_BASE_URL/$rideId")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .`as`(RideResponse::class.java)
+        // Act
+        val actual = executeRequest(
+            port = port!!,
+            url = "$RIDE_MANAGEMENT_CONTROLLER_BASE_URL/$rideId",
+            method = HttpMethod.GET,
+            expectedStatus = HttpStatus.OK,
+            extractClass = RideResponse::class.java
+        )
 
+        // Assert
         assertEquals(expected, actual)
     }
 
+
     @Test
     fun getRidePage_correctRequest_shouldReturnRidePageResponse() {
-
+        // Arrange
         val expected = RidePageResponse(
             profiles = getAllRides(),
             pageNumber = 1,
@@ -187,70 +179,63 @@ class RideManagementServiceIntegrationTest {
         val passengerModels = getAllRidesPassengerProfileModels()
         val driverModels = getAllRidesDriverProfileModels()
 
-        val passengerIds = passengerModels.models.map { it.id }.toList()
-        val driverIds = driverModels.models.map { it.id }.toList()
+        val passengerIds = passengerModels.models.map { it.id.toString() }.toList()
+        val driverIds = driverModels.models.map { it.id.toString() }.toList()
 
         val passengerModelsJson = jacksonObjectMapper().writeValueAsString(passengerModels)
         val driverModelsJson = jacksonObjectMapper().writeValueAsString(driverModels)
-        passengerWireMock.stubFor(
-            get("/api/passenger/profiles/" + passengerIds.joinToString(","))
-                .willReturn(
-                    WireMock.aResponse()
-                    .withStatus(HttpStatus.OK.value())
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody(passengerModelsJson))
+
+        // Act
+        setupPassengersWireMock(
+            passengerWireMock,
+            passengerIds,
+            HttpStatus.OK,
+            passengerModelsJson
         )
 
-        driverWireMock.stubFor(
-            get("/api/driver/profiles/" + driverIds.joinToString(","))
-                .willReturn(
-                    WireMock.aResponse()
-                    .withStatus(HttpStatus.OK.value())
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody(driverModelsJson))
+        setupDriversWireMock(
+            driverWireMock,
+            driverIds,
+            HttpStatus.OK,
+            driverModelsJson
         )
 
-
-
-        val actual = RestAssured.given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .params(
-                mapOf(
-                    Pair("pageNumber", 1),
-                    Pair("pageSize", 2),
-                    Pair("orderBy", "id"))
+        val actual = executeRequest(
+            port = port!!,
+            url = RIDE_MANAGEMENT_CONTROLLER_BASE_URL,
+            method = HttpMethod.GET,
+            expectedStatus = HttpStatus.OK,
+            extractClass = RidePageResponse::class.java,
+            params = mapOf(
+                Pair("pageNumber", 1),
+                Pair("pageSize", 2),
+                Pair("orderBy", "id")
             )
-            .get(RIDE_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .`as`(RidePageResponse::class.java)
+        )
 
-
-
+        // Assert
         assertEquals(expected, actual)
     }
 
+
     @Test
     fun getRidePage_badParams_shouldReturnConstraintViolationErrorResponse() {
-
-        val actual = RestAssured.given()
-            .contentType(ContentType.JSON)
-            .port(port!!)
-            .params(
-                mapOf(
-                    Pair("pageNumber", 0),
-                    Pair("pageSize", 0),
-                    Pair("orderBy", "ids"))
+        // Act
+        val actual = executeRequest(
+            port = port!!,
+            url = RIDE_MANAGEMENT_CONTROLLER_BASE_URL,
+            method = HttpMethod.GET,
+            expectedStatus = HttpStatus.BAD_REQUEST,
+            extractClass = ExceptionInfo::class.java,
+            params = mapOf(
+                Pair("pageNumber", 0),
+                Pair("pageSize", 0),
+                Pair("orderBy", "ids")
             )
-            .get(RIDE_MANAGEMENT_CONTROLLER_BASE_URL)
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract()
-            .`as`(ExceptionInfo::class.java)
+        )
 
+        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, actual.status)
-
     }
+
 }
