@@ -2,13 +2,6 @@ package io.voitovich.yura.rideservice.integration.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import io.restassured.RestAssured.given
-import io.restassured.http.ContentType
-import io.restassured.response.ValidatableResponse
-import io.restassured.specification.RequestSpecification
-import io.voitovich.yura.rideservice.client.model.PassengerProfileModel
 import io.voitovich.yura.rideservice.dto.request.CancelRequest
 import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
@@ -20,7 +13,6 @@ import io.voitovich.yura.rideservice.integration.util.PassengerManagementIntegra
 import io.voitovich.yura.rideservice.integration.util.PassengerManagementIntegrationTestsUtils.Companion.getAllPassengerRidesPassengerProfileModel
 import io.voitovich.yura.rideservice.integration.util.PassengerManagementIntegrationTestsUtils.Companion.getDefaultCreateRideRequest
 import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.createDefaultPassengerProfileModel
-import io.voitovich.yura.rideservice.integration.util.Utils
 import io.voitovich.yura.rideservice.integration.util.Utils.Companion.executeRequest
 import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupDriversWireMock
 import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPassengerWireMock
@@ -28,15 +20,16 @@ import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementService
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.RATE_DRIVER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.RIDE_CANT_BE_CANCELED_EXCEPTION_MESSAGE
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration

@@ -2,10 +2,6 @@ package io.voitovich.yura.rideservice.integration.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import io.restassured.RestAssured
-import io.restassured.http.ContentType
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
@@ -20,9 +16,7 @@ import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPasse
 import io.voitovich.yura.rideservice.integration.util.Utils.Companion.setupPassengersWireMock
 import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.service.impl.RideServiceImpl.Companion.NO_SUCH_RECORD_EXCEPTION_MESSAGE
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -30,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
@@ -43,7 +36,7 @@ import org.testcontainers.containers.PostgisContainerProvider
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import java.util.UUID
+import java.util.*
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

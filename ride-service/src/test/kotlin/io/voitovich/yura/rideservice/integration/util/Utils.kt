@@ -9,7 +9,6 @@ import io.restassured.specification.RequestSpecification
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import java.util.NoSuchElementException
 
 class Utils {
     companion object {

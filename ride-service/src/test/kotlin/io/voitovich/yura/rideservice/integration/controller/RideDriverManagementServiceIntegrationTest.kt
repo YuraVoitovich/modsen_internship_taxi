@@ -2,11 +2,6 @@ package io.voitovich.yura.rideservice.integration.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import io.restassured.RestAssured
-import io.restassured.RestAssured.given
-import io.restassured.http.ContentType
 import io.voitovich.yura.rideservice.client.model.DriverProfileModel
 import io.voitovich.yura.rideservice.dto.request.AcceptRideRequest
 import io.voitovich.yura.rideservice.dto.request.GetAvailableRidesRequest
@@ -42,7 +37,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration

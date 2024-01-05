@@ -9,8 +9,6 @@ import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilesResponse;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;

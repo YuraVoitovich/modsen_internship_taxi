@@ -9,8 +9,6 @@ import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilesResponse;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ValidationExceptionInfo;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;

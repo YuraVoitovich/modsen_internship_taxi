@@ -10,7 +10,6 @@ import io.voitovich.yura.rideservice.dto.responce.ResponsePoint
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.entity.RideStatus
 import java.math.BigDecimal
-import java.time.LocalDateTime
 import java.util.*
 
 class RideManagementIntegrationTestsUtils {

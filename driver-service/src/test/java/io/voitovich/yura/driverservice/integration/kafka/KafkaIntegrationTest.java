@@ -7,8 +7,6 @@ import io.voitovich.yura.driverservice.integration.kafka.config.KafkaConfig;
 import io.voitovich.yura.driverservice.properties.DefaultKafkaProperties;
 import io.voitovich.yura.driverservice.repository.DriverProfileRepository;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

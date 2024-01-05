@@ -2,12 +2,9 @@ package io.voitovich.yura.rideservice.integration.kafka
 
 import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.integration.kafka.config.KafkaConsumerTestConfig
-import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.properties.DefaultKafkaProperties
 import io.voitovich.yura.rideservice.repository.RideRepository
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,7 +24,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.shaded.org.awaitility.Awaitility
 import org.testcontainers.utility.DockerImageName
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 
