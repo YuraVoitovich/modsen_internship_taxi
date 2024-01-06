@@ -1,0 +1,38 @@
+server:
+  netty:
+    connection-timeout: 2s
+    idle-timeout: 15s
+  port:
+    9000
+  shutdown: graceful
+
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: driver-service-route
+          uri: lb://DRIVER-SERVICE
+          predicates:
+            - Path=/api/driver/**
+        - id: passenger-service-route
+          uri: lb://PASSENGER-SERVICE
+          predicates:
+            - Path=/api/passenger/**
+        - id: ride-service-route
+          uri: lb://RIDE-SERVICE
+          predicates:
+            - Path=/api/ride/**
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eurekaserver:8761/eureka/
