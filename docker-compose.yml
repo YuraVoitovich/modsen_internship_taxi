@@ -126,6 +126,15 @@ services:
     networks:
       - backend
 
+  apigateway:
+    image: api-gateway:latest
+    ports:
+      - "9000:9000"
+    environment:
+      PROFILE: "dev"
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
