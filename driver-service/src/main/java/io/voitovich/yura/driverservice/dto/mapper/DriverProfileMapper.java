@@ -9,10 +9,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface DriverProfileMapper {
 
-    DriverProfileMapper INSTANCE = Mappers.getMapper(DriverProfileMapper.class);
     void updateProfileEntity(DriverProfileUpdateRequest request, @MappingTarget DriverProfile profile);
 
     DriverProfileResponse toProfileResponse(DriverProfile profile);

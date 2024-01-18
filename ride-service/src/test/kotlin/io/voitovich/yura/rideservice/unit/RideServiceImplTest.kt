@@ -11,6 +11,7 @@ import io.voitovich.yura.rideservice.exception.NoSuchRecordException
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.impl.RideServiceImpl
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils
+import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultDriverProfileModel
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultPassengerProfileModel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -57,13 +58,18 @@ class RideServiceImplTest {
         val id = UUID.randomUUID()
 
         val passengerModel = createDefaultPassengerProfileModel()
+        val driverModel = createDefaultDriverProfileModel()
         doReturn(passengerModel).`when`(passengerClientService).getPassengerProfile(passengerModel.id)
+        doReturn(driverModel).`when`(driverClientService).getDriverProfile(driverModel.id)
         val ride = Ride.builder(
             passengerProfileId = passengerModel.id,
             startPoint = UnitTestsUtils.createDefaultPoint(mapper),
             endPoint = UnitTestsUtils.createDefaultPoint(mapper),
             status = RideStatus.REQUESTED
-        ).id(id).build()
+        )
+            .id(id)
+            .driverProfileId(driverModel.id)
+            .build()
 
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(id)

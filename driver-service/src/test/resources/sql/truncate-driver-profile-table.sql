@@ -1,0 +1,1 @@
+TRUNCATE TABLE driver_profile CASCADE;

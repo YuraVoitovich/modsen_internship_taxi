@@ -11,12 +11,13 @@ import io.voitovich.yura.rideservice.entity.Ride
 import io.voitovich.yura.rideservice.entity.RideStatus
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaProducerService
-import io.voitovich.yura.rideservice.exception.RideAlreadyCanceledException
+import io.voitovich.yura.rideservice.exception.RideCantBeCanceledException
 import io.voitovich.yura.rideservice.exception.RideCantBeStartedException
 import io.voitovich.yura.rideservice.exception.SendRatingException
 import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
 import io.voitovich.yura.rideservice.repository.RideRepository
 import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl
+import io.voitovich.yura.rideservice.service.impl.RidePassengerManagementServiceImpl.Companion.ALLOWED_RIDE_START_STATUSES
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultCancelRequest
 import io.voitovich.yura.rideservice.unit.util.UnitTestsUtils.Companion.createDefaultConfirmRatingReceiveModel
@@ -92,7 +93,7 @@ class RidePassengerManagementServiceImplTest {
         doReturn(false)
             .`when`(repository).existsRideByPassengerProfileIdAndStatusIsNotIn(
                 passengerId,
-                setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
+                ALLOWED_RIDE_START_STATUSES)
 
         doReturn(rideToReturn).`when`(repository).save(rideToSave)
 
@@ -101,7 +102,7 @@ class RidePassengerManagementServiceImplTest {
 
         // Assert
         verify(repository, times(1))
-            .existsRideByPassengerProfileIdAndStatusIsNotIn(passengerId, setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
+            .existsRideByPassengerProfileIdAndStatusIsNotIn(passengerId, ALLOWED_RIDE_START_STATUSES)
         verify(repository, times(1)).save(rideToSave)
 
         assertEquals(expectedResponse, response)
@@ -118,13 +119,13 @@ class RidePassengerManagementServiceImplTest {
         doReturn(true)
             .`when`(repository).existsRideByPassengerProfileIdAndStatusIsNotIn(
                 passengerId,
-                setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
+                ALLOWED_RIDE_START_STATUSES)
 
         // Act and Assert
         assertThrows<RideCantBeStartedException> { service.createRide(request) }
 
         verify(repository, times(1))
-            .existsRideByPassengerProfileIdAndStatusIsNotIn(passengerId, setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED))
+            .existsRideByPassengerProfileIdAndStatusIsNotIn(passengerId, ALLOWED_RIDE_START_STATUSES)
     }
 
     @Test
@@ -362,7 +363,7 @@ class RidePassengerManagementServiceImplTest {
         doReturn(Optional.of(ride)).`when`(repository).findById(rideId)
 
         // Act and Assert
-        assertThrows<RideAlreadyCanceledException> { service.cancelRide(cancelRequest) }
+        assertThrows<RideCantBeCanceledException> { service.cancelRide(cancelRequest) }
 
         verify(repository, times(1)).findById(rideId)
     }

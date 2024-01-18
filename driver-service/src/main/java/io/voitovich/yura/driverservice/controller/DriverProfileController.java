@@ -13,6 +13,7 @@ import io.voitovich.yura.driverservice.dto.request.DriverProfileSaveRequest;
 import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
+import io.voitovich.yura.driverservice.dto.response.DriverProfilesResponse;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.driverservice.exceptionhandler.model.ValidationExceptionInfo;
 import io.voitovich.yura.driverservice.service.DriverProfileService;
@@ -21,8 +22,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
+
 @RestController
-@RequestMapping("api/driver/profile")
+@RequestMapping("api/driver")
 @Tag(name = "Driver profile controller", description = "Driver profile API")
 @RequiredArgsConstructor
 public class DriverProfileController {
@@ -48,14 +52,14 @@ public class DriverProfileController {
                     })
     })
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("{id}")
+    @GetMapping("/profile/{id}")
     private DriverProfileResponse getProfileById(@Parameter(name = "id", description = "Driver profile UUID")
                                                      @PathVariable(name = "id") String id) {
         return profileService.getProfileById(UUIDUtils.getUUIDFromString(id));
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping()
+    @GetMapping("/profile")
     @Operation(description = "Get driver profile page")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Driver profile page returned"),
@@ -96,7 +100,7 @@ public class DriverProfileController {
                     })
     })
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping()
+    @PostMapping("/profile")
     private DriverProfileResponse updateProfile(@Valid @RequestBody DriverProfileUpdateRequest profileDto) {
         return profileService.updateProfile(profileDto);
     }
@@ -117,7 +121,7 @@ public class DriverProfileController {
                     })
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping()
+    @PutMapping("/profile")
     private DriverProfileResponse saveProfile(@Valid  @RequestBody DriverProfileSaveRequest request) {
         return profileService.saveProfile(request);
     }
@@ -137,10 +141,18 @@ public class DriverProfileController {
                     })
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("{id}")
+    @DeleteMapping("/profile/{id}")
     private void deleteProfileById(@Parameter(name = "id", description = "Driver profile UUID")
                                        @PathVariable(name = "id") String id) {
         profileService.deleteProfileById(UUIDUtils.getUUIDFromString(id));
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/profiles/{ids}")
+    private DriverProfilesResponse getByIds(@PathVariable(name = "ids")List<UUID> uuids) {
+        return profileService.getByIds(uuids);
+    }
+
+
 
 }

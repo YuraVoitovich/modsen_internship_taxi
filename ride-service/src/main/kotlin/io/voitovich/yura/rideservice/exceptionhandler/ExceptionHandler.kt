@@ -37,18 +37,18 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleRideStartConfirmationException(exception: RideStartConfirmationException): ResponseEntity<ExceptionInfo> {
         log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
-            HttpStatus.FORBIDDEN,
+            HttpStatus.BAD_REQUEST,
             exception.message!!)
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info)
     }
 
     @ExceptionHandler(RideEndConfirmationException::class)
     fun handleRideEndConfirmationException(exception: RideEndConfirmationException): ResponseEntity<ExceptionInfo> {
         log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
-            HttpStatus.FORBIDDEN,
+            HttpStatus.BAD_REQUEST,
             exception.message!!)
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info)
     }
 
     @ExceptionHandler(RideCantBeStartedException::class)
@@ -71,8 +71,8 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(info)
     }
 
-    @ExceptionHandler(RideAlreadyCanceledException::class)
-    fun handleRideAlreadyCanceledException(exception: RideAlreadyCanceledException): ResponseEntity<ExceptionInfo> {
+    @ExceptionHandler(RideCantBeCanceledException::class)
+    fun handleRideAlreadyCanceledException(exception: RideCantBeCanceledException): ResponseEntity<ExceptionInfo> {
         log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
             HttpStatus.CONFLICT,
@@ -85,9 +85,9 @@ class DriverProfileExceptionHandler : ResponseEntityExceptionHandler() {
     fun handleSendRatingException(exception: SendRatingException): ResponseEntity<ExceptionInfo> {
         log.info {"Handled exception - $exception"}
         val info = ExceptionInfo(
-            HttpStatus.FORBIDDEN,
+            HttpStatus.BAD_REQUEST,
             exception.message!!)
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info)
     }
 
     @ExceptionHandler(NotValidSearchRadiusException::class)

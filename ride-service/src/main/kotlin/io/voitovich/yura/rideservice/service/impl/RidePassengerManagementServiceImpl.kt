@@ -12,7 +12,7 @@ import io.voitovich.yura.rideservice.event.model.ConfirmRatingReceiveModel
 import io.voitovich.yura.rideservice.event.model.SendRatingModel
 import io.voitovich.yura.rideservice.event.service.KafkaProducerService
 import io.voitovich.yura.rideservice.exception.NoSuchRecordException
-import io.voitovich.yura.rideservice.exception.RideAlreadyCanceledException
+import io.voitovich.yura.rideservice.exception.RideCantBeCanceledException
 import io.voitovich.yura.rideservice.exception.RideCantBeStartedException
 import io.voitovich.yura.rideservice.exception.SendRatingException
 import io.voitovich.yura.rideservice.properties.DefaultApplicationProperties
@@ -37,13 +37,13 @@ class RidePassengerManagementServiceImpl(
 
     private val log = KotlinLogging.logger { }
 
-    private companion object {
-        private val ALLOWED_RIDE_START_STATUSES = setOf(RideStatus.ACCEPTED, RideStatus.COMPLETED)
-        private const val RATE_DRIVER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE = "You can't rate driver if ride is not in progress"
-        private const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
-        private const val RIDE_ALREADY_CANCELED_EXCEPTION_MESSAGE = "Ride with id: {%s} can't be canceled"
-        private const val RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE = "Ride for passenger with id: {%s} can not be started, complete or cancel current ride and repeat request"
-        private const val RATE_DRIVER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE = "Rating cannot be submitted after the specified time: {%s}h has elapsed after the completion of the ride"
+    companion object {
+        val ALLOWED_RIDE_START_STATUSES = setOf(RideStatus.CANCELED, RideStatus.COMPLETED)
+        const val RATE_DRIVER_STATUS_NOT_ALLOWED_EXCEPTION_MESSAGE = "You can't rate driver if ride is not in progress"
+        const val NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Ride with id: {%s} was not found"
+        const val RIDE_CANT_BE_CANCELED_EXCEPTION_MESSAGE = "Ride with id: {%s} can't be canceled"
+        const val RIDE_CANT_BE_STARTED_EXCEPTION_MESSAGE = "Ride for passenger with id: {%s} can not be started, complete or cancel current ride and repeat request"
+        const val RATE_DRIVER_TIME_NOT_ALLOWED_EXCEPTION_MESSAGE = "Rating cannot be submitted after the specified time: {%s}h has elapsed after the completion of the ride"
     }
 
     fun checkPassengerExistence(id: UUID) {
@@ -116,8 +116,8 @@ class RidePassengerManagementServiceImpl(
         log.info {"Canceling ride with id: ${cancelRequest.rideId}" }
         val ride = getIfRidePresent(cancelRequest.rideId)
         if (ride.status != RideStatus.REQUESTED) {
-            throw RideAlreadyCanceledException(String
-                .format(RIDE_ALREADY_CANCELED_EXCEPTION_MESSAGE, cancelRequest.rideId))
+            throw RideCantBeCanceledException(String
+                .format(RIDE_CANT_BE_CANCELED_EXCEPTION_MESSAGE, cancelRequest.rideId))
         }
         ride.status = RideStatus.CANCELED
         repository.save(ride)
@@ -138,11 +138,11 @@ class RidePassengerManagementServiceImpl(
             .of(request.pageNumber - 1,
                 request.pageSize,
                 Sort.by(request.orderBy)))
-        return RidePageResponse(page
-            .content.stream()
-            .map {t-> mapper.toRideResponse(t)}.toList(),
-            request.pageNumber,
-            page.totalElements,
-            page.totalPages)
+        return RidePageResponse(
+            profiles = mapper.toPassengerRideResponses(page.content),
+            pageNumber = request.pageNumber,
+            totalElements = page.totalElements,
+            totalPages = page.totalPages
+        )
     }
 }

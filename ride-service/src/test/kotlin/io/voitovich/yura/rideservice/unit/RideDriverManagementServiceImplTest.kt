@@ -231,7 +231,7 @@ class RideDriverManagementServiceImplTest {
             passengerProfileId = UUID.randomUUID(),
             startPoint = createDefaultPoint(mapper),
             endPoint = createDefaultPoint(mapper),
-            status = RideStatus.REQUESTED
+            status = RideStatus.IN_PROGRESS
         )
             .id(rideId)
             .driverProfileId(null)
@@ -294,14 +294,11 @@ class RideDriverManagementServiceImplTest {
         doReturn(Optional.of(ride)).`when`(repository)
             .findById(rideId)
 
-        doReturn(false).`when`(repository).canStartRide(rideId)
-
         // Act and Assert
         assertThrows<RideStartConfirmationException> { service.confirmRideStart(rideId) }
 
         // Verify
         verify(repository, times(1)).findById(rideId)
-        verify(repository, times(1)).canStartRide(rideId)
     }
 
 
@@ -315,7 +312,7 @@ class RideDriverManagementServiceImplTest {
             passengerProfileId = UUID.randomUUID(),
             startPoint = createDefaultPoint(mapper),
             endPoint = createDefaultPoint(mapper),
-            status = RideStatus.REQUESTED
+            status = RideStatus.ACCEPTED
         )
             .id(rideId)
             .driverProfileId(null)
@@ -371,14 +368,12 @@ class RideDriverManagementServiceImplTest {
             .build()
 
         doReturn(Optional.of(ride)).`when`(repository).findById(rideId)
-        doReturn(false).`when`(repository).canEndRide(rideId)
 
         // Act and Assert
         assertThrows<RideEndConfirmationException> { service.confirmRideEnd(rideId) }
 
         // Verify
         verify(repository, times(1)).findById(rideId)
-        verify(repository, times(1)).canEndRide(rideId)
     }
 
 

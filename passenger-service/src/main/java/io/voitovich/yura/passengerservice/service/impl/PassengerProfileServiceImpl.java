@@ -1,16 +1,19 @@
 package io.voitovich.yura.passengerservice.service.impl;
 
+import io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper;
 import io.voitovich.yura.passengerservice.dto.request.PassengerProfilePageRequest;
 import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequest;
 import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
+import io.voitovich.yura.passengerservice.dto.response.PassengerProfilesResponse;
 import io.voitovich.yura.passengerservice.entity.PassengerProfile;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
 import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.model.RecalculateRatingModel;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,12 +22,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.UUID;
-
-import static io.voitovich.yura.passengerservice.dto.mapper.PassengerProfileMapper.INSTANCE;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class PassengerProfileServiceImpl implements PassengerProfileService {
 
     private final int INITIAL_PASSENGER_RATINGS_COUNT = 1;
@@ -32,21 +35,18 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
 
     private final int SCALE = 1;
 
+    private final PassengerProfileMapper mapper;
     private final String NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Passenger profile with id: {%s} not found";
     private final String NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE = "Passenger profile with phone number: {%s} already exists";
     private final PassengerProfileRepository repository;
 
     private final BigDecimal START_RATING = BigDecimal.valueOf(5);
 
-    public PassengerProfileServiceImpl(PassengerProfileRepository repository) {
-        this.repository = repository;
-    }
-
 
     @Override
     public PassengerProfileResponse getProfileById(UUID uuid) {
         log.info("Getting passenger profile by id: {}", uuid);
-        return INSTANCE.toProfileResponse(getIfPresent(uuid));
+        return mapper.toProfileResponse(getIfPresent(uuid));
     }
     @Override
     public PassengerProfileResponse updateProfile(PassengerProfileUpdateRequest request) {
@@ -55,9 +55,9 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
         if (!profile.getPhoneNumber().equals(request.phoneNumber())) {
             checkPhoneNumberUnique(request.phoneNumber());
         }
-        INSTANCE.updateEntityFromUpdateRequest(request, profile);
+        mapper.updateEntityFromUpdateRequest(request, profile);
         profile = repository.save(profile);
-        return INSTANCE.toProfileResponse(profile);
+        return mapper.toProfileResponse(profile);
 
     }
 
@@ -66,10 +66,10 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
         log.info("Save passenger profile: {}", profileRequest);
         checkPhoneNumberUnique(profileRequest.phoneNumber());
 
-        PassengerProfile profile = INSTANCE.fromSaveRequestToEntity(profileRequest);
+        PassengerProfile profile = mapper.fromSaveRequestToEntity(profileRequest);
         profile.setRating(START_RATING);
         profile = repository.save(profile);
-        return INSTANCE.toProfileResponse(profile);
+        return mapper.toProfileResponse(profile);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .pageNumber(pageRequest.pageNumber())
-                .profiles(page.getContent().stream().map(INSTANCE::toProfileResponse).toList())
+                .profiles(page.getContent().stream().map(mapper::toProfileResponse).toList())
                 .build();
     }
 
@@ -126,5 +126,17 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
                         RoundingMode.CEILING);
         profile.setRating(newRating);
         return repository.save(profile);
+    }
+
+    @Override
+    public PassengerProfilesResponse getByIds(List<UUID> uuids) {
+        log.info("Getting profiles by ids: {}", uuids);
+        var profiles = repository.findAllById(uuids);
+        return PassengerProfilesResponse.builder()
+                .profiles(profiles
+                        .stream()
+                        .map(mapper::toProfileResponse)
+                        .toList())
+                .build();
     }
 }

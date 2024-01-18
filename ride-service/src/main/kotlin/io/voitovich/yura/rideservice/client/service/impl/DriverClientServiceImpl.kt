@@ -19,4 +19,8 @@ class DriverClientServiceImpl(
         return driverServiceClient.getDriverProfile(id).body!!
     }
 
+    override fun getDriverProfiles(ids: List<UUID>): List<DriverProfileModel> {
+        logger.info { "Execute getDriverProfiles method with ids: $ids" }
+        return driverServiceClient.getDriverProfiles(ids).body!!.models
+    }
 }
