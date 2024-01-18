@@ -26,3 +26,13 @@ default:
   kafka:
     confirm-rating-receive-topic-name: driver_confirm_rating_receive
     consume-rating-topic-name: rate_driver_topic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
