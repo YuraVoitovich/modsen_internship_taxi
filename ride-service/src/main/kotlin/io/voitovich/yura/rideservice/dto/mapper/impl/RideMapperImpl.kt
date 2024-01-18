@@ -18,29 +18,96 @@ import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geom.impl.CoordinateArraySequence
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.*
 
 @Component
 class RideMapperImpl(
     val driverClientService: DriverClientService,
     val passengerClientService: PassengerClientService
 ) : RideMapper {
+
+    private fun createRideResponseFromDriverProfileAndPassengerProfile(
+        ride: Ride,
+        driverProfileResponse: DriverProfileResponse,
+        passengerProfileResponse: PassengerProfileResponse): RideResponse {
+
+        return RideResponse(
+            id = ride.id!!,
+            passengerProfile = passengerProfileResponse,
+            driverProfile = driverProfileResponse,
+            startDate = ride.startDate,
+            endDate = ride.endDate,
+            driverRating = ride.driverRating,
+            passengerRating = ride.passengerRating,
+            startGeo = fromPointToResponsePoint(ride.startPoint),
+            endGeo = fromPointToResponsePoint(ride.endPoint),
+            passengerPosition = fromPointToResponsePoint(ride.passengerPosition),
+            driverPosition = fromPointToResponsePoint(ride.driverPosition),
+            status = ride.status
+        )
+
+    }
     override fun toRideResponse(ride: Ride): RideResponse {
+        val passengerProfileResponse = fromPassengerProfileModelToPassengerProfileResponse(
+            passengerClientService.getPassengerProfile(ride.passengerProfileId))
+
         val driverProfileResponse = ride.driverProfileId?.let {
             fromDriverProfileModelToDriverProfileResponse(driverClientService.getDriverProfile(it))
         }
-        return RideResponse(
-            ride.id!!,
-            fromPassengerProfileModelToPassengerProfileResponse(passengerClientService.getPassengerProfile(ride.passengerProfileId)),
-            driverProfileResponse,
-            ride.startDate,
-            ride.endDate,
-            ride.driverRating,
-            ride.passengerRating,
-            fromPointToResponsePoint(ride.startPoint),
-            fromPointToResponsePoint(ride.endPoint),
-            fromPointToResponsePoint(ride.passengerPosition),
-            fromPointToResponsePoint(ride.driverPosition),
-            ride.status)
+
+        return createRideResponseFromDriverProfileAndPassengerProfile(ride, driverProfileResponse!!, passengerProfileResponse)
+    }
+
+
+    private fun getDriverProfilesMap(driverIds: List<UUID>): Map<UUID, DriverProfileResponse> {
+        return driverClientService.getDriverProfiles(ids = driverIds)
+            .associate { it.id to fromDriverProfileModelToDriverProfileResponse(it) }
+    }
+
+    private fun getPassengerProfilesMap(passengerIds: List<UUID>): Map<UUID, PassengerProfileResponse> {
+        return passengerClientService.getPassengerProfiles(ids = passengerIds)
+            .associate { it.id to fromPassengerProfileModelToPassengerProfileResponse(it) }
+    }
+    override fun toRideResponses(rides: List<Ride>): List<RideResponse> {
+        val passengerIds = rides.map { ride: Ride -> ride.passengerProfileId }
+        val passengerProfiles = getPassengerProfilesMap(passengerIds)
+        val driverIds = rides.map { ride: Ride -> ride.driverProfileId!! }
+        val driverProfiles = getDriverProfilesMap(driverIds)
+        return rides.map{ ride: Ride ->
+            createRideResponseFromDriverProfileAndPassengerProfile(
+                ride,
+                driverProfiles[ride.driverProfileId]!!,
+                passengerProfiles[ride.passengerProfileId]!!)}
+    }
+
+    override fun toDriverRideResponses(rides: List<Ride>): List<RideResponse> {
+        if (rides.isEmpty()) return listOf()
+        val driverProfileResponse = rides[0].driverProfileId?.let {
+            fromDriverProfileModelToDriverProfileResponse(driverClientService.getDriverProfile(it))
+        }
+        val passengerIds = rides.map { ride: Ride -> ride.passengerProfileId }
+        val passengerProfiles = getPassengerProfilesMap(passengerIds)
+        return rides.map { ride: Ride ->
+            createRideResponseFromDriverProfileAndPassengerProfile(
+                ride,
+                driverProfileResponse!!,
+                passengerProfiles[ride.passengerProfileId]!!)}
+    }
+
+    override fun toPassengerRideResponses(rides: List<Ride>): List<RideResponse> {
+        if (rides.isEmpty()) return listOf()
+
+        val passengerProfileResponse = fromPassengerProfileModelToPassengerProfileResponse(
+            passengerClientService.getPassengerProfile(rides[0].passengerProfileId))
+
+        val driverIds = rides.map { ride: Ride -> ride.driverProfileId!! }
+        val driverProfileResponses = getDriverProfilesMap(driverIds)
+        return rides.map { ride: Ride ->
+            createRideResponseFromDriverProfileAndPassengerProfile(
+                ride,
+                driverProfileResponses[ride.driverProfileId]!!,
+                passengerProfileResponse)}
     }
 
     private fun fromPassengerProfileModelToPassengerProfileResponse(model: PassengerProfileModel): PassengerProfileResponse {
@@ -72,7 +139,7 @@ class RideMapperImpl(
                 model.getStartGeo().position.getCoordinate(1)),
             ResponsePoint(model.getEndGeo().position.getCoordinate(0),
                 model.getEndGeo().position.getCoordinate(1)),
-            BigDecimal( model.getDistance()))
+            BigDecimal( model.getDistance()).setScale(0, RoundingMode.HALF_EVEN))
     }
 
     override fun fromPointToResponsePoint(point: Point?): ResponsePoint {

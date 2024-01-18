@@ -11,10 +11,14 @@ import io.voitovich.yura.driverservice.exception.NoSuchRecordException;
 import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.driverservice.repository.DriverProfileRepository;
 import io.voitovich.yura.driverservice.service.impl.DriverProfileServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,6 +37,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class DriverProfileServiceTest {
 
+    @Spy
+    private DriverProfileMapper mapper = Mappers.getMapper(DriverProfileMapper.class);
 
     @Mock
     private DriverProfileRepository repository;
@@ -69,7 +75,7 @@ public class DriverProfileServiceTest {
         // Arrange
         UUID uuid = UUID.randomUUID();
         DriverProfileSaveRequest request = createDefaultDriverProfileSaveRequest();
-        DriverProfile profile = DriverProfileMapper.INSTANCE.toProfileFromSaveRequest(request);
+        DriverProfile profile = mapper.toProfileFromSaveRequest(request);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(false).when(repository).existsDriverProfileByPhoneNumber(any());
@@ -100,7 +106,7 @@ public class DriverProfileServiceTest {
         // Arrange
         UUID uuid = UUID.randomUUID();
         DriverProfileSaveRequest request = createDefaultDriverProfileSaveRequest();
-        DriverProfile profile = DriverProfileMapper.INSTANCE.toProfileFromSaveRequest(request);
+        DriverProfile profile = mapper.toProfileFromSaveRequest(request);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(true).when(repository).existsDriverProfileByPhoneNumber(any());

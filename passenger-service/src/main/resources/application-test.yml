@@ -1,0 +1,25 @@
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+
+eureka:
+  client:
+    enabled: false
+
+message:
+  source:
+    basenames: "classpath:messages/api-error-response"
+
+default:
+  kafka:
+    confirm-rating-receive-topic-name: passenger_confirm_rating_receive
+    consume-rating-topic-name: rate_passenger_topic
+

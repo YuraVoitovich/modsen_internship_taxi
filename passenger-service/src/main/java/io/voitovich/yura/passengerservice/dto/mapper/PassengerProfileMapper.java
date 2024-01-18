@@ -9,10 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface PassengerProfileMapper {
-    PassengerProfileMapper INSTANCE = Mappers.getMapper(PassengerProfileMapper.class);
-
     PassengerProfile fromSaveRequestToEntity(PassengerSaveProfileRequest passengerSaveProfileRequest);
 
     PassengerProfileResponse toProfileResponse(PassengerProfile profile);

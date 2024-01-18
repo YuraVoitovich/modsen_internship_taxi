@@ -13,8 +13,10 @@ import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
 import io.voitovich.yura.passengerservice.service.impl.PassengerProfileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,6 +35,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class PassengerProfileServiceTest {
 
+
+    @Spy
+    private PassengerProfileMapper mapper = Mappers.getMapper(PassengerProfileMapper.class);
 
     @Mock
     private PassengerProfileRepository repository;
@@ -71,7 +76,7 @@ public class PassengerProfileServiceTest {
         // Arrange
         UUID uuid = UUID.randomUUID();
         PassengerSaveProfileRequest request = createDefaultPassengerProfileSaveRequest();
-        PassengerProfile profile = PassengerProfileMapper.INSTANCE.fromSaveRequestToEntity(request);
+        PassengerProfile profile = mapper.fromSaveRequestToEntity(request);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(false).when(repository).existsByPhoneNumber(any());
@@ -101,7 +106,7 @@ public class PassengerProfileServiceTest {
         // Arrange
         UUID uuid = UUID.randomUUID();
         PassengerSaveProfileRequest request = createDefaultPassengerProfileSaveRequest();
-        PassengerProfile profile = PassengerProfileMapper.INSTANCE.fromSaveRequestToEntity(request);
+        PassengerProfile profile = mapper.fromSaveRequestToEntity(request);
         profile.setId(uuid);
         profile.setRating(BigDecimal.valueOf(5));
         doReturn(true).when(repository).existsByPhoneNumber(any());
