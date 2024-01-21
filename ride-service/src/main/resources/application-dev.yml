@@ -43,3 +43,13 @@ eureka:
       defaultZone: http://eurekaserver:8761/eureka/
   instance:
     prefer-ip-address: true
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    tags:
+      application: ${spring.application.name}

@@ -2,6 +2,7 @@ version: '1.0'
 services:
   database:
     image: postgis/postgis:latest
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
@@ -27,7 +28,7 @@ services:
       backend:
         aliases:
           - "zookeeper"
-  kafkaserver:
+  kafka-server:
     image: wurstmeister/kafka:latest
     ports:
       - 9092:9092
@@ -44,7 +45,8 @@ services:
       backend:
         aliases:
           - "kafka"
-  eurekaserver:
+  eureka-server:
+    container_name: eureka-server
     image:
       discovery-service:latest
     ports:
@@ -76,6 +78,8 @@ services:
       - '9090:9090'
     volumes:
       - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - backend
 
   grafana:
     image: grafana/grafana:10.1.5
@@ -90,10 +94,14 @@ services:
       - ./observability/grafana/dashboards:/etc/grafana/provisioning/dashboards
     depends_on:
       - prometheus
-  driverservice:
+    networks:
+      - backend
+
+  driver-service:
+    container_name: driver-service
     image: driver-service:latest
     ports:
-      - "8080:8080"
+      - "8082:8082"
     environment:
       PROFILE: "dev"
     depends_on:
@@ -101,7 +109,8 @@ services:
         condition: service_healthy
     networks:
       - backend
-  rideservice:
+  ride-service:
+    container_name: ride-service
     image: ride-service:latest
     ports:
       - "8083:8083"
@@ -114,7 +123,8 @@ services:
       - backend
 
 
-  passengerservice:
+  passenger-service:
+    container_name: passenger-service
     image: passenger-service:latest
     ports:
       - "8081:8081"
@@ -126,10 +136,11 @@ services:
     networks:
       - backend
 
-  apigateway:
+  api-gateway:
+    container_name: api-gateway
     image: api-gateway:latest
     ports:
-      - "9000:9000"
+      - "8080:8080"
     environment:
       PROFILE: "dev"
     networks:

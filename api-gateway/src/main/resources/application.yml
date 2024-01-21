@@ -3,7 +3,7 @@ server:
     connection-timeout: 2s
     idle-timeout: 15s
   port:
-    9000
+    8080
   shutdown: graceful
 
 resilience4j:
@@ -188,3 +188,15 @@ logging:
   level:
     io.github.resilience4j: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
