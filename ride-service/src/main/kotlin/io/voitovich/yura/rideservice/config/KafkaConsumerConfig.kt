@@ -8,18 +8,21 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.integration.channel.interceptor.ObservationPropagationChannelInterceptor
 import org.springframework.integration.dsl.IntegrationFlow
 import org.springframework.integration.kafka.dsl.Kafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.support.serializer.JsonDeserializer
+import org.springframework.messaging.support.ChannelInterceptor
 
 
 @Configuration
 class KafkaConsumerConfig(
     val kafkaProperties: DefaultKafkaProperties,
-    val confirmRatingReceiveService: ConfirmRatingReceiveService
+    val confirmRatingReceiveService: ConfirmRatingReceiveService,
+    val channelInterceptor: ChannelInterceptor
 ) {
 
     @Bean
@@ -30,6 +33,7 @@ class KafkaConsumerConfig(
                 kafkaProperties.confirmDriverRatingReceiveTopicName
             )
         )
+            .intercept(channelInterceptor)
             .handle(confirmRatingReceiveService, "handleDriverRatingReceiveConfirmation")
             .get()
     }
@@ -42,6 +46,7 @@ class KafkaConsumerConfig(
                 kafkaProperties.confirmPassengerRatingReceiveTopicName
             )
         )
+            .intercept(channelInterceptor)
             .handle(confirmRatingReceiveService, "handlePassengerRatingReceiveConfirmation")
             .get()
     }
