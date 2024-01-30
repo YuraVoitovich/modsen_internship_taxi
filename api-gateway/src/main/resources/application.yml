@@ -3,7 +3,7 @@ server:
     connection-timeout: 2s
     idle-timeout: 15s
   port:
-    9000
+    8080
   shutdown: graceful
 
 resilience4j:
@@ -121,19 +121,6 @@ spring:
               args:
                 name: driverService
                 fallbackUri: forward:/fallback/driver
-#            - name: timelimiter
-#              args:
-#                name: driverService
-#                fallbackUri: forward:/fallback/driver
-#            - name: ratelimiter
-#              args:
-#                name: driverService
-#                fallbackUri: forward:/fallback/driver
-#            - name: retry
-#              args:
-#                name: driverService
-#                fallbackUri: forward:/fallback/driver
-
         - id: passenger-service-route
           uri: lb://PASSENGER-SERVICE
           predicates:
@@ -143,18 +130,6 @@ spring:
               args:
                 name: passengerService
                 fallbackUri: forward:/fallback/passenger
-#            - name: retry
-#              args:
-#                name: passengerService
-#                fallbackUri: forward:/fallback/passenger
-#            - name: timelimiter
-#              args:
-#                name: passengerService
-#                fallbackUri: forward:/fallback/passenger
-#            - name: ratelimiter
-#              args:
-#                name: passengerService
-#                fallbackUri: forward:/fallback/passenger
         - id: ride-service-route
           uri: lb://RIDE-SERVICE
           predicates:
@@ -164,18 +139,6 @@ spring:
               args:
                 name: rideService
                 fallbackUri: forward:/fallback/ride/
-#            - name: retry
-#              args:
-#                name: rideService
-#                fallbackUri: forward:/fallback/ride/
-#            - name: timelimiter
-#              args:
-#                name: rideService
-#                fallbackUri: forward:/fallback/ride/
-#            - name: ratelimiter
-#              args:
-#                name: rideService
-#                fallbackUri: forward:/fallback/ride/
       discovery:
         locator:
           enabled: true
@@ -188,3 +151,22 @@ logging:
   level:
     io.github.resilience4j: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1

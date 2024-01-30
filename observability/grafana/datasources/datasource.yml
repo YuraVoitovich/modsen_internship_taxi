@@ -1,0 +1,16 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: Prometheus
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus-cab-aggregator
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: true

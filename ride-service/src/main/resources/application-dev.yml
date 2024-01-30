@@ -43,3 +43,25 @@ eureka:
       defaultZone: http://eurekaserver:8761/eureka/
   instance:
     prefer-ip-address: true
+
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1
