@@ -121,19 +121,6 @@ spring:
               args:
                 name: driverService
                 fallbackUri: forward:/fallback/driver
-#            - name: timelimiter
-#              args:
-#                name: driverService
-#                fallbackUri: forward:/fallback/driver
-#            - name: ratelimiter
-#              args:
-#                name: driverService
-#                fallbackUri: forward:/fallback/driver
-#            - name: retry
-#              args:
-#                name: driverService
-#                fallbackUri: forward:/fallback/driver
-
         - id: passenger-service-route
           uri: lb://PASSENGER-SERVICE
           predicates:
@@ -143,18 +130,6 @@ spring:
               args:
                 name: passengerService
                 fallbackUri: forward:/fallback/passenger
-#            - name: retry
-#              args:
-#                name: passengerService
-#                fallbackUri: forward:/fallback/passenger
-#            - name: timelimiter
-#              args:
-#                name: passengerService
-#                fallbackUri: forward:/fallback/passenger
-#            - name: ratelimiter
-#              args:
-#                name: passengerService
-#                fallbackUri: forward:/fallback/passenger
         - id: ride-service-route
           uri: lb://RIDE-SERVICE
           predicates:
@@ -164,18 +139,6 @@ spring:
               args:
                 name: rideService
                 fallbackUri: forward:/fallback/ride/
-#            - name: retry
-#              args:
-#                name: rideService
-#                fallbackUri: forward:/fallback/ride/
-#            - name: timelimiter
-#              args:
-#                name: rideService
-#                fallbackUri: forward:/fallback/ride/
-#            - name: ratelimiter
-#              args:
-#                name: rideService
-#                fallbackUri: forward:/fallback/ride/
       discovery:
         locator:
           enabled: true

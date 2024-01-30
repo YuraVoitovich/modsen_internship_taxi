@@ -21,6 +21,10 @@
 		<swagger.version>2.1.0</swagger.version>
 		<eureka.version>4.0.3</eureka.version>
 		<openfeign.version>4.0.3</openfeign.version>
+		<zipkin.version>2.16.4</zipkin.version>
+		<logstash.version>7.4</logstash.version>
+		<wiremock.version>3.3.1</wiremock.version>
+		<feign.micrometer.version>12.4</feign.micrometer.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -145,20 +149,20 @@
 		<dependency>
 			<groupId>org.wiremock</groupId>
 			<artifactId>wiremock</artifactId>
-			<version>3.3.1</version>
+			<version>${wiremock.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
 			<artifactId>logstash-logback-encoder</artifactId>
-			<version>7.4</version>
+			<version>${logstash.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-micrometer</artifactId>
-			<version>12.4</version>
+			<version>${feign.micrometer.version}</version>
 		</dependency>
 
 		<dependency>
@@ -169,7 +173,7 @@
 		<dependency>
 			<groupId>io.zipkin.reporter2</groupId>
 			<artifactId>zipkin-reporter-brave</artifactId>
-			<version>2.16.4</version>
+			<version>${zipkin.version}</version>
 		</dependency>
 
 		<dependency>
