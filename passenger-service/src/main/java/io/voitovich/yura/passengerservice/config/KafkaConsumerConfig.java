@@ -15,6 +15,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.messaging.support.ChannelInterceptor;
 
 import java.util.Map;
 
@@ -24,9 +25,12 @@ public class KafkaConsumerConfig {
 
     private final KafkaRatingConsumerService service;
     private final DefaultKafkaProperties properties;
+    private final ChannelInterceptor channelInterceptor;
     @Bean
     public IntegrationFlow consumeFromKafka(ConsumerFactory<String, ReceiveRatingModel> consumerFactory) {
-        return IntegrationFlow.from(Kafka.messageDrivenChannelAdapter(consumerFactory, properties.getConsumeRatingTopicName()))
+        return IntegrationFlow.from(Kafka
+                        .messageDrivenChannelAdapter(consumerFactory, properties.getConsumeRatingTopicName()))
+                .intercept(channelInterceptor)
                 .handle(service, "consumeRating")
                 .get();
     }

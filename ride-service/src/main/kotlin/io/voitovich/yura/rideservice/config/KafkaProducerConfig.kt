@@ -55,7 +55,9 @@ class KafkaProducerConfig(private val defaultKafkaProperties: DefaultKafkaProper
 
     @Bean
     fun kafkaTemplate(properties: KafkaProperties): KafkaTemplate<String, SendRatingModel> {
-        return KafkaTemplate(producerFactory(properties))
+        val template = KafkaTemplate(producerFactory(properties))
+        template.setObservationEnabled(true)
+        return template
     }
 
     @Bean

@@ -21,8 +21,31 @@ eureka:
   client:
     service-url:
       defaultZone: http://eurekaserver:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 default:
   kafka:
     confirm-rating-receive-topic-name: driver_confirm_rating_receive
     consume-rating-topic-name: rate_driver_topic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+

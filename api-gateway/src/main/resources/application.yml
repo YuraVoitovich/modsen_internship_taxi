@@ -1,0 +1,172 @@
+server:
+  netty:
+    connection-timeout: 2s
+    idle-timeout: 15s
+  port:
+    8080
+  shutdown: graceful
+
+resilience4j:
+  ratelimiter:
+    instances:
+      rideService:
+        limit-for-period: 5
+        limit-refresh-period:
+          seconds: 5
+        timeout-duration:
+          seconds: 0
+        register-health-indicator: true
+      passengerService:
+        limit-for-period: 5
+        limit-refresh-period:
+          seconds: 5
+        timeout-duration:
+          seconds: 0
+        register-health-indicator: true
+      driverService:
+        limit-for-period: 5
+        limit-refresh-period:
+          seconds: 5
+        timeout-duration:
+          seconds: 0
+        register-health-indicator: true
+  retry:
+    instances:
+      rideService:
+        max-attempts: 3
+        wait-duration:
+          seconds: 1
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.io.IOException
+          - io.netty.handler.timeout.TimeoutException
+      driverService:
+        max-attempts: 3
+        wait-duration:
+          seconds: 1
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.io.IOException
+          - io.netty.handler.timeout.TimeoutException
+      passengerService:
+        max-attempts: 3
+        wait-duration:
+          seconds: 1
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.io.IOException
+          - io.netty.handler.timeout.TimeoutException
+  timelimiter:
+    instances:
+      rideService:
+        timeout-duration:
+          seconds: 3
+        event-consumer-buffer-size: 100
+        cancel-running-future: true
+      driverService:
+        timeout-duration:
+          seconds: 3
+        event-consumer-buffer-size: 100
+        cancel-running-future: true
+      passengerService:
+        timeout-duration:
+          seconds: 3
+        event-consumer-buffer-size: 100
+        cancel-running-future: true
+  circuitbreaker:
+    instances:
+      rideService:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state:
+          seconds: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based
+      passengerService:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state:
+          seconds: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based
+      driverService:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state:
+          seconds: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based
+
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: driver-service-route
+          uri: lb://DRIVER-SERVICE
+          predicates:
+            - Path=/api/driver/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: driverService
+                fallbackUri: forward:/fallback/driver
+        - id: passenger-service-route
+          uri: lb://PASSENGER-SERVICE
+          predicates:
+            - Path=/api/passenger/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: passengerService
+                fallbackUri: forward:/fallback/passenger
+        - id: ride-service-route
+          uri: lb://RIDE-SERVICE
+          predicates:
+            - Path=/api/ride/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: rideService
+                fallbackUri: forward:/fallback/ride/
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eurekaserver:8761/eureka/
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1

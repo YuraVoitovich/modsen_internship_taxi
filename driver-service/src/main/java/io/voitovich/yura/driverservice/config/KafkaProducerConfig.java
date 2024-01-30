@@ -41,7 +41,9 @@ public class KafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<String, ConfirmRatingReceiveModel> kafkaTemplate(KafkaProperties properties) {
-        return new KafkaTemplate<>(producerFactory(properties));
+        var template = new KafkaTemplate<>(producerFactory(properties));
+        template.setObservationEnabled(true);
+        return template;
     }
 
     @Bean

@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'api-gateway:8080' ]
+
+  - job_name: 'passenger-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'passenger-service:8081' ]
+
+  - job_name: 'driver-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'driver-service:8082' ]
+
+  - job_name: 'ride-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'ride-service:8083' ]
