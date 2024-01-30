@@ -71,6 +71,20 @@ services:
     networks:
       - backend
 
+  keycloak:
+    image: jboss/keycloak
+    restart: always
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_VENDOR: h2
+    ports:
+      - "8070:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/h2
+    networks:
+      - backend
+
   prometheus:
     image: prom/prometheus:v2.47.0
     container_name: prometheus
