@@ -14,6 +14,8 @@ public record PassengerProfileResponse(
                 example = "e80a23a7-71e0-4d82-b042-96fdd6f43bd8")
         @NonNull
         UUID id,
+
+        UUID sub,
         @Schema(name = "phoneNumber", description = "Mobile phone of a resident of Minsk", example = "+375295554433")
         @NonNull
         String phoneNumber,

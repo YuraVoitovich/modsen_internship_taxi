@@ -12,6 +12,7 @@ import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
 import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.model.RecalculateRatingModel;
 import io.voitovich.yura.passengerservice.repository.PassengerProfileRepository;
+import io.voitovich.yura.passengerservice.security.service.SecurityService;
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,18 +41,22 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     private final String NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE = "Passenger profile with phone number: {%s} already exists";
     private final PassengerProfileRepository repository;
 
+    private final SecurityService securityService;
     private final BigDecimal START_RATING = BigDecimal.valueOf(5);
 
 
     @Override
     public PassengerProfileResponse getProfileById(UUID uuid) {
         log.info("Getting passenger profile by id: {}", uuid);
-        return mapper.toProfileResponse(getIfPresent(uuid));
+        PassengerProfile profile = getIfPresent(uuid);
+        securityService.checkUserAccess(profile.getSub());
+        return mapper.toProfileResponse(profile);
     }
     @Override
     public PassengerProfileResponse updateProfile(PassengerProfileUpdateRequest request) {
         log.info("Updating passenger profile: {}", request);
         PassengerProfile profile = getIfPresent(request.id());
+        securityService.checkUserAccess(profile.getSub());
         if (!profile.getPhoneNumber().equals(request.phoneNumber())) {
             checkPhoneNumberUnique(request.phoneNumber());
         }
@@ -62,11 +67,11 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     }
 
     @Override
-    public PassengerProfileResponse saveProfile(PassengerSaveProfileRequest profileRequest) {
-        log.info("Save passenger profile: {}", profileRequest);
+    public PassengerProfileResponse saveProfile(PassengerSaveProfileRequest profileRequest, UUID sub) {
+        log.info("Save passenger profile: {} and sub {}", profileRequest, sub);
         checkPhoneNumberUnique(profileRequest.phoneNumber());
-
         PassengerProfile profile = mapper.fromSaveRequestToEntity(profileRequest);
+        profile.setSub(sub);
         profile.setRating(START_RATING);
         profile = repository.save(profile);
         return mapper.toProfileResponse(profile);
@@ -91,6 +96,7 @@ public class PassengerProfileServiceImpl implements PassengerProfileService {
     public void deleteProfile(UUID uuid) {
         log.info("Deleting passenger profile by id: {}", uuid);
         PassengerProfile profile = getIfPresent(uuid);
+        securityService.checkUserAccess(profile.getSub());
         repository.deleteById(uuid);
 
     }

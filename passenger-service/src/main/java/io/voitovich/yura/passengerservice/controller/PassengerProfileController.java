@@ -11,10 +11,10 @@ import io.voitovich.yura.passengerservice.dto.response.PassengerProfilesResponse
 import io.voitovich.yura.passengerservice.service.PassengerProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -53,7 +53,6 @@ public class PassengerProfileController implements PassengerProfile{
     @GetMapping("/profile/{id}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ROLE_modsen-user')")
-    @PostAuthorize("returnObject.id() == authentication.principal.claims['sub']")
     public PassengerProfileResponse getProfileById(@PathVariable(name = "id") String id) {
         return profileService.getProfileById(getUUIDFromString(id));
     }
@@ -67,9 +66,11 @@ public class PassengerProfileController implements PassengerProfile{
 
     @PutMapping("/profile")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ROLE_modsen-admin')")
-    public PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerSaveProfileRequest passengerSaveProfileRequest) {
-        return profileService.saveProfile(passengerSaveProfileRequest);
+    @PreAuthorize("hasRole('ROLE_modsen-user')")
+    public PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerSaveProfileRequest passengerSaveProfileRequest,
+                                                Principal principal) {
+        String sub = ((Jwt)((Authentication) principal).getPrincipal()).getClaim("sub");
+        return profileService.saveProfile(passengerSaveProfileRequest, UUID.fromString(sub));
     }
 
     @DeleteMapping("/profile/{id}")

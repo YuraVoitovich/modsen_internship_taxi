@@ -3,6 +3,7 @@ package io.voitovich.yura.passengerservice.exceptionhandler;
 import io.voitovich.yura.passengerservice.exception.NoSuchRecordException;
 import io.voitovich.yura.passengerservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.passengerservice.exception.NotValidUUIDException;
+import io.voitovich.yura.passengerservice.exception.PassengerProfileAccessDeniedException;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
 import jakarta.validation.ConstraintViolationException;
@@ -45,6 +46,17 @@ public class ProfileExceptionHandler extends ResponseEntityExceptionHandler {
                 .message(exception.getMessage())
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(info);
+    }
+
+    @ExceptionHandler(PassengerProfileAccessDeniedException.class)
+    public ResponseEntity<ExceptionInfo> handlePassengerProfileAccessDeniedException(PassengerProfileAccessDeniedException exception) {
+        log.info(String.format("Handled exception - %s", exception), exception);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .status(HttpStatus.FORBIDDEN)
+                .message(exception.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info);
     }
 
     @ExceptionHandler(NotUniquePhoneException.class)

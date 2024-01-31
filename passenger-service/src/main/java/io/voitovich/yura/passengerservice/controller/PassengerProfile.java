@@ -101,7 +101,8 @@ public interface PassengerProfile {
                                     schema = @Schema(implementation = ExceptionInfo.class))
                     })
     })
-    PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerSaveProfileRequest passengerSaveProfileRequest);
+    PassengerProfileResponse saveProfile(@Valid @RequestBody PassengerSaveProfileRequest passengerSaveProfileRequest,
+                                         Principal principal);
 
 
     @Operation(description = "Delete passenger profile by id")

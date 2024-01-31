@@ -92,7 +92,7 @@ public class PassengerProfileServiceTest {
                 .build();
 
         // Act
-        PassengerProfileResponse savedProfile = service.saveProfile(request);
+        PassengerProfileResponse savedProfile = service.saveProfile(request, UUID.randomUUID());
 
         // Assert
         assertEquals(expected, savedProfile);
@@ -112,7 +112,7 @@ public class PassengerProfileServiceTest {
         doReturn(true).when(repository).existsByPhoneNumber(any());
 
         // Act & Assert
-        assertThrows(NotUniquePhoneException.class, () -> service.saveProfile(request));
+        assertThrows(NotUniquePhoneException.class, () -> service.saveProfile(request, UUID.randomUUID()));
 
         verify(repository, times(1)).existsByPhoneNumber(any());
 

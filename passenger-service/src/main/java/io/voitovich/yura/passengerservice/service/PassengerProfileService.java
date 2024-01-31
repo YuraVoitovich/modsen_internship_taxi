@@ -21,7 +21,7 @@ public interface PassengerProfileService {
 
     PassengerProfileResponse updateProfile(PassengerProfileUpdateRequest profileDto);
 
-    PassengerProfileResponse saveProfile(PassengerSaveProfileRequest profileDto);
+    PassengerProfileResponse saveProfile(PassengerSaveProfileRequest profileDto, UUID sub);
 
     PassengerProfilePageResponse getProfilePage(@Valid PassengerProfilePageRequest pageRequest);
 
