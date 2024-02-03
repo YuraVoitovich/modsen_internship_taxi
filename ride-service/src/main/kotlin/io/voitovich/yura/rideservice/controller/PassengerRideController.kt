@@ -5,23 +5,18 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.CreateRideResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
-import io.voitovich.yura.rideservice.service.RidePassengerManagementService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@RestController
-@RequestMapping("/api/ride/passenger")
-@Tag(name = "Passenger Ride Controller", description = "Passenger ride management operations")
-class PassengerRideController(val service: RidePassengerManagementService) {
+interface PassengerRideController {
 
     @Operation(description = "Create a new ride for a passenger")
     @ApiResponses(
@@ -43,11 +38,7 @@ class PassengerRideController(val service: RidePassengerManagementService) {
             )
         ]
     )
-    @PutMapping()
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createRide(@Valid @RequestBody request: CreateRideRequest): CreateRideResponse {
-        return service.createRide(request)
-    }
+    fun createRide(@Valid @RequestBody request: CreateRideRequest): CreateRideResponse
 
     @Operation(description = "Update the passenger's position during a ride")
     @ApiResponses(
@@ -64,11 +55,7 @@ class PassengerRideController(val service: RidePassengerManagementService) {
             )
         ]
     )
-    @PostMapping("/update-position")
-    @ResponseStatus(HttpStatus.OK)
-    fun updatePassengerPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        return service.updatePassengerPosition(updatePositionRequest)
-    }
+    fun updatePassengerPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
 
     @Operation(description = "Cancel a ride for a passenger")
     @ApiResponses(
@@ -90,24 +77,13 @@ class PassengerRideController(val service: RidePassengerManagementService) {
             )
         ]
     )
-    @DeleteMapping()
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun cancelRide(@Valid @RequestBody cancelRequest: CancelRequest) {
-        service.cancelRide(cancelRequest)
-    }
+    fun cancelRide(@Valid @RequestBody cancelRequest: CancelRequest)
 
-    @PostMapping("/rate")
-    @ResponseStatus(HttpStatus.OK)
-    fun rateDriver(@Valid @RequestBody request: SendRatingRequest) {
-        service.rateDriver(request)
-    }
+    fun rateDriver(@Valid @RequestBody request: SendRatingRequest)
 
-    @GetMapping("/rides/{id}")
-    @ResponseStatus(HttpStatus.OK)
     fun getAllPassengerRides(@PathVariable(name = "id") id: UUID,
-                          @RequestParam(name = "pageNumber") pageNumber: Int,
-                          @RequestParam(name = "pageSize") pageSize: Int,
-                          @RequestParam(name = "orderBy") orderBy: String) : RidePageResponse {
-        return service.getAllRides(id, RidePageRequest(pageNumber, pageSize, orderBy))
-    }
+                             @RequestParam(name = "pageNumber") pageNumber: Int,
+                             @RequestParam(name = "pageSize") pageSize: Int,
+                             @RequestParam(name = "orderBy") orderBy: String) : RidePageResponse
+
 }

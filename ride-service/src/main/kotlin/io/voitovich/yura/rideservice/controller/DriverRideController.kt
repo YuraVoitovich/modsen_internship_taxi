@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.voitovich.yura.rideservice.dto.request.*
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
@@ -13,16 +12,11 @@ import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.dto.responce.UpdatePositionResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
-import io.voitovich.yura.rideservice.service.RideDriverManagementService
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@RestController
-@RequestMapping("/api/ride/driver")
-@Tag(name = "Driver ride controller", description = "Driver ride management operations")
-class DriverRideController(val service: RideDriverManagementService) {
+interface DriverRideController {
 
     @Operation(description = "Get a list of all created rides around the driver within a specified radius")
     @ApiResponses(
@@ -49,14 +43,8 @@ class DriverRideController(val service: RideDriverManagementService) {
             ),
         ]
     )
-    @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
-    fun getAvailableRides(@Valid @RequestBody getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse {
-        return service.getAvailableRides(getAvailableRidesRequest)
-    }
+    fun getAvailableRides(@Valid @RequestBody getAvailableRidesRequest: GetAvailableRidesRequest) : GetAvailableRidesResponse
 
-    @PostMapping("/accept")
-    @ResponseStatus(HttpStatus.OK)
     @Operation(
         description = "Accept a ride as a driver",
         responses = [
@@ -77,12 +65,8 @@ class DriverRideController(val service: RideDriverManagementService) {
             )
         ]
     )
-    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest) {
-        service.acceptRide(acceptRideRequest)
-    }
+    fun acceptRide(@Valid @RequestBody acceptRideRequest: AcceptRideRequest)
 
-    @PostMapping("/update-position")
-    @ResponseStatus(HttpStatus.OK)
     @Operation(
         description = "Update the driver's position during a ride",
         responses = [
@@ -98,9 +82,7 @@ class DriverRideController(val service: RideDriverManagementService) {
             )
         ]
     )
-    fun updateDriverPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse {
-        return service.updateDriverPosition(updatePositionRequest)
-    }
+    fun updateDriverPosition(@Valid @RequestBody updatePositionRequest: UpdatePositionRequest): UpdatePositionResponse
 
 
 
@@ -121,10 +103,7 @@ class DriverRideController(val service: RideDriverManagementService) {
             )
         ]
     )
-    @PostMapping("/confirm-start/{id}")
-    fun confirmRideStart(@PathVariable id: UUID) {
-        service.confirmRideStart(id)
-    }
+    fun confirmRideStart(@PathVariable id: UUID)
 
     @Operation(
         description = "Confirm the end of a ride by the driver.",
@@ -143,24 +122,12 @@ class DriverRideController(val service: RideDriverManagementService) {
             )
         ]
     )
-    @PostMapping("/confirm-end/{id}")
-    fun confirmRideEnd(@PathVariable id: UUID) {
-        service.confirmRideEnd(id)
-    }
+    fun confirmRideEnd(@PathVariable id: UUID)
 
-    @PostMapping("/rate")
-    @ResponseStatus(HttpStatus.OK)
-    fun ratePassenger(@Valid @RequestBody request: SendRatingRequest) {
-        service.ratePassenger(request)
-    }
+    fun ratePassenger(@Valid @RequestBody request: SendRatingRequest)
 
-    @GetMapping("/rides/{id}")
-    @ResponseStatus(HttpStatus.OK)
     fun getAllDriverRides(@PathVariable(name = "id") id: UUID,
                           @RequestParam(name = "pageNumber") pageNumber: Int,
                           @RequestParam(name = "pageSize") pageSize: Int,
-                          @RequestParam(name = "orderBy") orderBy: String) : RidePageResponse {
-        return service.getAllRides(id, RidePageRequest(pageNumber, pageSize, orderBy))
-    }
-
+                          @RequestParam(name = "orderBy") orderBy: String) : RidePageResponse
 }

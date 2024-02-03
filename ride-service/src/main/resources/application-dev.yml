@@ -1,4 +1,10 @@
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8070/auth/realms/modsen-realm
+          jwk-set-uri: http://keycloak:8080/auth/realms/modsen-realm/protocol/openid-connect/certs
   datasource:
     url: jdbc:postgresql://database:5432/ride_db
     username: postgres

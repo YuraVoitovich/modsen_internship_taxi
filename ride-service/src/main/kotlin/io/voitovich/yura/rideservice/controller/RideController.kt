@@ -5,21 +5,16 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.voitovich.yura.rideservice.dto.request.RidePageRequest
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
 import io.voitovich.yura.rideservice.exceptionhandler.model.ValidationExceptionInfo
-import io.voitovich.yura.rideservice.service.RideService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@RestController
-@RequestMapping("/api/ride")
-@Tag(name = "Ride Controller", description = "General ride management operations")
-class RideController(val service: RideService) {
+interface RideController {
 
     @Operation(description = "Get a paginated list of rides")
     @ApiResponses(
@@ -36,17 +31,9 @@ class RideController(val service: RideService) {
             )
         ]
     )
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     fun getRidePage(@RequestParam(name = "pageNumber") pageNumber: Int,
                     @RequestParam(name = "pageSize") pageSize: Int,
-                    @RequestParam(name = "orderBy") orderBy: String): RidePageResponse {
-
-        return service.getRidePage(RidePageRequest(
-            pageNumber = pageNumber,
-            pageSize = pageSize,
-            orderBy = orderBy))
-    }
+                    @RequestParam(name = "orderBy") orderBy: String): RidePageResponse
 
     @Operation(description = "Delete a ride by its ID")
     @ApiResponses(
@@ -59,11 +46,7 @@ class RideController(val service: RideService) {
             )
         ]
     )
-    @DeleteMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteRideById(@PathVariable id: UUID) {
-        service.deleteRideById(id)
-    }
+    fun deleteRideById(@PathVariable id: UUID)
 
     @Operation(description = "Get a ride by its ID")
     @ApiResponses(
@@ -80,9 +63,5 @@ class RideController(val service: RideService) {
             )
         ]
     )
-    @GetMapping("{id}")
-    @ResponseStatus(HttpStatus.OK)
-    fun getRideById(@PathVariable id: UUID): RideResponse {
-        return service.getRideById(id)
-    }
+    fun getRideById(@PathVariable id: UUID): RideResponse
 }
