@@ -1,11 +1,6 @@
 package io.voitovich.yura.driverservice.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.voitovich.yura.driverservice.controller.utils.UUIDUtils;
 import io.voitovich.yura.driverservice.dto.request.DriverProfilePageRequest;
@@ -14,8 +9,6 @@ import io.voitovich.yura.driverservice.dto.request.DriverProfileUpdateRequest;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilePageResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfileResponse;
 import io.voitovich.yura.driverservice.dto.response.DriverProfilesResponse;
-import io.voitovich.yura.driverservice.exceptionhandler.model.ExceptionInfo;
-import io.voitovich.yura.driverservice.exceptionhandler.model.ValidationExceptionInfo;
 import io.voitovich.yura.driverservice.service.DriverProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -8,7 +8,6 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.integration.channel.interceptor.ObservationPropagationChannelInterceptor
 import org.springframework.integration.dsl.IntegrationFlow
 import org.springframework.integration.kafka.dsl.Kafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory

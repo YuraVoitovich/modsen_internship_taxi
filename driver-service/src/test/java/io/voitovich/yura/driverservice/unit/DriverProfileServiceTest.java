@@ -11,8 +11,6 @@ import io.voitovich.yura.driverservice.exception.NoSuchRecordException;
 import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.driverservice.repository.DriverProfileRepository;
 import io.voitovich.yura.driverservice.service.impl.DriverProfileServiceImpl;
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
