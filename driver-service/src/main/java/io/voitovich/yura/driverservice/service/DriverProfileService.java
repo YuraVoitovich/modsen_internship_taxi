@@ -17,7 +17,7 @@ import java.util.UUID;
 @Validated
 public interface DriverProfileService {
     DriverProfileResponse getProfileById(UUID uuid);
-    DriverProfileResponse saveProfile(DriverProfileSaveRequest request);
+    DriverProfileResponse saveProfile(DriverProfileSaveRequest request, UUID sub);
     DriverProfileResponse updateProfile(DriverProfileUpdateRequest profileDto);
     DriverProfilePageResponse getProfilePage(@Valid DriverProfilePageRequest pageRequest);
     void deleteProfileById(UUID uuid);

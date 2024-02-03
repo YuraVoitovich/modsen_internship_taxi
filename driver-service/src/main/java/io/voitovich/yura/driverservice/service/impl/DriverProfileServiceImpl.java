@@ -12,6 +12,7 @@ import io.voitovich.yura.driverservice.exception.NoSuchRecordException;
 import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.driverservice.model.RecalculateRatingModel;
 import io.voitovich.yura.driverservice.repository.DriverProfileRepository;
+import io.voitovich.yura.driverservice.security.service.SecurityService;
 import io.voitovich.yura.driverservice.service.DriverProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class DriverProfileServiceImpl implements DriverProfileService {
 
     private final DriverProfileMapper mapper;
 
+    private final SecurityService securityService;
     private final String NO_SUCH_RECORD_EXCEPTION_MESSAGE = "Driver profile with id: {%s} not found";
     private final String NOT_UNIQUE_PHONE_EXCEPTION_MESSAGE = "Driver profile with phone number: {%s} already exists";
 
@@ -50,15 +52,18 @@ public class DriverProfileServiceImpl implements DriverProfileService {
     @Override
     public DriverProfileResponse getProfileById(UUID uuid) {
         log.info("Getting driver profile by id: {}", uuid);
+        DriverProfile profile = getIfPresent(uuid);
+        securityService.checkUserAccess(profile.getSub());
         return mapper
-                .toProfileResponse(getIfPresent(uuid));
+                .toProfileResponse(profile);
     }
 
     @Override
-    public DriverProfileResponse saveProfile(DriverProfileSaveRequest request) {
+    public DriverProfileResponse saveProfile(DriverProfileSaveRequest request, UUID sub) {
         log.info("Saving driver profile: {}", request);
         checkPhoneNumberUnique(request.phoneNumber());
         DriverProfile profile = mapper.toProfileFromSaveRequest(request);
+        profile.setSub(sub);
         profile.setRating(START_RATING);
         return mapper.toProfileResponse(repository.save(profile));
     }
@@ -67,6 +72,7 @@ public class DriverProfileServiceImpl implements DriverProfileService {
     public DriverProfileResponse updateProfile(DriverProfileUpdateRequest request) {
         log.info("Updating driver profile: {}", request);
         DriverProfile profile = getIfPresent(request.id());
+        securityService.checkUserAccess(profile.getSub());
         if (!profile.getPhoneNumber().equals(request.phoneNumber())) {
             checkPhoneNumberUnique(request.phoneNumber());
         }
@@ -94,6 +100,7 @@ public class DriverProfileServiceImpl implements DriverProfileService {
     public void deleteProfileById(UUID uuid) {
         log.info("Deleting driver profile by id: {}", uuid);
         DriverProfile profile = getIfPresent(uuid);
+        securityService.checkUserAccess(profile.getSub());
         repository.deleteById(uuid);
     }
 

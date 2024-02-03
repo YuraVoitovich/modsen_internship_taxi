@@ -92,7 +92,7 @@ public class DriverProfileServiceTest {
                 .build();
 
         // Act
-        DriverProfileResponse savedProfile = service.saveProfile(request);
+        DriverProfileResponse savedProfile = service.saveProfile(request, UUID.randomUUID());
 
         // Assert
         assertEquals(expected, savedProfile);
@@ -112,7 +112,7 @@ public class DriverProfileServiceTest {
         doReturn(true).when(repository).existsDriverProfileByPhoneNumber(any());
 
         // Act & Assert
-        assertThrows(NotUniquePhoneException.class, () -> service.saveProfile(request));
+        assertThrows(NotUniquePhoneException.class, () -> service.saveProfile(request, UUID.randomUUID()));
 
         verify(repository, times(1)).existsDriverProfileByPhoneNumber(any());
     }

@@ -20,8 +20,12 @@ import io.voitovich.yura.driverservice.service.DriverProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,47 +33,22 @@ import java.util.UUID;
 @RequestMapping("api/driver")
 @Tag(name = "Driver profile controller", description = "Driver profile API")
 @RequiredArgsConstructor
-public class DriverProfileController {
+public class DriverProfileController implements DriverProfile{
 
     private final DriverProfileService profileService;
 
-    @Operation(description = "Get driver profile by id")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Driver profile found",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = DriverProfileResponse.class))
-                    }),
-            @ApiResponse(responseCode = "404", description = "Driver profile not found",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
-                    }),
-            @ApiResponse(responseCode = "400", description = "Invalid id format",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
-                    })
-    })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/profile/{id}")
-    private DriverProfileResponse getProfileById(@Parameter(name = "id", description = "Driver profile UUID")
+    @PreAuthorize("hasRole('ROLE_modsen-user')")
+    public DriverProfileResponse getProfileById(@Parameter(name = "id", description = "Driver profile UUID")
                                                      @PathVariable(name = "id") String id) {
         return profileService.getProfileById(UUIDUtils.getUUIDFromString(id));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/profile")
-    @Operation(description = "Get driver profile page")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Driver profile page returned"),
-            @ApiResponse(responseCode = "404", description = "Bad request body data",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ValidationExceptionInfo.class))
-                    })
-    })
-    private DriverProfilePageResponse getProfilePage(@RequestParam(name = "pageNumber") int pageNumber,
+    @PreAuthorize("hasRole('ROLE_modsen-admin')")
+    public DriverProfilePageResponse getProfilePage(@RequestParam(name = "pageNumber") int pageNumber,
                                                      @RequestParam(name = "pageSize") int pageSize,
                                                      @RequestParam(name = "orderBy") String orderBy) {
         return profileService.getProfilePage(DriverProfilePageRequest
@@ -80,76 +59,34 @@ public class DriverProfileController {
                 .build());
     }
 
-    @Operation(description = "Update driver profile")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Driver profile updated"),
-            @ApiResponse(responseCode = "404", description = "Bad request body data",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ValidationExceptionInfo.class))
-                    }),
-            @ApiResponse(responseCode = "409", description = "Driver phone number is not unique",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
-                    }),
-            @ApiResponse(responseCode = "400", description = "Invalid id format",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
-                    })
-    })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/profile")
-    private DriverProfileResponse updateProfile(@Valid @RequestBody DriverProfileUpdateRequest profileDto) {
+    @PreAuthorize("hasRole('ROLE_modsen-user')")
+    public DriverProfileResponse updateProfile(@Valid @RequestBody DriverProfileUpdateRequest profileDto) {
         return profileService.updateProfile(profileDto);
     }
 
-
-    @Operation(description = "Save driver profile")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Driver profile created"),
-            @ApiResponse(responseCode = "404", description = "Bad request body data",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ValidationExceptionInfo.class))
-                    }),
-            @ApiResponse(responseCode = "409", description = "Driver phone number is not unique",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
-                    })
-    })
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/profile")
-    private DriverProfileResponse saveProfile(@Valid  @RequestBody DriverProfileSaveRequest request) {
-        return profileService.saveProfile(request);
+    @PreAuthorize("hasRole('ROLE_modsen-user')")
+    public DriverProfileResponse saveProfile(@Valid  @RequestBody DriverProfileSaveRequest request,
+                                             Principal principal) {
+        String sub = ((Jwt)((Authentication) principal).getPrincipal()).getClaim("sub");
+        return profileService.saveProfile(request, UUID.fromString(sub));
     }
 
-    @Operation(description = "Delete driver profile by id")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Driver profile deleted"),
-            @ApiResponse(responseCode = "404", description = "Driver profile not found",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
-                    }),
-            @ApiResponse(responseCode = "400", description = "Invalid id format",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ExceptionInfo.class))
-                    })
-    })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/profile/{id}")
-    private void deleteProfileById(@Parameter(name = "id", description = "Driver profile UUID")
-                                       @PathVariable(name = "id") String id) {
+    @PreAuthorize("hasRole('ROLE_modsen-user')")
+    public void deleteProfileById(@Parameter(name = "id", description = "Driver profile UUID")
+                                  @PathVariable(name = "id") String id) {
         profileService.deleteProfileById(UUIDUtils.getUUIDFromString(id));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/profiles/{ids}")
-    private DriverProfilesResponse getByIds(@PathVariable(name = "ids")List<UUID> uuids) {
+    @PreAuthorize("hasRole('ROLE_modsen-admin')")
+    public DriverProfilesResponse getByIds(@PathVariable(name = "ids") List<UUID> uuids) {
         return profileService.getByIds(uuids);
     }
 

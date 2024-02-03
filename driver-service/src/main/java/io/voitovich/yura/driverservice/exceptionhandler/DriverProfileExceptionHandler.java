@@ -1,5 +1,6 @@
 package io.voitovich.yura.driverservice.exceptionhandler;
 
+import io.voitovich.yura.driverservice.exception.DriverProfileAccessDeniedException;
 import io.voitovich.yura.driverservice.exception.NoSuchRecordException;
 import io.voitovich.yura.driverservice.exception.NotUniquePhoneException;
 import io.voitovich.yura.driverservice.exception.NotValidUUIDException;
@@ -31,6 +32,17 @@ public class DriverProfileExceptionHandler extends ResponseEntityExceptionHandle
                 .message(exception.getMessage())
                 .build();
         return ResponseEntity.badRequest().body(info);
+    }
+
+    @ExceptionHandler(DriverProfileAccessDeniedException.class)
+    public ResponseEntity<ExceptionInfo> handlePassengerProfileAccessDeniedException(DriverProfileAccessDeniedException exception) {
+        log.info(String.format("Handled exception - %s", exception), exception);
+        ExceptionInfo info = ExceptionInfo
+                .builder()
+                .status(HttpStatus.FORBIDDEN)
+                .message(exception.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(info);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
