@@ -2,6 +2,7 @@ package io.voitovich.yura.passengerservice.integration.controller;
 
 
 import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 import io.voitovich.yura.passengerservice.dto.request.PassengerProfileUpdateRequest;
 import io.voitovich.yura.passengerservice.dto.request.PassengerSaveProfileRequest;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilePageResponse;
@@ -9,15 +10,25 @@ import io.voitovich.yura.passengerservice.dto.response.PassengerProfileResponse;
 import io.voitovich.yura.passengerservice.dto.response.PassengerProfilesResponse;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ExceptionInfo;
 import io.voitovich.yura.passengerservice.exceptionhandler.model.ValidationExceptionInfo;
+import org.apache.http.client.utils.URIBuilder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -25,11 +36,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,6 +78,10 @@ public class PassengerServiceIntegrationTest {
             DockerImageName.parse("confluentinc/cp-kafka:latest")
     );
 
+    private static String userToken;
+    private static String wrongUserToken;
+    private static String adminToken;
+
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry propertyRegistry) {
         propertyRegistry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
@@ -71,384 +90,479 @@ public class PassengerServiceIntegrationTest {
         propertyRegistry.add("spring.datasource.password", postgres::getPassword);
     }
 
-    @Test
-    void getProfileById_profileExists_shouldReturnPassengerProfileResponse() {
+    @BeforeAll
+    static void setup() throws URISyntaxException {
+        URI authorizationURI = new URIBuilder("http://localhost:8070/auth/realms/modsen-realm/protocol/openid-connect/token").build();
+        WebClient webclient = WebClient.builder().build();
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.put("grant_type", Collections.singletonList("password"));
+        formData.put("client_id", Collections.singletonList("modsen-client"));
+        formData.put("client_secret", Collections.singletonList("Z9tlxniFFMa1iNtaMa29svkdhFpoCojh"));
+        formData.put("username", Collections.singletonList("user"));
+        formData.put("password", Collections.singletonList("user"));
+        String result = webclient.post()
+                .uri(authorizationURI)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(formData))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
-        var expected = PassengerProfileResponse.builder()
-                .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
-                .name("John")
-                .surname("Doe")
-                .rating(BigDecimal.valueOf(5.0))
-                .phoneNumber("+375295432551")
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .pathParam("id", "4ba65be8-cd97-4d40-aeae-8eb5a71fa58c")
-                .when()
-                .get(PASSENGER_SERVICE_BASE_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .as(PassengerProfileResponse.class);
+        JacksonJsonParser jsonParser = new JacksonJsonParser();
+        userToken = "Bearer " + jsonParser.parseMap(result)
+                .get("access_token")
+                .toString();
 
-        assertEquals(expected, actual);
+        formData.put("username", Collections.singletonList("admin"));
+        formData.put("password", Collections.singletonList("admin"));
 
-    }
+        result = webclient.post()
+                .uri(authorizationURI)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(formData))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
-    @Test
-    void getProfileById_profileNotExists_shouldReturnNoSuchRecordErrorResponse() {
+        adminToken = "Bearer " + jsonParser.parseMap(result)
+                .get("access_token")
+                .toString();
 
-        var expected = ExceptionInfo.builder()
-                .message("")
-                .status(HttpStatus.NOT_FOUND)
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .pathParam("id", UUID.randomUUID().toString())
-                .when()
-                .get(PASSENGER_SERVICE_BASE_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value())
-                .extract()
-                .as(ExceptionInfo.class);
+        formData.put("username", Collections.singletonList("user2"));
+        formData.put("password", Collections.singletonList("user"));
 
-        assertEquals(expected.status(), actual.status());
+        result = webclient.post()
+                .uri(authorizationURI)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(formData))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
-    }
-
-
-    @Test
-    void updateProfile_profileCanBeUpdated_shouldReturnUpdatedPassengerProfileResponse() {
-
-        var updateRequest = PassengerProfileUpdateRequest
-                .builder()
-                .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
-                .name("Joe")
-                .surname("Fanski")
-                .phoneNumber("+375295432555")
-                .build();
-        var expected = PassengerProfileResponse.builder()
-                .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
-                .name("Joe")
-                .surname("Fanski")
-                .rating(BigDecimal.valueOf(5.0))
-                .phoneNumber("+375295432555")
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .body(updateRequest)
-                .when()
-                .post(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .as(PassengerProfileResponse.class);
-
-        assertEquals(expected, actual);
+        wrongUserToken = "Bearer " + jsonParser.parseMap(result)
+                .get("access_token")
+                .toString();
 
     }
 
+    @Nested
+    @DisplayName("Test get profile by id")
+    public class GetProfileById {
 
-    @Test
-    void updateProfile_profileNotExists_shouldReturnNoSuchRecordErrorResponse() {
+        @Test
+        void getProfileById_wrongUserSubId_shouldReturnDriverProfileAccessDeniedException() {
+            var expected = HttpStatus.FORBIDDEN;
 
-        var updateRequest = PassengerProfileUpdateRequest
-                .builder()
-                .id(UUID.randomUUID())
-                .name("Joe")
-                .surname("Fanski")
-                .phoneNumber("+375295432555")
-                .build();
-        var expected = ExceptionInfo.builder()
-                .message("")
-                .status(HttpStatus.NOT_FOUND)
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .body(updateRequest)
-                .when()
-                .post(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value())
-                .extract()
-                .as(ExceptionInfo.class);
+            var actual = getWrongUserAuthorizedGivenRequest()
+                    .pathParam("id", "4ba65be8-cd97-4d40-aeae-8eb5a71fa58c")
+                    .when()
+                    .get(PASSENGER_SERVICE_BASE_URL + "/{id}")
+                    .then()
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .extract()
+                    .as(ExceptionInfo.class);
 
-        assertEquals(expected.status(), actual.status());
+            assertThat(actual.status()).isEqualTo(expected);
+        }
+        @Test
+        void getProfileById_profileExists_shouldReturnPassengerProfileResponse() {
 
+            var expected = PassengerProfileResponse.builder()
+                    .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
+                    .name("John")
+                    .surname("Doe")
+                    .sub(UUID.fromString("3db54c94-a066-4094-93fd-adc13b30d0af"))
+                    .rating(BigDecimal.valueOf(5.0))
+                    .phoneNumber("+375295432551")
+                    .build();
+
+            var actual = getUserAuthorizedGivenRequest()
+                    .pathParam("id", "4ba65be8-cd97-4d40-aeae-8eb5a71fa58c")
+                    .when()
+                    .get(PASSENGER_SERVICE_BASE_URL + "/{id}")
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .as(PassengerProfileResponse.class);
+
+            assertEquals(expected, actual);
+
+        }
+
+        @Test
+        void getProfileById_profileNotExists_shouldReturnNoSuchRecordErrorResponse() {
+
+            var expected = ExceptionInfo.builder()
+                    .message("")
+                    .status(HttpStatus.NOT_FOUND)
+                    .build();
+
+            var actual = getUserAuthorizedGivenRequest()
+                    .pathParam("id", UUID.randomUUID().toString())
+                    .when()
+                    .get(PASSENGER_SERVICE_BASE_URL + "/{id}")
+                    .then()
+                    .statusCode(HttpStatus.NOT_FOUND.value())
+                    .extract()
+                    .as(ExceptionInfo.class);
+
+            assertEquals(expected.status(), actual.status());
+
+        }
     }
 
-    @Test
-    void updateProfile_profileWithThisPhoneNumberExists_shouldReturnNotUniquePhoneErrorResponse() {
+    @Nested
+    @DisplayName("Test update profile")
+    public class UpdateProfile {
+        @Test
+        void updateProfile_profileCanBeUpdated_shouldReturnUpdatedPassengerProfileResponse() {
 
-        var updateRequest = PassengerProfileUpdateRequest
-                .builder()
-                .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
-                .name("Joe")
-                .surname("Fanski")
-                .phoneNumber("+375295432552")
-                .build();
-        var expected = ExceptionInfo.builder()
-                .message("")
-                .status(HttpStatus.BAD_REQUEST)
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .body(updateRequest)
-                .when()
-                .post(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .extract()
-                .as(ExceptionInfo.class);
+            var updateRequest = PassengerProfileUpdateRequest
+                    .builder()
+                    .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
+                    .name("Joe")
+                    .surname("Fanski")
+                    .phoneNumber("+375295432555")
+                    .build();
+            var expected = PassengerProfileResponse.builder()
+                    .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
+                    .name("Joe")
+                    .sub(UUID.fromString("3db54c94-a066-4094-93fd-adc13b30d0af"))
+                    .surname("Fanski")
+                    .rating(BigDecimal.valueOf(5.0))
+                    .phoneNumber("+375295432555")
+                    .build();
 
-        assertEquals(expected.status(), actual.status());
+            var actual = getUserAuthorizedGivenRequest()
+                    .body(updateRequest)
+                    .when()
+                    .post(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .as(PassengerProfileResponse.class);
 
-    }
+            assertEquals(expected, actual);
 
-    @Test
-    void updateProfile_badPassengerProfileUpdateRequest_shouldReturnValidationErrorResponse() {
-
-        var updateRequest = PassengerProfileUpdateRequest
-                .builder()
-                .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
-                .name("")
-                .surname("")
-                .phoneNumber("+214")
-                .build();
-        var expected = ValidationExceptionInfo.builder()
-                .error("name", "")
-                .error("phoneNumber", "")
-                .error("surname", "")
-                .status(HttpStatus.BAD_REQUEST)
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .body(updateRequest)
-                .when()
-                .post(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .extract()
-                .as(ValidationExceptionInfo.class);
-
-        expected.errors().keySet()
-                .forEach((key) -> assertTrue(actual.errors().containsKey(key)));
-        assertEquals(expected.status(), actual.status());
-    }
+        }
 
 
-    @Test
-    void saveProfile_badPassengerProfileCreateRequest_shouldReturnValidationErrorResponse() {
+        @Test
+        void updateProfile_profileNotExists_shouldReturnNoSuchRecordErrorResponse() {
 
-        var saveRequest = PassengerSaveProfileRequest
-                .builder()
-                .name("")
-                .surname("")
-                .phoneNumber("+214")
-                .build();
-        var expected = ValidationExceptionInfo.builder()
-                .error("name", "")
-                .error("phoneNumber", "")
-                .error("surname", "")
-                .status(HttpStatus.BAD_REQUEST)
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .body(saveRequest)
-                .when()
-                .put(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .extract()
-                .as(ValidationExceptionInfo.class);
+            var updateRequest = PassengerProfileUpdateRequest
+                    .builder()
+                    .id(UUID.randomUUID())
+                    .name("Joe")
+                    .surname("Fanski")
+                    .phoneNumber("+375295432555")
+                    .build();
+            var expected = ExceptionInfo.builder()
+                    .message("")
+                    .status(HttpStatus.NOT_FOUND)
+                    .build();
 
-        expected.errors().keySet()
-                .forEach((key) -> assertTrue(actual.errors().containsKey(key)));
-        assertEquals(expected.status(), actual.status());
-    }
+            var actual = getUserAuthorizedGivenRequest()
+                    .body(updateRequest)
+                    .when()
+                    .post(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.NOT_FOUND.value())
+                    .extract()
+                    .as(ExceptionInfo.class);
 
-    @Test
-    void saveProfile_profileWithThisPhoneNumberExists_shouldReturnNotUniquePhoneErrorResponse() {
+            assertEquals(expected.status(), actual.status());
 
-        var saveRequest = PassengerSaveProfileRequest
-                .builder()
-                .name("Joe")
-                .surname("Fanski")
-                .phoneNumber("+375295432552")
-                .build();
-        var expected = ExceptionInfo.builder()
-                .message("")
-                .status(HttpStatus.BAD_REQUEST)
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .body(saveRequest)
-                .when()
-                .put(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .extract()
-                .as(ExceptionInfo.class);
+        }
 
-        assertEquals(expected.status(), actual.status());
+        @Test
+        void updateProfile_profileWithThisPhoneNumberExists_shouldReturnNotUniquePhoneErrorResponse() {
 
-    }
+            var updateRequest = PassengerProfileUpdateRequest
+                    .builder()
+                    .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
+                    .name("Joe")
+                    .surname("Fanski")
+                    .phoneNumber("+375295432552")
+                    .build();
+            var expected = ExceptionInfo.builder()
+                    .message("")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
 
-    @Test
-    void saveProfile_profileCanBeSaved_shouldReturnSavedPassengerProfileResponse() {
+            var actual = getUserAuthorizedGivenRequest()
+                    .body(updateRequest)
+                    .when()
+                    .post(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .extract()
+                    .as(ExceptionInfo.class);
 
-        var saveRequest = PassengerSaveProfileRequest
-                .builder()
-                .name("Joe")
-                .surname("Fanski")
-                .phoneNumber("+375295432555")
-                .build();
-        var expected = PassengerProfileResponse.builder()
-                .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
-                .name("Joe")
-                .surname("Fanski")
-                .rating(BigDecimal.valueOf(5))
-                .phoneNumber("+375295432555")
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .body(saveRequest)
-                .when()
-                .put(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .extract()
-                .as(PassengerProfileResponse.class);
+            assertEquals(expected.status(), actual.status());
 
-        assertEquals(expected.surname(), actual.surname());
-        assertEquals(expected.rating(), actual.rating());
-        assertEquals(expected.phoneNumber(), actual.phoneNumber());
-        assertEquals(expected.name(), actual.name());
+        }
 
-    }
 
-    @Test
-    void deleteProfileById_profileExists_shouldDeleteProfile() {
+        @Test
+        void updateProfile_badPassengerProfileUpdateRequest_shouldReturnValidationErrorResponse() {
 
-        given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .pathParam("id", "4ba65be8-cd97-4d40-aeae-8eb5a71fa58c")
-                .when()
-                .delete(PASSENGER_SERVICE_BASE_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.NO_CONTENT.value());
+            var updateRequest = PassengerProfileUpdateRequest
+                    .builder()
+                    .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
+                    .name("")
+                    .surname("")
+                    .phoneNumber("+214")
+                    .build();
+            var expected = ValidationExceptionInfo.builder()
+                    .error("name", "")
+                    .error("phoneNumber", "")
+                    .error("surname", "")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
 
-    }
+            var actual = getUserAuthorizedGivenRequest()
+                    .body(updateRequest)
+                    .when()
+                    .post(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .extract()
+                    .as(ValidationExceptionInfo.class);
 
-    @Test
-    void deleteProfileById_profileNotExists_shouldReturnNoSuchRecordErrorResponse() {
-
-        var expected = ExceptionInfo.builder()
-                .message("")
-                .status(HttpStatus.NOT_FOUND)
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .pathParam("id", UUID.randomUUID().toString())
-                .when()
-                .delete(PASSENGER_SERVICE_BASE_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value())
-                .extract()
-                .as(ExceptionInfo.class);
-
-        assertEquals(expected.status(), actual.status());
+            expected.errors().keySet()
+                    .forEach((key) -> assertTrue(actual.errors().containsKey(key)));
+            assertEquals(expected.status(), actual.status());
+        }
 
     }
 
 
-    @Test
-    void getProfilePage_badParams_shouldReturnConstraintViolationErrorResponse() {
+    @Nested
+    @DisplayName("Test save profile")
+    public class SaveProfile {
+        @Test
+        void saveProfile_badPassengerProfileCreateRequest_shouldReturnValidationErrorResponse() {
 
-        var expected = ExceptionInfo.builder()
-                .status(HttpStatus.BAD_REQUEST)
-                .message("")
-                .build();
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .params(Map.of(
-                        "pageNumber", 0,
-                        "pageSize", 0,
-                        "orderBy", "ids"))
-                .when()
-                .get(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .extract()
-                .as(ExceptionInfo.class);
+            var saveRequest = PassengerSaveProfileRequest
+                    .builder()
+                    .name("")
+                    .surname("")
+                    .phoneNumber("+214")
+                    .build();
+            var expected = ValidationExceptionInfo.builder()
+                    .error("name", "")
+                    .error("phoneNumber", "")
+                    .error("surname", "")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
 
-        assertEquals(expected.status(), actual.status());
+            var actual = getUserAuthorizedGivenRequest()
+                    .body(saveRequest)
+                    .when()
+                    .put(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .extract()
+                    .as(ValidationExceptionInfo.class);
+
+            expected.errors().keySet()
+                    .forEach((key) -> assertTrue(actual.errors().containsKey(key)));
+            assertEquals(expected.status(), actual.status());
+        }
+
+        @Test
+        void saveProfile_profileWithThisPhoneNumberExists_shouldReturnNotUniquePhoneErrorResponse() {
+
+            var saveRequest = PassengerSaveProfileRequest
+                    .builder()
+                    .name("Joe")
+                    .surname("Fanski")
+                    .phoneNumber("+375295432552")
+                    .build();
+            var expected = ExceptionInfo.builder()
+                    .message("")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+
+            var actual = getUserAuthorizedGivenRequest()
+                    .body(saveRequest)
+                    .when()
+                    .put(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .extract()
+                    .as(ExceptionInfo.class);
+
+            assertEquals(expected.status(), actual.status());
+
+        }
+
+        @Test
+        void saveProfile_profileCanBeSaved_shouldReturnSavedPassengerProfileResponse() {
+
+            var saveRequest = PassengerSaveProfileRequest
+                    .builder()
+                    .name("Joe")
+                    .surname("Fanski")
+                    .phoneNumber("+375295432555")
+                    .build();
+            var expected = PassengerProfileResponse.builder()
+                    .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
+                    .name("Joe")
+                    .surname("Fanski")
+                    .rating(BigDecimal.valueOf(5))
+                    .phoneNumber("+375295432555")
+                    .build();
+
+            var actual = getUserAuthorizedGivenRequest()
+                    .body(saveRequest)
+                    .when()
+                    .put(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.CREATED.value())
+                    .extract()
+                    .as(PassengerProfileResponse.class);
+
+            assertEquals(expected.surname(), actual.surname());
+            assertEquals(expected.rating(), actual.rating());
+            assertEquals(expected.phoneNumber(), actual.phoneNumber());
+            assertEquals(expected.name(), actual.name());
+
+        }
     }
 
-    @Test
-    void getProfilePage_correctParams_shouldReturnPageResponse() {
+    @Nested
+    @DisplayName("Test delete profile by id")
+    public class DeleteProfileById {
+        @Test
+        void deleteProfileById_profileExists_shouldDeleteProfile() {
 
-        var expected = PassengerProfilePageResponse
-                .builder()
-                .profiles(getDefaultSortedPassengerProfilesResponseList())
-                .pageNumber(1)
-                .totalPages(2)
-                .totalElements(3)
-                .build();
+            getUserAuthorizedGivenRequest()
+                    .pathParam("id", "4ba65be8-cd97-4d40-aeae-8eb5a71fa58c")
+                    .when()
+                    .delete(PASSENGER_SERVICE_BASE_URL + "/{id}")
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value());
 
-        var actual = given()
-                .contentType(ContentType.JSON)
-                .port(port)
-                .params(Map.of(
-                        "pageNumber", 1,
-                        "pageSize", 2,
-                        "orderBy", "phoneNumber"))
-                .when()
-                .get(PASSENGER_SERVICE_BASE_URL)
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .as(PassengerProfilePageResponse.class);
+        }
 
-        assertEquals(expected, actual);
+        @Test
+        void deleteProfileById_profileNotExists_shouldReturnNoSuchRecordErrorResponse() {
+
+            var expected = ExceptionInfo.builder()
+                    .message("")
+                    .status(HttpStatus.NOT_FOUND)
+                    .build();
+            var actual = getUserAuthorizedGivenRequest()
+                    .pathParam("id", UUID.randomUUID().toString())
+                    .when()
+                    .delete(PASSENGER_SERVICE_BASE_URL + "/{id}")
+                    .then()
+                    .statusCode(HttpStatus.NOT_FOUND.value())
+                    .extract()
+                    .as(ExceptionInfo.class);
+
+            assertEquals(expected.status(), actual.status());
+
+        }
     }
 
-    @Test
-    void getByIds_correctIds_shouldReturnDriverProfiles() {
-        var profiles = getDefaultSortedPassengerProfilesResponseList();
-        var ids = profiles.stream().map(PassengerProfileResponse::id).toList();
-        var expected = PassengerProfilesResponse.builder()
-                .profiles(profiles)
-                .build();
-        var actual = given().contentType(ContentType.JSON)
-                .port(port)
-                .pathParam("ids", String.join(",", ids.stream().map(UUID::toString).toList()))
-                .when()
-                .get("api/passenger/profiles/{ids}")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .as(PassengerProfilesResponse.class);
+    @Nested
+    @DisplayName("Test get profile page")
+    public class GetProfilePage {
+        @Test
+        void getProfilePage_badParams_shouldReturnConstraintViolationErrorResponse() {
 
-        assertEquals(expected, actual);
+            var expected = ExceptionInfo.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message("")
+                    .build();
+            var actual = getAdminAuthorizedGivenRequest()
+                    .params(Map.of(
+                            "pageNumber", 0,
+                            "pageSize", 0,
+                            "orderBy", "ids"))
+                    .when()
+                    .get(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .extract()
+                    .as(ExceptionInfo.class);
+
+            assertEquals(expected.status(), actual.status());
+        }
+
+        @Test
+        void getProfilePage_correctParams_shouldReturnPageResponse() {
+
+            var expected = PassengerProfilePageResponse
+                    .builder()
+                    .profiles(getDefaultSortedPassengerProfilesResponseList())
+                    .pageNumber(1)
+                    .totalPages(2)
+                    .totalElements(3)
+                    .build();
+
+            var actual = getAdminAuthorizedGivenRequest()
+                    .params(Map.of(
+                            "pageNumber", 1,
+                            "pageSize", 2,
+                            "orderBy", "phoneNumber"))
+                    .when()
+                    .get(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .as(PassengerProfilePageResponse.class);
+
+            assertEquals(expected, actual);
+        }
+
+
+        @Test
+        void getProfilePage_wrongAuthRole_shouldReturnForbiddenStatus() {
+            getUserAuthorizedGivenRequest()
+                    .params(Map.of(
+                            "pageNumber", 1,
+                            "pageSize", 2,
+                            "orderBy", "phoneNumber"))
+                    .when()
+                    .get(PASSENGER_SERVICE_BASE_URL)
+                    .then()
+                    .statusCode(HttpStatus.FORBIDDEN.value());
+        }
+    }
+
+    @Nested
+    @DisplayName("Test get by ids")
+    public class GetByIds {
+        @Test
+        void getByIds_correctIds_shouldReturnDriverProfiles() {
+            var profiles = getDefaultSortedPassengerProfilesResponseList();
+            var ids = profiles.stream().map(PassengerProfileResponse::id).toList();
+            var expected = PassengerProfilesResponse.builder()
+                    .profiles(profiles)
+                    .build();
+
+            var actual = getAdminAuthorizedGivenRequest()
+                    .pathParam("ids", String.join(",", ids.stream().map(UUID::toString).toList()))
+                    .when()
+                    .get("api/passenger/profiles/{ids}")
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .as(PassengerProfilesResponse.class);
+
+            assertEquals(expected, actual);
+        }
     }
 
     private List<PassengerProfileResponse> getDefaultSortedPassengerProfilesResponseList() {
         var first = PassengerProfileResponse.builder()
                 .id(UUID.fromString("4ba65be8-cd97-4d40-aeae-8eb5a71fa58c"))
                 .name("John")
+                .sub(UUID.fromString("3db54c94-a066-4094-93fd-adc13b30d0af"))
                 .surname("Doe")
                 .rating(BigDecimal.valueOf(5.0))
                 .phoneNumber("+375295432551")
@@ -456,11 +570,33 @@ public class PassengerServiceIntegrationTest {
         var second = PassengerProfileResponse.builder()
                 .id(UUID.fromString("025fe6d1-8363-4a1a-925d-d91a8b640b8f"))
                 .name("Jane")
+                .sub(UUID.fromString("3db54c94-a066-4094-93fd-adc13b30d0af"))
                 .surname("Smith")
                 .rating(BigDecimal.valueOf(5.0))
                 .phoneNumber("+375295432552")
                 .build();
         return List.of(first, second);
+    }
+
+    private RequestSpecification getUserAuthorizedGivenRequest() {
+        return given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", userToken)
+                .port(port);
+    }
+
+    private RequestSpecification getAdminAuthorizedGivenRequest() {
+        return given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", adminToken)
+                .port(port);
+    }
+
+    private RequestSpecification getWrongUserAuthorizedGivenRequest() {
+        return given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", wrongUserToken)
+                .port(port);
     }
 
 }
