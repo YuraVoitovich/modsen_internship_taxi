@@ -10,7 +10,6 @@ import io.voitovich.yura.rideservice.dto.request.SendRatingRequest
 import io.voitovich.yura.rideservice.dto.responce.GetAvailableRidesResponse
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
-import io.voitovich.yura.rideservice.integration.config.WireMockConfig
 import io.voitovich.yura.rideservice.integration.util.DriverManagementIntegrationTestsUtils.Companion.getAllDriverRides
 import io.voitovich.yura.rideservice.integration.util.DriverManagementIntegrationTestsUtils.Companion.getAllDriverRidesDriverProfileModel
 import io.voitovich.yura.rideservice.integration.util.DriverManagementIntegrationTestsUtils.Companion.getAllDriverRidesPassengerProfileModels
@@ -33,16 +32,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.jdbc.SqlGroup
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.math.BigDecimal
 import java.util.*
 

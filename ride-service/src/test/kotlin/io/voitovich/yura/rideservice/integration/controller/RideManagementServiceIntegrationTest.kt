@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import io.voitovich.yura.rideservice.dto.responce.RidePageResponse
 import io.voitovich.yura.rideservice.dto.responce.RideResponse
 import io.voitovich.yura.rideservice.exceptionhandler.model.ExceptionInfo
-import io.voitovich.yura.rideservice.integration.config.WireMockConfig
 import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.getAllRides
 import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.getAllRidesDriverProfileModels
 import io.voitovich.yura.rideservice.integration.util.RideManagementIntegrationTestsUtils.Companion.getAllRidesPassengerProfileModels
@@ -19,22 +18,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.jdbc.SqlGroup
-import org.testcontainers.containers.KafkaContainer
-import org.testcontainers.containers.PostgisContainerProvider
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import java.util.*
 
 
