@@ -38,25 +38,7 @@ import org.testcontainers.utility.DockerImageName
 import java.util.*
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-@SqlGroup(
-    Sql(
-        scripts = ["classpath:sql/truncate-ride-table.sql"],
-        executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
-    ),
-    Sql(
-        scripts = ["classpath:sql/insert-test-values-in-ride-table.sql"],
-        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
-    )
-)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = [WireMockConfig::class])
-@ActiveProfiles("test")
-class RideManagementServiceIntegrationTest {
-
-    @LocalServerPort
-    private val port: Int? = null
+class RideManagementServiceIntegrationTest: AbstractControllerIntegrationTest() {
 
     @Qualifier("mockDriverServiceDriverServiceManagement")
     @Autowired
@@ -68,30 +50,8 @@ class RideManagementServiceIntegrationTest {
 
     companion object {
 
-        @Container
-        @JvmStatic
-        val kafka = KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest")
-        )
-
-        @Container
-        @JvmStatic
-        private val postgres = PostgisContainerProvider()
-            .newInstance()
-            .withDatabaseName("test")
-            .withUsername("postgres")
-            .withPassword("postgres")
-
         private const val RIDE_MANAGEMENT_CONTROLLER_BASE_URL = "api/ride"
 
-        @DynamicPropertySource
-        @JvmStatic
-        fun configureProperties(propertyRegistry: DynamicPropertyRegistry) {
-            propertyRegistry.add("spring.kafka.bootstrap-servers") { kafka.bootstrapServers }
-            propertyRegistry.add("spring.datasource.url") { postgres.jdbcUrl }
-            propertyRegistry.add("spring.datasource.username") { postgres.username }
-            propertyRegistry.add("spring.datasource.password") { postgres.password }
-        }
     }
 
     @Test
@@ -109,6 +69,7 @@ class RideManagementServiceIntegrationTest {
             url = "$RIDE_MANAGEMENT_CONTROLLER_BASE_URL/$rideId",
             method = HttpMethod.GET,
             expectedStatus = HttpStatus.NOT_FOUND,
+            token = userToken,
             extractClass = ExceptionInfo::class.java
         )
 
@@ -147,7 +108,8 @@ class RideManagementServiceIntegrationTest {
             url = "$RIDE_MANAGEMENT_CONTROLLER_BASE_URL/$rideId",
             method = HttpMethod.GET,
             expectedStatus = HttpStatus.OK,
-            extractClass = RideResponse::class.java
+            extractClass = RideResponse::class.java,
+            token = userToken
         )
 
         // Assert
@@ -195,6 +157,7 @@ class RideManagementServiceIntegrationTest {
             method = HttpMethod.GET,
             expectedStatus = HttpStatus.OK,
             extractClass = RidePageResponse::class.java,
+            token = adminToken,
             params = mapOf(
                 Pair("pageNumber", 1),
                 Pair("pageSize", 2),
@@ -216,6 +179,7 @@ class RideManagementServiceIntegrationTest {
             method = HttpMethod.GET,
             expectedStatus = HttpStatus.BAD_REQUEST,
             extractClass = ExceptionInfo::class.java,
+            token = adminToken,
             params = mapOf(
                 Pair("pageNumber", 0),
                 Pair("pageSize", 0),

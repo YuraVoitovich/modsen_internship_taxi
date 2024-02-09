@@ -45,25 +45,7 @@ import org.testcontainers.utility.DockerImageName
 import java.math.BigDecimal
 import java.util.*
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-@SqlGroup(
-    Sql(
-        scripts = ["classpath:sql/truncate-ride-table.sql"],
-        executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
-    ),
-    Sql(
-        scripts = ["classpath:sql/insert-test-values-in-ride-table.sql"],
-        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
-    )
-)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = [WireMockConfig::class])
-@ActiveProfiles("test")
-class RidePassengerManagementServiceIntegrationTest {
-
-    @LocalServerPort
-    private val port: Int? = null
+class RidePassengerManagementServiceIntegrationTest: AbstractControllerIntegrationTest() {
 
     @Qualifier("mockDriverServiceDriverServiceManagement")
     @Autowired
@@ -74,33 +56,7 @@ class RidePassengerManagementServiceIntegrationTest {
     lateinit var passengerWireMock: WireMockServer
 
     companion object {
-
-        @Container
-        @JvmStatic
-        val kafka = KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest")
-        )
-
-
-
-        @Container
-        @JvmStatic
-        private val postgres = PostgisContainerProvider()
-            .newInstance()
-            .withDatabaseName("test")
-            .withUsername("postgres")
-            .withPassword("postgres")
-
         private const val PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL = "api/ride/passenger"
-
-        @DynamicPropertySource
-        @JvmStatic
-        fun configureProperties(propertyRegistry: DynamicPropertyRegistry) {
-            propertyRegistry.add("spring.kafka.bootstrap-servers") { kafka.bootstrapServers }
-            propertyRegistry.add("spring.datasource.url") { postgres.jdbcUrl }
-            propertyRegistry.add("spring.datasource.username") { postgres.username }
-            propertyRegistry.add("spring.datasource.password") { postgres.password }
-        }
     }
 
     @Nested
@@ -129,6 +85,7 @@ class RidePassengerManagementServiceIntegrationTest {
                 method = HttpMethod.PUT,
                 body = request,
                 expectedStatus = HttpStatus.CREATED,
+                token = userToken,
                 extractClass = CreateRideResponse::class.java
             )
 
@@ -160,6 +117,7 @@ class RidePassengerManagementServiceIntegrationTest {
                 method = HttpMethod.PUT,
                 body = request,
                 expectedStatus = HttpStatus.NOT_FOUND,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -194,6 +152,7 @@ class RidePassengerManagementServiceIntegrationTest {
                 method = HttpMethod.PUT,
                 body = request,
                 expectedStatus = HttpStatus.CONFLICT,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -226,6 +185,7 @@ class RidePassengerManagementServiceIntegrationTest {
                 method = HttpMethod.DELETE,
                 body = request,
                 expectedStatus = HttpStatus.CONFLICT,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -253,6 +213,7 @@ class RidePassengerManagementServiceIntegrationTest {
                 method = HttpMethod.DELETE,
                 body = request,
                 expectedStatus = HttpStatus.NOT_FOUND,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -275,6 +236,7 @@ class RidePassengerManagementServiceIntegrationTest {
                 url = PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL,
                 method = HttpMethod.DELETE,
                 body = request,
+                token = userToken,
                 expectedStatus = HttpStatus.NO_CONTENT
             )
 
@@ -324,6 +286,7 @@ class RidePassengerManagementServiceIntegrationTest {
                     "pageSize" to 2,
                     "orderBy" to "id"
                 ),
+                token = userToken,
                 extractClass = RidePageResponse::class.java
             )
 
@@ -349,6 +312,7 @@ class RidePassengerManagementServiceIntegrationTest {
                     "pageSize" to 0,
                     "orderBy" to "ids"
                 ),
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -372,10 +336,11 @@ class RidePassengerManagementServiceIntegrationTest {
             // Act
             executeRequest(
                 port = port,
-                "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate",
-                HttpMethod.POST,
-                rateDriverRequest,
-                HttpStatus.OK
+                url = "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate",
+                method = HttpMethod.POST,
+                body = rateDriverRequest,
+                token = userToken,
+                expectedStatus = HttpStatus.OK
             )
 
             // No explicit Assert needed for this test case
@@ -397,11 +362,12 @@ class RidePassengerManagementServiceIntegrationTest {
             // Act
             val actual: ExceptionInfo = executeRequest(
                 port = port,
-                "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate",
-                HttpMethod.POST,
-                rateDriverRequest,
-                HttpStatus.NOT_FOUND,
-                ExceptionInfo::class.java
+                url = "$PASSENGER_MANAGEMENT_CONTROLLER_BASE_URL/rate",
+                method = HttpMethod.POST,
+                body = rateDriverRequest,
+                expectedStatus = HttpStatus.NOT_FOUND,
+                token = userToken,
+                extractClass = ExceptionInfo::class.java
             )
 
             // Assert
@@ -428,6 +394,7 @@ class RidePassengerManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 body = rateDriverRequest,
                 expectedStatus = HttpStatus.BAD_REQUEST,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 

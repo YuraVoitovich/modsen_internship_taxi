@@ -40,40 +40,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlGroup
-import org.testcontainers.containers.KafkaContainer
-import org.testcontainers.containers.PostgisContainerProvider
-import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import java.math.BigDecimal
 import java.util.*
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-@SqlGroup(
-    Sql(
-        scripts = ["classpath:sql/truncate-ride-table.sql"],
-        executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
-    ),
-    Sql(
-        scripts = ["classpath:sql/insert-test-values-in-ride-table.sql"],
-        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
-    )
-)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ContextConfiguration(classes = [WireMockConfig::class])
-@ActiveProfiles("test")
-class RideDriverManagementServiceIntegrationTest {
+class RideDriverManagementServiceIntegrationTest: AbstractControllerIntegrationTest() {
 
     @Autowired
     lateinit var properties: DefaultApplicationProperties
-
-    @LocalServerPort
-    private val port: Int? = null
 
     @Qualifier("mockDriverServiceDriverServiceManagement")
     @Autowired
@@ -85,31 +61,8 @@ class RideDriverManagementServiceIntegrationTest {
 
     companion object {
 
-        @Container
-        @JvmStatic
-        val kafka = KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest")
-        )
-
-        @Container
-        @JvmStatic
-        private val postgres = PostgisContainerProvider()
-            .newInstance()
-            .withDatabaseName("test")
-            .withUsername("postgres")
-            .withPassword("postgres")
-
-
         private const val DRIVER_MANAGEMENT_CONTROLLER_BASE_URL = "api/ride/driver"
 
-        @DynamicPropertySource
-        @JvmStatic
-        fun configureProperties(propertyRegistry: DynamicPropertyRegistry) {
-            propertyRegistry.add("spring.kafka.bootstrap-servers") { kafka.bootstrapServers }
-            propertyRegistry.add("spring.datasource.url") { postgres.jdbcUrl }
-            propertyRegistry.add("spring.datasource.username") { postgres.username }
-            propertyRegistry.add("spring.datasource.password") { postgres.password }
-        }
     }
 
 
@@ -131,6 +84,7 @@ class RideDriverManagementServiceIntegrationTest {
                 expectedStatus = HttpStatus.NOT_FOUND,
                 pathParamName = "id",
                 pathParam = randomId,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -154,6 +108,7 @@ class RideDriverManagementServiceIntegrationTest {
                 expectedStatus = HttpStatus.BAD_REQUEST,
                 pathParamName = "id",
                 pathParam = "4ba65be8-cd97-4d40-aeae-8eb5a71fa50c",
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -177,7 +132,8 @@ class RideDriverManagementServiceIntegrationTest {
                 expectedStatus = HttpStatus.BAD_REQUEST,
                 pathParamName = "id",
                 pathParam = "4ba65be8-cd97-4d40-aeae-8eb5a71fa51c",
-                extractClass = ExceptionInfo::class.java
+                extractClass = ExceptionInfo::class.java,
+                token = userToken,
             )
 
             // Assert
@@ -193,10 +149,10 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 expectedStatus = HttpStatus.OK,
                 pathParamName = "id",
+                token = userToken,
                 pathParam = "4ba65be8-cd97-4d40-aeae-8eb5a71fa52c"
             )
 
-            // No explicit Assert needed for this test case
         }
     }
 
@@ -229,6 +185,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.GET,
                 expectedStatus = HttpStatus.BAD_REQUEST,
                 body = request,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -259,6 +216,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.GET,
                 expectedStatus = HttpStatus.OK,
                 body = request,
+                token = userToken,
                 extractClass = GetAvailableRidesResponse::class.java
             )
 
@@ -289,6 +247,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.GET,
                 expectedStatus = HttpStatus.OK,
                 body = request,
+                token = userToken,
                 extractClass = GetAvailableRidesResponse::class.java
             )
 
@@ -322,6 +281,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 expectedStatus = HttpStatus.NOT_FOUND,
                 body = request,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -349,6 +309,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 expectedStatus = HttpStatus.CONFLICT,
                 body = request,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -372,6 +333,7 @@ class RideDriverManagementServiceIntegrationTest {
                 url = "$DRIVER_MANAGEMENT_CONTROLLER_BASE_URL/accept",
                 method = HttpMethod.POST,
                 expectedStatus = HttpStatus.OK,
+                token = userToken,
                 body = request,
             )
 
@@ -396,6 +358,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 expectedStatus = HttpStatus.NOT_FOUND,
                 body = request,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
 
@@ -456,7 +419,8 @@ class RideDriverManagementServiceIntegrationTest {
                 expectedStatus = HttpStatus.BAD_REQUEST,
                 pathParamName = "id",
                 pathParam = "4ba65be8-cd97-4d40-aeae-8eb5a71fa56c",
-                extractClass = ExceptionInfo::class.java
+                extractClass = ExceptionInfo::class.java,
+                token = userToken,
             )
 
             // Assert
@@ -475,6 +439,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 expectedStatus = HttpStatus.BAD_REQUEST,
                 pathParamName = "id",
+                token = userToken,
                 pathParam = "4ba65be8-cd97-4d40-aeae-8eb5a71fa57c",
                 extractClass = ExceptionInfo::class.java
             )
@@ -492,6 +457,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 expectedStatus = HttpStatus.OK,
                 pathParamName = "id",
+                token = userToken,
                 pathParam = "4ba65be8-cd97-4d40-aeae-8eb5a71fa58c",
             )
         }
@@ -504,6 +470,7 @@ class RideDriverManagementServiceIntegrationTest {
                 expectedStatus = HttpStatus.NOT_FOUND,
                 pathParamName = "id",
                 pathParam = rideId,
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
         }
@@ -574,6 +541,7 @@ class RideDriverManagementServiceIntegrationTest {
                     "pageSize" to 2,
                     "orderBy" to "id"
                 ),
+                token = userToken,
                 extractClass = RidePageResponse::class.java
             )
         }
@@ -591,6 +559,7 @@ class RideDriverManagementServiceIntegrationTest {
                     "pageSize" to 0,
                     "orderBy" to "ids"
                 ),
+                token = userToken,
                 extractClass = ExceptionInfo::class.java
             )
         }
@@ -615,6 +584,7 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 body = ratePassengerRequest,
                 expectedStatus = HttpStatus.OK,
+                token = userToken,
             )
 
         }
@@ -638,7 +608,8 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 body = ratePassengerRequest,
                 expectedStatus = HttpStatus.NOT_FOUND,
-                extractClass = ExceptionInfo::class.java
+                extractClass = ExceptionInfo::class.java,
+                token = userToken,
             )
 
 
@@ -665,7 +636,8 @@ class RideDriverManagementServiceIntegrationTest {
                 method = HttpMethod.POST,
                 body = ratePassengerRequest,
                 expectedStatus = HttpStatus.BAD_REQUEST,
-                extractClass = ExceptionInfo::class.java
+                extractClass = ExceptionInfo::class.java,
+                token = userToken,
             )
 
             // Assert

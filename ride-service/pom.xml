@@ -191,8 +191,7 @@
 			<artifactId>micrometer-tracing</artifactId>
 		</dependency>
 
-
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>

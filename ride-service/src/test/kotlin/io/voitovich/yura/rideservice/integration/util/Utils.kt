@@ -88,10 +88,12 @@ class Utils {
 
 
         fun givenRequest(port: Int,
+                         token: String,
                          pathParam: String? = null,
                          pathParamName: String? = null,
                          params: Map<String, *>? = null): RequestSpecification {
             val temp =  RestAssured.given()
+                .header("Authorization", token)
                 .contentType(ContentType.JSON)
                 .port(port)
             if (pathParam != null && pathParamName != null) {
@@ -135,6 +137,7 @@ class Utils {
         inline fun <reified T> executeRequest(
             port: Int?,
             url: String,
+            token: String,
             method: HttpMethod,
             body: Any? = null,
             expectedStatus: HttpStatus,
@@ -148,13 +151,15 @@ class Utils {
                     port = port!!,
                     pathParam = pathParam,
                     pathParamName = pathParamName,
-                    params = params).body(body)
+                    params = params,
+                    token = token).body(body)
             } else {
                 givenRequest(
                     port = port!!,
                     pathParam = pathParam,
                     pathParamName = pathParamName,
-                    params = params)
+                    params = params,
+                    token = token)
             }
 
             return requestSpecification
@@ -166,6 +171,7 @@ class Utils {
         fun executeRequest(
             port: Int?,
             url: String,
+            token: String,
             method: HttpMethod,
             body: Any? = null,
             expectedStatus: HttpStatus,
@@ -178,13 +184,15 @@ class Utils {
                     port = port!!,
                     pathParam = pathParam,
                     pathParamName = pathParamName,
-                    params = params).body(body)
+                    params = params,
+                    token = token).body(body)
             } else {
                 givenRequest(
                     port = port!!,
                     pathParam = pathParam,
                     pathParamName = pathParamName,
-                    params = params)
+                    params = params,
+                    token = token)
             }
 
             requestSpecification
